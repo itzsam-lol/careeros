@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -82,11 +83,14 @@ function UserFooter() {
           {mode === "dev" ? " · dev" : ""}
         </p>
       </div>
-      {mode === "firebase" ? (
-        <Button variant="ghost" size="icon" onClick={() => void signOut()} aria-label="Sign out">
-          <LogOut className="size-4" />
-        </Button>
-      ) : null}
+      <div className="flex items-center gap-0.5">
+        <ThemeToggle />
+        {mode === "firebase" ? (
+          <Button variant="ghost" size="icon-sm" onClick={() => void signOut()} aria-label="Sign out">
+            <LogOut className="size-4" />
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

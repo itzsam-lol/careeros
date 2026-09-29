@@ -190,9 +190,9 @@
 
 .dark .app-backdrop {
   background:
-    radial-gradient(55rem 38rem at 8% -12%, oklch(0.36 0.12 268 / 0.55), transparent 62%),
-    radial-gradient(48rem 34rem at 100% 0%, oklch(0.34 0.08 200 / 0.4), transparent 60%),
-    radial-gradient(42rem 32rem at 55% 112%, oklch(0.32 0.09 330 / 0.35), transparent 62%),
+    radial-gradient(55rem 38rem at 8% -12%, oklch(0.42 0.16 268 / 0.6), transparent 62%),
+    radial-gradient(48rem 34rem at 100% 0%, oklch(0.4 0.11 200 / 0.45), transparent 60%),
+    radial-gradient(42rem 32rem at 55% 112%, oklch(0.38 0.13 330 / 0.4), transparent 62%),
     var(--background);
 }
 
