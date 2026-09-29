@@ -137,7 +137,7 @@ class Settings(BaseSettings):
     gemini_model_research: str | None = None
     gemini_model_application: str | None = None
     gemini_model_profile_import: str | None = None
-    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_model: str = "gemini-embedding-2"
 
     # --- Email -------------------------------------------------------------------------
     email_provider: Literal["mock", "gmail"] = "mock"

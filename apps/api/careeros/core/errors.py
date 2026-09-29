@@ -13,11 +13,19 @@ from typing import Any, ClassVar
 class CareerOSError(Exception):
     code: ClassVar[str] = "careeros_error"
     http_status: ClassVar[int] = 500
-    retryable: ClassVar[bool] = False
+    retryable: bool = False  # class default; instances may override (e.g. throttling vs denied)
 
-    def __init__(self, message: str | None = None, *, details: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        message: str | None = None,
+        *,
+        details: dict[str, Any] | None = None,
+        retryable: bool | None = None,
+    ):
         self.message = message or self.__class__.__doc__ or self.code
         self.details = details or {}
+        if retryable is not None:
+            self.retryable = retryable
         super().__init__(self.message)
 
 
