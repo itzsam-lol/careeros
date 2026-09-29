@@ -19,6 +19,7 @@ from careeros.api.v1 import router as v1_router
 from careeros.config import Settings, get_settings
 from careeros.container import Container, build_container
 from careeros.core.logging import configure_logging, get_logger
+from careeros.tasks.runtime import load_handlers
 
 log = get_logger(__name__)
 
@@ -26,6 +27,7 @@ log = get_logger(__name__)
 def create_app(settings: Settings | None = None, container: Container | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level, settings.use_json_logs)
+    load_handlers()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
