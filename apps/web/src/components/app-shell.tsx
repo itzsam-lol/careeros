@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notification-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
@@ -85,7 +86,7 @@ function UserFooter() {
       </div>
       <div className="flex items-center gap-0.5">
         <ThemeToggle />
-        {mode === "firebase" ? (
+        {mode !== "dev" ? (
           <Button variant="ghost" size="icon-sm" onClick={() => void signOut()} aria-label="Sign out">
             <LogOut className="size-4" />
           </Button>
@@ -103,7 +104,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 p-3 md:block">
         <div className="glass-strong flex h-full flex-col gap-5 rounded-2xl p-3">
-          <Brand />
+          <div className="flex items-center justify-between">
+            <Brand />
+            <NotificationBell />
+          </div>
           <div className="flex-1 overflow-y-auto">
             <NavLinks />
           </div>
@@ -129,6 +133,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
           <Brand />
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
       </div>

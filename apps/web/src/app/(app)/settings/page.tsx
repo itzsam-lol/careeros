@@ -1,14 +1,19 @@
-import type { Metadata } from "next";
+"use client";
 
-import { EmptyState, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
+import { AccountPanel } from "@/components/settings/account-panel";
+import { MatchingPanel } from "@/components/settings/matching-panel";
+import { SourcesPanel } from "@/components/settings/sources-panel";
 
-export const metadata: Metadata = { title: "Settings" };
-
-export default function Page() {
+export default function SettingsPage() {
   return (
     <>
-      <PageHeader title="Settings" description="Preferences, sources, integrations and limits." />
-      <EmptyState title="Nothing here yet" description="Settings will appear here." />
+      <PageHeader title="Settings" description="Sources, matching thresholds, notifications and your account." />
+      <div className="space-y-10">
+        <SourcesPanel />
+        <MatchingPanel />
+        <AccountPanel />
+      </div>
     </>
   );
 }

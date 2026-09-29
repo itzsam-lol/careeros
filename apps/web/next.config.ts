@@ -1,8 +1,12 @@
+import path from "node:path";
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Standalone output keeps the production image small (see infrastructure/docker/web.Dockerfile).
   output: "standalone",
+  // Trace files from the monorepo root so workspace packages end up in the standalone bundle.
+  outputFileTracingRoot: path.join(__dirname, "../.."),
   // The shared API client ships TypeScript sources.
   transpilePackages: ["@careeros/api-client"],
   typedRoutes: true,
