@@ -1,0 +1,91 @@
+# Local development stack.
+#
+#   docker compose up -d db                  # just Postgres + pgvector (default dev workflow)
+#   docker compose --profile app up --build  # full stack in containers (api, worker, web)
+#   docker compose --profile pubsub up -d    # optional Pub/Sub emulator
+name: careeros
+
+x-api-env: &api-env
+  APP_ENV: development
+  DATABASE_URL: postgresql+asyncpg://careeros:careeros@db:5432/careeros
+  LOCAL_STORAGE_DIR: /data/storage
+  CORS_ORIGINS: http://localhost:3000,http://localhost:8081
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: careeros
+      POSTGRES_PASSWORD: careeros
+      POSTGRES_DB: careeros
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careeros -d careeros"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      <<: *api-env
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn careeros.main:create_app --factory --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      <<: *api-env
+    command: python -m careeros.workers
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: infrastructure/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  pubsub:
+    profiles: ["pubsub"]
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=careeros-local
+    ports:
+      - "8085:8085"
+
+volumes:
+  pgdata:
+  storage:
