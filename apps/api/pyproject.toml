@@ -81,6 +81,7 @@ ignore = [
     "RUF001",  # ambiguous unicode in strings is intentional (resume/typography)
     "RUF002",
     "RUF003",
+    "SIM905",  # word lists read better as split strings
 ]
 
 [tool.ruff.lint.isort]
