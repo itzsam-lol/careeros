@@ -12,3 +12,5 @@ class Principal:
     email: str | None
     name: str | None = None
     email_verified: bool = False
+    # Only for self-hosted password sessions: must equal the user's current session version.
+    session_version: int | None = None

@@ -188,9 +188,33 @@ class GoogleOIDCVerifier:
         return claims
 
 
+class PasswordSessionProvider:
+    """Verifies CareerOS-issued session tokens (self-hosted email + password accounts)."""
+
+    name = "password"
+
+    def __init__(self, settings: Settings) -> None:
+        self._secret = settings.signing_secret.get_secret_value()
+
+    async def verify(self, token: str) -> Principal:
+        from careeros.auth.passwords import decode_session_token
+
+        claims = decode_session_token(token, signing_secret=self._secret)
+        return Principal(
+            provider=self.name,
+            subject=claims.subject,
+            email=claims.email,
+            name=claims.name,
+            email_verified=True,
+            session_version=claims.session_version,
+        )
+
+
 def build_auth_provider(settings: Settings, http: httpx.AsyncClient) -> AuthProvider:
     if settings.auth_mode == "firebase":
         if not settings.firebase_project_id:
             raise ConfigurationError("FIREBASE_PROJECT_ID is required for firebase auth")
         return FirebaseAuthProvider(settings.firebase_project_id, http)
+    if settings.auth_mode == "password":
+        return PasswordSessionProvider(settings)
     return DevAuthProvider(settings)

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from careeros.auth.principal import Principal
 from careeros.core.clock import utcnow
-from careeros.core.errors import ValidationFailedError
+from careeros.core.errors import AuthenticationError, ValidationFailedError
 from careeros.users.models import User
 from careeros.users.schemas import UserSettings, merge_settings
 
@@ -27,6 +27,15 @@ async def get_or_create_user(session: AsyncSession, principal: Principal) -> Use
     )
     user = (await session.execute(lookup)).scalar_one_or_none()
     now = utcnow()
+    if principal.provider == "password":
+        # Password accounts are created explicitly (CLI); a token never creates a user, and a
+        # token minted before a password change / "sign out everywhere" is rejected.
+        if user is None or user.session_version != principal.session_version:
+            raise AuthenticationError("Your session has expired; please sign in again")
+        if user.last_login_at is None or now - user.last_login_at > _LOGIN_TOUCH_INTERVAL:
+            user.last_login_at = now
+            await session.commit()
+        return user
     if user is None:
         # ON CONFLICT makes concurrent first requests from the same user safe.
         await session.execute(

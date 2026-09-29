@@ -68,7 +68,9 @@ class Settings(BaseSettings):
     database_echo: bool = False
 
     # --- Authentication ----------------------------------------------------------------
-    auth_mode: Literal["firebase", "dev"] = "dev"
+    # dev: static token (local only) · password: self-hosted email + password accounts ·
+    # firebase: Firebase ID tokens
+    auth_mode: Literal["firebase", "password", "dev"] = "dev"
     firebase_project_id: str | None = None
     firebase_client_email: str | None = None
     firebase_private_key: SecretStr | None = None
@@ -211,20 +213,23 @@ class Settings(BaseSettings):
             )
         if self.is_deployed:
             problems: list[str] = []
-            if self.auth_mode != "firebase":
-                problems.append("AUTH_MODE must be 'firebase'")
-            if not self.firebase_project_id:
+            if self.auth_mode == "dev":
+                problems.append("AUTH_MODE must be 'password' or 'firebase'")
+            if self.auth_mode == "firebase" and not self.firebase_project_id:
                 problems.append("FIREBASE_PROJECT_ID is required")
             if self.encryption_key is None:
                 problems.append("ENCRYPTION_KEY is required")
             secret = self.signing_secret.get_secret_value()
             if secret == _INSECURE_SIGNING_SECRET or len(secret) < 32:
                 problems.append("SIGNING_SECRET must be a random value of at least 32 characters")
-            if self.internal_auth_mode != "oidc":
-                problems.append("INTERNAL_AUTH_MODE must be 'oidc'")
-            if not self.internal_oidc_audience or not self.internal_oidc_service_account:
+            if self.internal_auth_mode == "oidc":
+                if not self.internal_oidc_audience or not self.internal_oidc_service_account:
+                    problems.append(
+                        "INTERNAL_OIDC_AUDIENCE and INTERNAL_OIDC_SERVICE_ACCOUNT are required"
+                    )
+            elif len(self.internal_api_token.get_secret_value()) < 32:
                 problems.append(
-                    "INTERNAL_OIDC_AUDIENCE and INTERNAL_OIDC_SERVICE_ACCOUNT are required"
+                    "INTERNAL_API_TOKEN must be a random value of at least 32 characters"
                 )
             if "*" in self.cors_origins:
                 problems.append("CORS_ORIGINS must not contain '*'")

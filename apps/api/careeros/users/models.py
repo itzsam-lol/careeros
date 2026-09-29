@@ -22,3 +22,7 @@ class User(UUIDPrimaryKey, Timestamped, Base):
         default=dict, server_default=text("'{}'::jsonb")
     )
     last_login_at: Mapped[datetime | None]
+    # Self-hosted password accounts only (never set for Firebase users).
+    password_hash: Mapped[str | None] = mapped_column(String(300))
+    # Bumped on password change / "sign out everywhere": invalidates older session tokens.
+    session_version: Mapped[int] = mapped_column(default=0, server_default="0")

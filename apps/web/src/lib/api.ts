@@ -17,7 +17,8 @@ export function useApi(): ApiClient {
       createApiClient({
         baseUrl: env.apiBaseUrl,
         getToken,
-        onUnauthorized: mode === "firebase" ? () => void signOut() : undefined,
+        // An expired or revoked session returns the user to the sign-in screen.
+        onUnauthorized: mode !== "dev" ? () => void signOut() : undefined,
       }),
     [getToken, signOut, mode],
   );
