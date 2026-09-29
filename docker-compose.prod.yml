@@ -1,0 +1,104 @@
+# Production stack for a single VM:  docker compose -f docker-compose.prod.yml up -d --build
+#
+#   https://$DOMAIN        -> web  (Next.js)
+#   https://$DOMAIN:8443   -> api  (FastAPI)
+#
+# Caddy obtains and renews Let's Encrypt certificates automatically. Postgres is never exposed.
+# Secrets live in .env.production on the VM (never committed).
+name: careeros
+
+x-app-env: &app-env
+  env_file:
+    - .env.production
+  environment:
+    APP_ENV: production
+    DATABASE_URL: postgresql+asyncpg://careeros:${POSTGRES_PASSWORD}@db:5432/careeros
+    LOCAL_STORAGE_DIR: /data/storage
+    CORS_ORIGINS: https://${DOMAIN}
+    API_BASE_URL: https://${DOMAIN}:8443
+    WEB_BASE_URL: https://${DOMAIN}
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: careeros
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: careeros
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careeros -d careeros"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    shm_size: 256mb
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    image: careeros-api:latest
+    restart: unless-stopped
+    <<: *app-env
+    # One async process: the in-memory rate limiter (login throttling) stays exact.
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn careeros.main:create_app --factory --host 0.0.0.0 --port 8000
+             --proxy-headers --forwarded-allow-ips '*'"
+    volumes:
+      - storage:/data/storage
+      - tectonic-cache:/home/app/.cache
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    image: careeros-api:latest
+    restart: unless-stopped
+    <<: *app-env
+    command: python -m careeros.workers
+    volumes:
+      - storage:/data/storage
+      - tectonic-cache:/home/app/.cache
+    depends_on:
+      api:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: https://${DOMAIN}:8443
+        NEXT_PUBLIC_AUTH_MODE: password
+    image: careeros-web:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ./infrastructure/vm/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+      - api
+
+volumes:
+  pgdata:
+  storage:
+  tectonic-cache:
+  caddy-data:
+  caddy-config:

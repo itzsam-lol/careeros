@@ -1,0 +1,33 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		protocols h1 h2 h3
+	}
+}
+
+(hardening) {
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	encode zstd gzip
+}
+
+# Web app
+{$DOMAIN} {
+	import hardening
+	reverse_proxy web:3000
+}
+
+# API (separate port, same certificate)
+{$DOMAIN}:8443 {
+	import hardening
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy api:8000 {
+		header_up X-Forwarded-Proto https
+	}
+}
