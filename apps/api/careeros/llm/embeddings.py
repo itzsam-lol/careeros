@@ -59,7 +59,7 @@ class HashingEmbedder:
     dimensions = EMBEDDING_DIM
     # Typical cosine range for related vs unrelated texts under this model.
     _floor = 0.04
-    _ceiling = 0.42
+    _ceiling = 0.32
 
     def __init__(self, dimensions: int = EMBEDDING_DIM) -> None:
         self.dimensions = dimensions
