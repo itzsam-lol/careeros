@@ -116,6 +116,21 @@ def build_match_profile(snapshot: ProfileSnapshot, *, today: date) -> MatchProfi
         from_item(f"research:{r.title[:40]}", r.verification_status, r.technologies,
                   [r.description or "", *r.methods, *r.outcomes, r.title])  # fmt: skip
 
+    # Coursework and the user's own (verified) summary are weaker evidence than hands-on work.
+    def from_text(label: str, status: VerificationStatus, texts: list[str], factor: float) -> None:
+        base = STATUS_WEIGHT.get(status)
+        if not base:
+            return
+        verified = status == VerificationStatus.VERIFIED
+        for name in extract_skill_names(" ".join(texts)):
+            _add_skill(skills, name, factor * base, label, verified)
+
+    for e in snapshot.education:
+        from_text(f"education:{e.institution}", e.verification_status,
+                  [*e.coursework, *e.honors, e.description or "", e.field or ""], 0.8)  # fmt: skip
+    from_text("profile summary", profile.basics_status,
+              [profile.summary or "", profile.headline or "", profile.current_role or ""], 0.75)  # fmt: skip
+
     usable_education = [e for e in snapshot.education if e.verification_status in STATUS_WEIGHT]
     highest: DegreeLevel | None = None
     pursuing: DegreeLevel | None = None

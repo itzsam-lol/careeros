@@ -208,7 +208,14 @@ SKILLS: tuple[SkillDef, ...] = (
     S("Reinforcement Learning", AI, "RL", "deep reinforcement learning"),
     S("Large Language Models", AI, "llm", "llms", "large language model", "foundation models"),
     S("Generative AI", AI, "genai", "gen ai", "generative models"),
-    S("Retrieval-Augmented Generation", AI, "RAG", "retrieval augmented generation"),
+    S(
+        "Retrieval-Augmented Generation",
+        AI,
+        "RAG",
+        "retrieval augmented generation",
+        "retrieval-augmented",
+        "retrieval augmented",
+    ),
     S("Prompt Engineering", AI, "prompting"),
     S(
         "Transformers",

@@ -201,6 +201,39 @@ def _technical(names: list[str]) -> list[str]:
     return result
 
 
+_LEGAL_SUFFIX = re.compile(
+    r"[\s,]+(inc|llc|ltd|limited|pvt|private|corp|corporation|co|gmbh|plc)\.?$", re.IGNORECASE
+)
+
+
+def _mask_company(
+    sections: list[tuple[SectionKind, list[str]]], company: str
+) -> list[tuple[SectionKind, list[str]]]:
+    """Blank out the hiring company's own name so it is never read as a skill."""
+    names = {company.strip()}
+    stripped = company.strip()
+    while True:
+        shorter = _LEGAL_SUFFIX.sub("", stripped).strip()
+        if shorter == stripped or not shorter:
+            break
+        names.add(shorter)
+        stripped = shorter
+    patterns = [
+        re.compile(rf"(?<!\w){re.escape(n)}(?!\w)", re.IGNORECASE) for n in names if len(n) >= 2
+    ]
+    if not patterns:
+        return sections
+    masked: list[tuple[SectionKind, list[str]]] = []
+    for kind, lines in sections:
+        new_lines = []
+        for line in lines:
+            for pattern in patterns:
+                line = pattern.sub(" the company ", line)
+            new_lines.append(line)
+        masked.append((kind, new_lines))
+    return masked
+
+
 def _split_skills(sections: list[tuple[SectionKind, list[str]]]) -> tuple[list[str], list[str]]:
     required: dict[str, None] = {}
     preferred: dict[str, None] = {}
@@ -361,7 +394,8 @@ def heuristic_extract(
 ) -> JobExtraction:
     description, injections = split_injections(description)
     sections = split_sections(description)
-    required_skills, preferred_skills = _split_skills(sections)
+    # Company names are not requirements: "Nimbus AI" must not add "Artificial Intelligence".
+    required_skills, preferred_skills = _split_skills(_mask_company(sections, company))
     required_lines = [
         s for k, lines in sections if k in ("required", "intro") for s in _sentences(lines)
     ]

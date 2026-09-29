@@ -155,3 +155,15 @@ def test_explicit_sponsorship_denial_beats_the_model() -> None:
     base = _job("stellar-ml-intern-us")
     llm = LLMExtraction(sponsorship=Sponsorship.AVAILABLE)
     assert merge_llm(base, llm, "unable to sponsor").sponsorship == Sponsorship.NOT_AVAILABLE
+
+
+def test_company_name_is_not_a_skill() -> None:
+    ex = _job("nimbus-ml-intern")  # "Nimbus AI builds document understanding models..."
+    assert "Artificial Intelligence" not in ex.required_skills
+    assert "Artificial Intelligence" not in ex.preferred_skills
+
+
+def test_retrieval_augmented_is_recognised_as_rag() -> None:
+    from careeros.intelligence.skills import extract_skill_names
+
+    assert "Retrieval-Augmented Generation" in extract_skill_names("A retrieval-augmented chatbot")
