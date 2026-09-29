@@ -73,6 +73,23 @@ export interface paths {
         patch: operations["patch_settings_api_v1_me_settings_patch"];
         trace?: never;
     };
+    "/api/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live counts and highlights */
+        get: operations["get_dashboard_api_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile": {
         parameters: {
             query?: never;
@@ -722,6 +739,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your opportunity inbox */
+        get: operations["list_jobs_api_v1_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Job */
+        get: operations["get_job_api_v1_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Save Job */
+        post: operations["save_job_api_v1_jobs__job_id__save_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dismiss Job */
+        post: operations["dismiss_job_api_v1_jobs__job_id__dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Job */
+        post: operations["restore_job_api_v1_jobs__job_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set Note */
+        put: operations["set_note_api_v1_jobs__job_id__note_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/rematch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rematch Job */
+        post: operations["rematch_job_api_v1_jobs__job_id__rematch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Notifications */
+        get: operations["list_notifications_api_v1_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Unread Count */
+        get: operations["get_unread_count_api_v1_notifications_unread_count_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark some (or all) notifications read */
+        post: operations["mark_read_api_v1_notifications_read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tasks": {
         parameters: {
             query?: never;
@@ -876,6 +1063,11 @@ export interface components {
          * @enum {string}
          */
         AnswerCategory: "WORK_AUTHORIZATION" | "SPONSORSHIP" | "RELOCATION" | "SALARY" | "AVAILABILITY" | "MOTIVATION" | "EXPERIENCE" | "DEMOGRAPHIC" | "OTHER";
+        /**
+         * ApplicationPlatform
+         * @enum {string}
+         */
+        ApplicationPlatform: "GREENHOUSE" | "LEVER" | "ASHBY" | "WORKDAY" | "SMARTRECRUITERS" | "GOOGLE_FORMS" | "WORKABLE" | "ICIMS" | "TALEO" | "LINKEDIN" | "EMAIL" | "GENERIC" | "UNKNOWN";
         /** BulkVerificationRequest */
         BulkVerificationRequest: {
             /** Section */
@@ -958,16 +1150,59 @@ export interface components {
             /** Done */
             done: boolean;
         };
+        /** CompanyOut */
+        CompanyOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Website */
+            website: string | null;
+            /** Industry */
+            industry: string | null;
+            /** Description */
+            description: string | null;
+        };
         /**
          * CompensationPeriod
          * @enum {string}
          */
         CompensationPeriod: "YEAR" | "MONTH" | "WEEK" | "HOUR";
+        /** DashboardOut */
+        DashboardOut: {
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Top Matches */
+            top_matches: components["schemas"]["JobCard"][];
+            /** Upcoming Deadlines */
+            upcoming_deadlines: components["schemas"]["JobCard"][];
+            /** Notifications */
+            notifications: components["schemas"]["NotificationOut"][];
+            /** Recent Activity */
+            recent_activity: components["schemas"]["EventOut"][];
+            sources: components["schemas"]["SourceHealth"];
+            profile: components["schemas"]["ProfileHealth"];
+        };
+        /**
+         * DegreeLevel
+         * @enum {string}
+         */
+        DegreeLevel: "DIPLOMA" | "BACHELOR" | "MASTER" | "PHD";
         /**
          * DiscoveryCadence
          * @enum {string}
          */
         DiscoveryCadence: "MANUAL" | "EVERY_15_MIN" | "EVERY_30_MIN" | "HOURLY" | "EVERY_6_HOURS" | "DAILY";
+        /** DismissRequest */
+        DismissRequest: {
+            /** Reason */
+            reason?: string | null;
+        };
         /** EducationIn */
         EducationIn: {
             /** Institution */
@@ -1046,6 +1281,17 @@ export interface components {
             coursework: string[];
             /** Honors */
             honors: string[];
+        };
+        /** EligibilityOut */
+        EligibilityOut: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Status */
+            status: string;
+            /** Detail */
+            detail: string;
         };
         /**
          * EmploymentType
@@ -1244,12 +1490,247 @@ export interface components {
          * @enum {string}
          */
         ItemSource: "MANUAL" | "RESUME_IMPORT" | "JSON_IMPORT" | "AGENT";
+        /** JobCard */
+        JobCard: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Title */
+            title: string;
+            /** Company */
+            company: string;
+            /** Company Id */
+            company_id: string | null;
+            /** Location */
+            location: string | null;
+            /** Countries */
+            countries: string[];
+            remote_type: components["schemas"]["RemoteType"];
+            employment_type: components["schemas"]["EmploymentType"] | null;
+            seniority: components["schemas"]["SeniorityLevel"];
+            /** Posted At */
+            posted_at: string | null;
+            /** Deadline */
+            deadline: string | null;
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            application_platform: components["schemas"]["ApplicationPlatform"];
+            /** Application Url */
+            application_url: string | null;
+            /** Is Active */
+            is_active: boolean;
+            status: components["schemas"]["JobLifecycle"];
+            salary: components["schemas"]["Salary"] | null;
+            /** Source Name */
+            source_name: string | null;
+            match: components["schemas"]["MatchSummary"] | null;
+        };
+        /** JobDetail */
+        JobDetail: {
+            card: components["schemas"]["JobCard"];
+            /** Description */
+            description: string;
+            /** Department */
+            department: string | null;
+            /** Canonical Url */
+            canonical_url: string | null;
+            analysis: components["schemas"]["JobExtraction"] | null;
+            /** Analysis Extractor */
+            analysis_extractor: string | null;
+            match: components["schemas"]["MatchDetail"] | null;
+            /** Sources */
+            sources: components["schemas"]["SourceLinkOut"][];
+            company: components["schemas"]["CompanyOut"] | null;
+            /** Note */
+            note: string | null;
+            /** Dismiss Reason */
+            dismiss_reason: string | null;
+        };
+        /**
+         * JobDomain
+         * @enum {string}
+         */
+        JobDomain: "ML_AI" | "RESEARCH" | "BACKEND" | "FRONTEND" | "FULL_STACK" | "DATA" | "DEVOPS" | "SECURITY" | "MOBILE" | "EMBEDDED" | "PRODUCT" | "DESIGN" | "OTHER";
+        /** JobExtraction */
+        JobExtraction: {
+            /** Role Title */
+            role_title: string;
+            /** Company */
+            company: string;
+            employment_type?: components["schemas"]["EmploymentType"] | null;
+            /** @default UNKNOWN */
+            seniority: components["schemas"]["SeniorityLevel"];
+            /** @default OTHER */
+            domain: components["schemas"]["JobDomain"];
+            /**
+             * Is Research
+             * @default false
+             */
+            is_research: boolean;
+            /** Locations */
+            locations?: string[];
+            /** @default UNKNOWN */
+            remote_type: components["schemas"]["RemoteType"];
+            /** Required Skills */
+            required_skills?: string[];
+            /** Preferred Skills */
+            preferred_skills?: string[];
+            /** Required Experience */
+            required_experience?: string[];
+            /** Min Years Experience */
+            min_years_experience?: number | null;
+            /** Education Requirements */
+            education_requirements?: string[];
+            /** Degree Levels */
+            degree_levels?: components["schemas"]["DegreeLevel"][];
+            /**
+             * Requires Current Student
+             * @default false
+             */
+            requires_current_student: boolean;
+            /** Graduation Years */
+            graduation_years?: number[];
+            /** Responsibilities */
+            responsibilities?: string[];
+            /** Nice To Have */
+            nice_to_have?: string[];
+            /** Visa Information */
+            visa_information?: string | null;
+            /** @default UNKNOWN */
+            sponsorship: components["schemas"]["Sponsorship"];
+            /** Work Authorization Countries */
+            work_authorization_countries?: string[];
+            /** Deadline */
+            deadline?: string | null;
+            salary?: components["schemas"]["SalaryInfo"] | null;
+            /**
+             * Application Platform
+             * @default UNKNOWN
+             */
+            application_platform: string;
+            /** Keywords */
+            keywords?: string[];
+            /**
+             * Injection Detected
+             * @default false
+             */
+            injection_detected: boolean;
+            /** Injection Snippets */
+            injection_snippets?: string[];
+        };
+        /**
+         * JobLifecycle
+         * @description Per-user job lifecycle (spec §77). Kept separate from application/outreach states.
+         * @enum {string}
+         */
+        JobLifecycle: "DISCOVERED" | "ANALYZED" | "MATCHED" | "NOTIFIED" | "SAVED" | "DISMISSED" | "CLOSED";
+        /** JobList */
+        JobList: {
+            /** Items */
+            items: components["schemas"]["JobCard"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * JobSort
+         * @enum {string}
+         */
+        JobSort: "SCORE" | "RECENT" | "DEADLINE";
+        /**
+         * JobView
+         * @enum {string}
+         */
+        JobView: "ALL" | "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "DISMISSED" | "CLOSED";
         /** Link */
         Link: {
             /** Label */
             label: string;
             /** Url */
             url: string;
+        };
+        /** MarkRead */
+        MarkRead: {
+            /** Ids */
+            ids?: string[] | null;
+        };
+        /** MatchDetail */
+        MatchDetail: {
+            /** Overall Score */
+            overall_score: number;
+            /** Eligible */
+            eligible: boolean;
+            /** Label */
+            label: string;
+            /** Reasoning */
+            reasoning: string;
+            /** Dimensions */
+            dimensions: {
+                [key: string]: number;
+            };
+            /** Top Strengths */
+            top_strengths: string[];
+            /** Top Gaps */
+            top_gaps: string[];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Eligibility */
+            eligibility: components["schemas"]["EligibilityOut"][];
+            /** Strengths */
+            strengths: {
+                [key: string]: unknown;
+            }[];
+            /** Gaps */
+            gaps: {
+                [key: string]: unknown;
+            }[];
+            /** Concerns */
+            concerns: string[];
+            /** Requirement Coverage */
+            requirement_coverage: {
+                [key: string]: unknown;
+            }[];
+            /** Evidence */
+            evidence: {
+                [key: string]: unknown;
+            }[];
+            /** Profile Version */
+            profile_version: number;
+            /** Scorer */
+            scorer: string;
+            /** Stale */
+            stale: boolean;
+        };
+        /** MatchSummary */
+        MatchSummary: {
+            /** Overall Score */
+            overall_score: number;
+            /** Eligible */
+            eligible: boolean;
+            /** Label */
+            label: string;
+            /** Reasoning */
+            reasoning: string;
+            /** Dimensions */
+            dimensions: {
+                [key: string]: number;
+            };
+            /** Top Strengths */
+            top_strengths: string[];
+            /** Top Gaps */
+            top_gaps: string[];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** MatchingSettings */
         MatchingSettings: {
@@ -1289,6 +1770,49 @@ export interface components {
              */
             has_profile: boolean;
         };
+        /** NoteRequest */
+        NoteRequest: {
+            /** Note */
+            note?: string | null;
+        };
+        /** NotificationOut */
+        NotificationOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            type: components["schemas"]["NotificationType"];
+            priority: components["schemas"]["NotificationPriority"];
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Application Id */
+            application_id: string | null;
+            /** Outreach Id */
+            outreach_id: string | null;
+            /** Action Url */
+            action_url: string | null;
+            /** Data */
+            data: {
+                [key: string]: unknown;
+            };
+            /** Read */
+            read: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * NotificationPriority
+         * @enum {string}
+         */
+        NotificationPriority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
         /** NotificationSettings */
         NotificationSettings: {
             /**
@@ -1302,6 +1826,11 @@ export interface components {
              */
             deadline_warning_hours: number;
         };
+        /**
+         * NotificationType
+         * @enum {string}
+         */
+        NotificationType: "NEW_JOB" | "HIGH_MATCH" | "DEADLINE_SOON" | "RESUME_READY" | "APPLICATION_READY" | "APPLICATION_NEEDS_INPUT" | "CONTACT_FOUND" | "OUTREACH_RECOMMENDED" | "OUTREACH_APPROVAL_REQUIRED" | "REPLY_RECEIVED" | "FOLLOW_UP_DUE" | "INTERVIEW" | "SOURCE_FAILING";
         /**
          * OutreachLimits
          * @description Conservative defaults that protect the user from accidental spam (spec §87).
@@ -1481,6 +2010,13 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** ProfileHealth */
+        ProfileHealth: {
+            /** Completeness */
+            completeness: number;
+            /** Unverified Items */
+            unverified_items: number;
         };
         /** ProfileImport */
         ProfileImport: {
@@ -1690,6 +2226,11 @@ export interface components {
          * @enum {string}
          */
         RemotePreference: "REMOTE" | "HYBRID" | "ONSITE" | "ANY";
+        /**
+         * RemoteType
+         * @enum {string}
+         */
+        RemoteType: "REMOTE" | "HYBRID" | "ONSITE" | "UNKNOWN";
         /** ResearchIn */
         ResearchIn: {
             /** Organization */
@@ -1846,6 +2387,33 @@ export interface components {
              */
             task_id: string;
         };
+        /** Salary */
+        Salary: {
+            /** Minimum */
+            minimum: number | null;
+            /** Maximum */
+            maximum: number | null;
+            /** Currency */
+            currency: string | null;
+            period: components["schemas"]["CompensationPeriod"] | null;
+        };
+        /** SalaryInfo */
+        SalaryInfo: {
+            /** Minimum */
+            minimum?: number | null;
+            /** Maximum */
+            maximum?: number | null;
+            /** Currency */
+            currency?: string | null;
+            period?: components["schemas"]["CompensationPeriod"] | null;
+            /** Text */
+            text?: string | null;
+        };
+        /**
+         * SeniorityLevel
+         * @enum {string}
+         */
+        SeniorityLevel: "INTERN" | "ENTRY" | "MID" | "SENIOR" | "LEAD" | "MANAGER" | "UNKNOWN";
         /**
          * SkillCategory
          * @enum {string}
@@ -1902,6 +2470,15 @@ export interface components {
          * @enum {string}
          */
         SkillProficiency: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+        /** SourceHealth */
+        SourceHealth: {
+            /** Total */
+            total: number;
+            /** Enabled */
+            enabled: number;
+            /** Failing */
+            failing: number;
+        };
         /** SourceIn */
         SourceIn: {
             /** Name */
@@ -1918,6 +2495,27 @@ export interface components {
              * @default true
              */
             enabled: boolean;
+        };
+        /** SourceLinkOut */
+        SourceLinkOut: {
+            /** Source Type */
+            source_type: string;
+            /** Source Name */
+            source_name: string | null;
+            /** Url */
+            url: string | null;
+            /** Active */
+            active: boolean;
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
         };
         /** SourceOut */
         SourceOut: {
@@ -1987,6 +2585,11 @@ export interface components {
             enabled?: boolean | null;
         };
         /**
+         * Sponsorship
+         * @enum {string}
+         */
+        Sponsorship: "AVAILABLE" | "NOT_AVAILABLE" | "UNKNOWN";
+        /**
          * SponsorshipRequirement
          * @enum {string}
          */
@@ -2041,6 +2644,11 @@ export interface components {
          * @enum {string}
          */
         TaskType: "RUN_DISCOVERY" | "ANALYZE_JOB" | "MATCH_JOB" | "INDEX_PROFILE" | "GENERATE_RESUME" | "RESEARCH_COMPANY" | "DISCOVER_CONTACTS" | "DRAFT_OUTREACH" | "SEND_OUTREACH" | "CHECK_OUTREACH" | "CHECK_DEADLINES" | "PREPARE_APPLICATION" | "SUBMIT_APPLICATION";
+        /** UnreadCount */
+        UnreadCount: {
+            /** Unread */
+            unread: number;
+        };
         /** UserSettings */
         UserSettings: {
             /**
@@ -2198,6 +2806,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_api_v1_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
         };
@@ -3912,6 +4540,322 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunQueued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_jobs_api_v1_jobs_get: {
+        parameters: {
+            query?: {
+                view?: components["schemas"]["JobView"];
+                sort?: components["schemas"]["JobSort"];
+                q?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_job_api_v1_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_job_api_v1_jobs__job_id__save_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dismiss_job_api_v1_jobs__job_id__dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DismissRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_job_api_v1_jobs__job_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_note_api_v1_jobs__job_id__note_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rematch_job_api_v1_jobs__job_id__rematch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_notifications_get: {
+        parameters: {
+            query?: {
+                unread_only?: boolean;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_unread_count_api_v1_notifications_unread_count_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCount"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_notifications_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkRead"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCount"];
                 };
             };
             /** @description Validation Error */

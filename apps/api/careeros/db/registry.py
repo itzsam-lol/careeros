@@ -8,8 +8,11 @@ from careeros.db.base import Base
 from careeros.discovery import models as discovery_models
 from careeros.events import models as event_models
 from careeros.evidence import models as evidence_models
+from careeros.intelligence import models as intelligence_models
 from careeros.jobs import models as job_models
 from careeros.llm import models as llm_models
+from careeros.matching import models as matching_models
+from careeros.notifications import models as notification_models
 from careeros.profile import models as profile_models
 from careeros.tasks import models as task_models
 from careeros.users import models as user_models
@@ -22,9 +25,12 @@ __all__ = [
     "discovery_models",
     "event_models",
     "evidence_models",
+    "intelligence_models",
     "job_models",
     "llm_models",
+    "matching_models",
     "metadata",
+    "notification_models",
     "profile_models",
     "task_models",
     "user_models",

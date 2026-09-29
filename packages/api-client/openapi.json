@@ -154,6 +154,32 @@
         ]
       }
     },
+    "/api/v1/dashboard": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Live counts and highlights",
+        "operationId": "get_dashboard_api_v1_dashboard_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/profile": {
       "get": {
         "tags": [
@@ -2769,6 +2795,551 @@
         }
       }
     },
+    "/api/v1/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Your opportunity inbox",
+        "operationId": "list_jobs_api_v1_jobs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/JobView",
+              "default": "ALL"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/JobSort",
+              "default": "SCORE"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobList"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Job",
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/save": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Save Job",
+        "operationId": "save_job_api_v1_jobs__job_id__save_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/dismiss": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Dismiss Job",
+        "operationId": "dismiss_job_api_v1_jobs__job_id__dismiss_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DismissRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/restore": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Restore Job",
+        "operationId": "restore_job_api_v1_jobs__job_id__restore_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/note": {
+      "put": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Set Note",
+        "operationId": "set_note_api_v1_jobs__job_id__note_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/rematch": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Rematch Job",
+        "operationId": "rematch_job_api_v1_jobs__job_id__rematch_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Rematch Job Api V1 Jobs  Job Id  Rematch Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "List Notifications",
+        "operationId": "list_notifications_api_v1_notifications_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "unread_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Unread Only"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationOut"
+                  },
+                  "title": "Response List Notifications Api V1 Notifications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Get Unread Count",
+        "operationId": "get_unread_count_api_v1_notifications_unread_count_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCount"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/read": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Mark some (or all) notifications read",
+        "operationId": "mark_read_api_v1_notifications_read_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkRead"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCount"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/tasks": {
       "get": {
         "tags": [
@@ -3269,6 +3840,25 @@
         ],
         "title": "AnswerCategory"
       },
+      "ApplicationPlatform": {
+        "type": "string",
+        "enum": [
+          "GREENHOUSE",
+          "LEVER",
+          "ASHBY",
+          "WORKDAY",
+          "SMARTRECRUITERS",
+          "GOOGLE_FORMS",
+          "WORKABLE",
+          "ICIMS",
+          "TALEO",
+          "LINKEDIN",
+          "EMAIL",
+          "GENERIC",
+          "UNKNOWN"
+        ],
+        "title": "ApplicationPlatform"
+      },
       "BulkVerificationRequest": {
         "properties": {
           "section": {
@@ -3534,6 +4124,61 @@
         ],
         "title": "ChecklistItem"
       },
+      "CompanyOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "website",
+          "industry",
+          "description"
+        ],
+        "title": "CompanyOut"
+      },
       "CompensationPeriod": {
         "type": "string",
         "enum": [
@@ -3543,6 +4188,72 @@
           "HOUR"
         ],
         "title": "CompensationPeriod"
+      },
+      "DashboardOut": {
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "top_matches": {
+            "items": {
+              "$ref": "#/components/schemas/JobCard"
+            },
+            "type": "array",
+            "title": "Top Matches"
+          },
+          "upcoming_deadlines": {
+            "items": {
+              "$ref": "#/components/schemas/JobCard"
+            },
+            "type": "array",
+            "title": "Upcoming Deadlines"
+          },
+          "notifications": {
+            "items": {
+              "$ref": "#/components/schemas/NotificationOut"
+            },
+            "type": "array",
+            "title": "Notifications"
+          },
+          "recent_activity": {
+            "items": {
+              "$ref": "#/components/schemas/EventOut"
+            },
+            "type": "array",
+            "title": "Recent Activity"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/SourceHealth"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileHealth"
+          }
+        },
+        "type": "object",
+        "required": [
+          "counts",
+          "top_matches",
+          "upcoming_deadlines",
+          "notifications",
+          "recent_activity",
+          "sources",
+          "profile"
+        ],
+        "title": "DashboardOut"
+      },
+      "DegreeLevel": {
+        "type": "string",
+        "enum": [
+          "DIPLOMA",
+          "BACHELOR",
+          "MASTER",
+          "PHD"
+        ],
+        "title": "DegreeLevel"
       },
       "DiscoveryCadence": {
         "type": "string",
@@ -3555,6 +4266,24 @@
           "DAILY"
         ],
         "title": "DiscoveryCadence"
+      },
+      "DismissRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "title": "DismissRequest"
       },
       "EducationIn": {
         "properties": {
@@ -3839,6 +4568,34 @@
           "honors"
         ],
         "title": "EducationOut"
+      },
+      "EligibilityOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "status",
+          "detail"
+        ],
+        "title": "EligibilityOut"
       },
       "EmploymentType": {
         "type": "string",
@@ -4428,6 +5185,559 @@
         ],
         "title": "ItemSource"
       },
+      "JobCard": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company"
+          },
+          "company_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Id"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Countries"
+          },
+          "remote_type": {
+            "$ref": "#/components/schemas/RemoteType"
+          },
+          "employment_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmploymentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "seniority": {
+            "$ref": "#/components/schemas/SeniorityLevel"
+          },
+          "posted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posted At"
+          },
+          "deadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "application_platform": {
+            "$ref": "#/components/schemas/ApplicationPlatform"
+          },
+          "application_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Url"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobLifecycle"
+          },
+          "salary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Salary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "match": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "title",
+          "company",
+          "company_id",
+          "location",
+          "countries",
+          "remote_type",
+          "employment_type",
+          "seniority",
+          "posted_at",
+          "deadline",
+          "first_seen_at",
+          "application_platform",
+          "application_url",
+          "is_active",
+          "status",
+          "salary",
+          "source_name",
+          "match"
+        ],
+        "title": "JobCard"
+      },
+      "JobDetail": {
+        "properties": {
+          "card": {
+            "$ref": "#/components/schemas/JobCard"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "canonical_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Url"
+          },
+          "analysis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobExtraction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analysis_extractor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Extractor"
+          },
+          "match": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceLinkOut"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanyOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "dismiss_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismiss Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "card",
+          "description",
+          "department",
+          "canonical_url",
+          "analysis",
+          "analysis_extractor",
+          "match",
+          "sources",
+          "company",
+          "note",
+          "dismiss_reason"
+        ],
+        "title": "JobDetail"
+      },
+      "JobDomain": {
+        "type": "string",
+        "enum": [
+          "ML_AI",
+          "RESEARCH",
+          "BACKEND",
+          "FRONTEND",
+          "FULL_STACK",
+          "DATA",
+          "DEVOPS",
+          "SECURITY",
+          "MOBILE",
+          "EMBEDDED",
+          "PRODUCT",
+          "DESIGN",
+          "OTHER"
+        ],
+        "title": "JobDomain"
+      },
+      "JobExtraction": {
+        "properties": {
+          "role_title": {
+            "type": "string",
+            "title": "Role Title"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company"
+          },
+          "employment_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmploymentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "seniority": {
+            "$ref": "#/components/schemas/SeniorityLevel",
+            "default": "UNKNOWN"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/JobDomain",
+            "default": "OTHER"
+          },
+          "is_research": {
+            "type": "boolean",
+            "title": "Is Research",
+            "default": false
+          },
+          "locations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Locations"
+          },
+          "remote_type": {
+            "$ref": "#/components/schemas/RemoteType",
+            "default": "UNKNOWN"
+          },
+          "required_skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Required Skills"
+          },
+          "preferred_skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Skills"
+          },
+          "required_experience": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Required Experience"
+          },
+          "min_years_experience": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Years Experience"
+          },
+          "education_requirements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Education Requirements"
+          },
+          "degree_levels": {
+            "items": {
+              "$ref": "#/components/schemas/DegreeLevel"
+            },
+            "type": "array",
+            "title": "Degree Levels"
+          },
+          "requires_current_student": {
+            "type": "boolean",
+            "title": "Requires Current Student",
+            "default": false
+          },
+          "graduation_years": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Graduation Years"
+          },
+          "responsibilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Responsibilities"
+          },
+          "nice_to_have": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Nice To Have"
+          },
+          "visa_information": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visa Information"
+          },
+          "sponsorship": {
+            "$ref": "#/components/schemas/Sponsorship",
+            "default": "UNKNOWN"
+          },
+          "work_authorization_countries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Work Authorization Countries"
+          },
+          "deadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline"
+          },
+          "salary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalaryInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "application_platform": {
+            "type": "string",
+            "title": "Application Platform",
+            "default": "UNKNOWN"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          },
+          "injection_detected": {
+            "type": "boolean",
+            "title": "Injection Detected",
+            "default": false
+          },
+          "injection_snippets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Injection Snippets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role_title",
+          "company"
+        ],
+        "title": "JobExtraction"
+      },
+      "JobLifecycle": {
+        "type": "string",
+        "enum": [
+          "DISCOVERED",
+          "ANALYZED",
+          "MATCHED",
+          "NOTIFIED",
+          "SAVED",
+          "DISMISSED",
+          "CLOSED"
+        ],
+        "title": "JobLifecycle",
+        "description": "Per-user job lifecycle (spec \u00a777). Kept separate from application/outreach states."
+      },
+      "JobList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/JobCard"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "JobList"
+      },
+      "JobSort": {
+        "type": "string",
+        "enum": [
+          "SCORE",
+          "RECENT",
+          "DEADLINE"
+        ],
+        "title": "JobSort"
+      },
+      "JobView": {
+        "type": "string",
+        "enum": [
+          "ALL",
+          "NEW",
+          "HIGH_MATCH",
+          "DEADLINE_SOON",
+          "SAVED",
+          "DISMISSED",
+          "CLOSED"
+        ],
+        "title": "JobView"
+      },
       "Link": {
         "properties": {
           "label": {
@@ -4449,6 +5759,211 @@
           "url"
         ],
         "title": "Link"
+      },
+      "MarkRead": {
+        "properties": {
+          "ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array",
+                "maxItems": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ids"
+          }
+        },
+        "type": "object",
+        "title": "MarkRead"
+      },
+      "MatchDetail": {
+        "properties": {
+          "overall_score": {
+            "type": "number",
+            "title": "Overall Score"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "reasoning": {
+            "type": "string",
+            "title": "Reasoning"
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Dimensions"
+          },
+          "top_strengths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Strengths"
+          },
+          "top_gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Gaps"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "eligibility": {
+            "items": {
+              "$ref": "#/components/schemas/EligibilityOut"
+            },
+            "type": "array",
+            "title": "Eligibility"
+          },
+          "strengths": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "gaps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Gaps"
+          },
+          "concerns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Concerns"
+          },
+          "requirement_coverage": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Requirement Coverage"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "profile_version": {
+            "type": "integer",
+            "title": "Profile Version"
+          },
+          "scorer": {
+            "type": "string",
+            "title": "Scorer"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_score",
+          "eligible",
+          "label",
+          "reasoning",
+          "dimensions",
+          "top_strengths",
+          "top_gaps",
+          "updated_at",
+          "eligibility",
+          "strengths",
+          "gaps",
+          "concerns",
+          "requirement_coverage",
+          "evidence",
+          "profile_version",
+          "scorer",
+          "stale"
+        ],
+        "title": "MatchDetail"
+      },
+      "MatchSummary": {
+        "properties": {
+          "overall_score": {
+            "type": "number",
+            "title": "Overall Score"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "reasoning": {
+            "type": "string",
+            "title": "Reasoning"
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Dimensions"
+          },
+          "top_strengths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Strengths"
+          },
+          "top_gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Gaps"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_score",
+          "eligible",
+          "label",
+          "reasoning",
+          "dimensions",
+          "top_strengths",
+          "top_gaps",
+          "updated_at"
+        ],
+        "title": "MatchSummary"
       },
       "MatchingSettings": {
         "properties": {
@@ -4521,6 +6036,134 @@
         ],
         "title": "MeResponse"
       },
+      "NoteRequest": {
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "title": "NoteRequest"
+      },
+      "NotificationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/NotificationPriority"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "application_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Id"
+          },
+          "outreach_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outreach Id"
+          },
+          "action_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Url"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          },
+          "read": {
+            "type": "boolean",
+            "title": "Read"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "priority",
+          "title",
+          "body",
+          "job_id",
+          "application_id",
+          "outreach_id",
+          "action_url",
+          "data",
+          "read",
+          "created_at"
+        ],
+        "title": "NotificationOut"
+      },
+      "NotificationPriority": {
+        "type": "string",
+        "enum": [
+          "LOW",
+          "NORMAL",
+          "HIGH",
+          "URGENT"
+        ],
+        "title": "NotificationPriority"
+      },
       "NotificationSettings": {
         "properties": {
           "notify_new_jobs": {
@@ -4538,6 +6181,25 @@
         },
         "type": "object",
         "title": "NotificationSettings"
+      },
+      "NotificationType": {
+        "type": "string",
+        "enum": [
+          "NEW_JOB",
+          "HIGH_MATCH",
+          "DEADLINE_SOON",
+          "RESUME_READY",
+          "APPLICATION_READY",
+          "APPLICATION_NEEDS_INPUT",
+          "CONTACT_FOUND",
+          "OUTREACH_RECOMMENDED",
+          "OUTREACH_APPROVAL_REQUIRED",
+          "REPLY_RECEIVED",
+          "FOLLOW_UP_DUE",
+          "INTERVIEW",
+          "SOURCE_FAILING"
+        ],
+        "title": "NotificationType"
       },
       "OutreachLimits": {
         "properties": {
@@ -5383,6 +7045,24 @@
         ],
         "title": "ProfileBasicsOut"
       },
+      "ProfileHealth": {
+        "properties": {
+          "completeness": {
+            "type": "integer",
+            "title": "Completeness"
+          },
+          "unverified_items": {
+            "type": "integer",
+            "title": "Unverified Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "completeness",
+          "unverified_items"
+        ],
+        "title": "ProfileHealth"
+      },
       "ProfileImport": {
         "properties": {
           "basics": {
@@ -6136,6 +7816,16 @@
         ],
         "title": "RemotePreference"
       },
+      "RemoteType": {
+        "type": "string",
+        "enum": [
+          "REMOTE",
+          "HYBRID",
+          "ONSITE",
+          "UNKNOWN"
+        ],
+        "title": "RemoteType"
+      },
       "ResearchIn": {
         "properties": {
           "organization": {
@@ -6583,6 +8273,134 @@
         ],
         "title": "RunQueued"
       },
+      "Salary": {
+        "properties": {
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompensationPeriod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "minimum",
+          "maximum",
+          "currency",
+          "period"
+        ],
+        "title": "Salary"
+      },
+      "SalaryInfo": {
+        "properties": {
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompensationPeriod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "title": "SalaryInfo"
+      },
+      "SeniorityLevel": {
+        "type": "string",
+        "enum": [
+          "INTERN",
+          "ENTRY",
+          "MID",
+          "SENIOR",
+          "LEAD",
+          "MANAGER",
+          "UNKNOWN"
+        ],
+        "title": "SeniorityLevel"
+      },
       "SkillCategory": {
         "type": "string",
         "enum": [
@@ -6758,6 +8576,29 @@
         ],
         "title": "SkillProficiency"
       },
+      "SourceHealth": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "enabled": {
+            "type": "integer",
+            "title": "Enabled"
+          },
+          "failing": {
+            "type": "integer",
+            "title": "Failing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "enabled",
+          "failing"
+        ],
+        "title": "SourceHealth"
+      },
       "SourceIn": {
         "properties": {
           "name": {
@@ -6792,6 +8633,60 @@
           "config"
         ],
         "title": "SourceIn"
+      },
+      "SourceLinkOut": {
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "source_name",
+          "url",
+          "active",
+          "first_seen_at",
+          "last_seen_at"
+        ],
+        "title": "SourceLinkOut"
       },
       "SourceOut": {
         "properties": {
@@ -7017,6 +8912,15 @@
         "type": "object",
         "title": "SourceUpdate"
       },
+      "Sponsorship": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "NOT_AVAILABLE",
+          "UNKNOWN"
+        ],
+        "title": "Sponsorship"
+      },
       "SponsorshipRequirement": {
         "type": "string",
         "enum": [
@@ -7170,6 +9074,19 @@
           "SUBMIT_APPLICATION"
         ],
         "title": "TaskType"
+      },
+      "UnreadCount": {
+        "properties": {
+          "unread": {
+            "type": "integer",
+            "title": "Unread"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unread"
+        ],
+        "title": "UnreadCount"
       },
       "UserSettings": {
         "properties": {
