@@ -2549,6 +2549,510 @@
           }
         ]
       }
+    },
+    "/api/v1/sources": {
+      "get": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "List Sources",
+        "operationId": "list_sources_api_v1_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SourceOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Sources Api V1 Sources Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Create Source",
+        "operationId": "create_source_api_v1_sources_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sources/{source_id}": {
+      "patch": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Update Source",
+        "operationId": "update_source_api_v1_sources__source_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Delete Source",
+        "operationId": "delete_source_api_v1_sources__source_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sources/{source_id}/run": {
+      "post": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Run Source Now",
+        "operationId": "run_source_now_api_v1_sources__source_id__run_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunQueued"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks": {
+      "get": {
+        "tags": [
+          "activity"
+        ],
+        "summary": "List Tasks",
+        "operationId": "list_tasks_api_v1_tasks_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  },
+                  "title": "Response List Tasks Api V1 Tasks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "activity"
+        ],
+        "summary": "Get Task",
+        "operationId": "get_task_api_v1_tasks__task_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/retry": {
+      "post": {
+        "tags": [
+          "activity"
+        ],
+        "summary": "Retry Task",
+        "operationId": "retry_task_api_v1_tasks__task_id__retry_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/cancel": {
+      "post": {
+        "tags": [
+          "activity"
+        ],
+        "summary": "Cancel Task",
+        "operationId": "cancel_task_api_v1_tasks__task_id__cancel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/activity": {
+      "get": {
+        "tags": [
+          "activity"
+        ],
+        "summary": "The agent activity feed",
+        "operationId": "activity_api_v1_activity_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 300,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventOut"
+                  },
+                  "title": "Response Activity Api V1 Activity Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3040,6 +3544,18 @@
         ],
         "title": "CompensationPeriod"
       },
+      "DiscoveryCadence": {
+        "type": "string",
+        "enum": [
+          "MANUAL",
+          "EVERY_15_MIN",
+          "EVERY_30_MIN",
+          "HOURLY",
+          "EVERY_6_HOURS",
+          "DAILY"
+        ],
+        "title": "DiscoveryCadence"
+      },
       "EducationIn": {
         "properties": {
           "institution": {
@@ -3338,6 +3854,125 @@
           "OTHER"
         ],
         "title": "EmploymentType"
+      },
+      "EventOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EventType"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "company_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Id"
+          },
+          "application_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Id"
+          },
+          "outreach_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outreach Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "summary",
+          "job_id",
+          "company_id",
+          "application_id",
+          "outreach_id",
+          "payload",
+          "created_at"
+        ],
+        "title": "EventOut"
+      },
+      "EventType": {
+        "type": "string",
+        "enum": [
+          "DISCOVERY_STARTED",
+          "DISCOVERY_COMPLETED",
+          "DISCOVERY_FAILED",
+          "JOB_DISCOVERED",
+          "JOB_NORMALIZED",
+          "JOB_DEDUPLICATED",
+          "JOB_ANALYZED",
+          "JOB_MATCHED",
+          "NOTIFICATION_CREATED",
+          "COMPANY_RESEARCH_REQUESTED",
+          "COMPANY_RESEARCH_COMPLETED",
+          "CONTACT_DISCOVERED",
+          "OUTREACH_DRAFT_CREATED",
+          "OUTREACH_APPROVAL_REQUIRED",
+          "OUTREACH_APPROVED",
+          "OUTREACH_SENT",
+          "OUTREACH_REPLY_DETECTED",
+          "OUTREACH_FOLLOW_UP_DUE",
+          "RESUME_REQUESTED",
+          "RESUME_GENERATED",
+          "APPLICATION_STARTED",
+          "APPLICATION_WAITING_FOR_USER",
+          "APPLICATION_READY",
+          "APPLICATION_SUBMITTED",
+          "APPLICATION_STATUS_CHANGED"
+        ],
+        "title": "EventType",
+        "description": "Spec \u00a745, plus discovery lifecycle events for the activity feed."
       },
       "EvidenceHitOut": {
         "properties": {
@@ -5934,6 +6569,20 @@
         ],
         "title": "ReusableAnswerOut"
       },
+      "RunQueued": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Task Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id"
+        ],
+        "title": "RunQueued"
+      },
       "SkillCategory": {
         "type": "string",
         "enum": [
@@ -6109,6 +6758,265 @@
         ],
         "title": "SkillProficiency"
       },
+      "SourceIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/DiscoveryCadence",
+            "default": "DAILY"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "config"
+        ],
+        "title": "SourceIn"
+      },
+      "SourceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/DiscoveryCadence"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run At"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "last_success_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Success At"
+          },
+          "last_failure_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Failure At"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "last_jobs_found": {
+            "type": "integer",
+            "title": "Last Jobs Found"
+          },
+          "total_jobs_found": {
+            "type": "integer",
+            "title": "Total Jobs Found"
+          },
+          "run_count": {
+            "type": "integer",
+            "title": "Run Count"
+          },
+          "error_count": {
+            "type": "integer",
+            "title": "Error Count"
+          },
+          "consecutive_failures": {
+            "type": "integer",
+            "title": "Consecutive Failures"
+          },
+          "avg_duration_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Duration Ms"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "health": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "never_run",
+              "healthy",
+              "degraded",
+              "failing"
+            ],
+            "title": "Health",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type",
+          "config",
+          "enabled",
+          "cadence",
+          "next_run_at",
+          "last_run_at",
+          "last_success_at",
+          "last_failure_at",
+          "last_error",
+          "last_jobs_found",
+          "total_jobs_found",
+          "run_count",
+          "error_count",
+          "consecutive_failures",
+          "avg_duration_ms",
+          "created_at",
+          "health"
+        ],
+        "title": "SourceOut"
+      },
+      "SourceType": {
+        "type": "string",
+        "enum": [
+          "GREENHOUSE",
+          "LEVER",
+          "ASHBY",
+          "SMARTRECRUITERS",
+          "RSS",
+          "CAREER_PAGE",
+          "FIXTURE"
+        ],
+        "title": "SourceType"
+      },
+      "SourceUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "cadence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiscoveryCadence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SourceUpdate"
+      },
       "SponsorshipRequirement": {
         "type": "string",
         "enum": [
@@ -6118,6 +7026,150 @@
           "UNKNOWN"
         ],
         "title": "SponsorshipRequirement"
+      },
+      "TaskOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskStatus"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "error_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Type"
+          },
+          "attempt_count": {
+            "type": "integer",
+            "title": "Attempt Count"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts"
+          },
+          "run_after": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Run After"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "payload",
+          "result",
+          "error",
+          "error_type",
+          "attempt_count",
+          "max_attempts",
+          "run_after",
+          "started_at",
+          "completed_at",
+          "created_at"
+        ],
+        "title": "TaskOut"
+      },
+      "TaskStatus": {
+        "type": "string",
+        "enum": [
+          "QUEUED",
+          "RUNNING",
+          "WAITING_FOR_USER",
+          "COMPLETED",
+          "FAILED",
+          "CANCELLED"
+        ],
+        "title": "TaskStatus"
+      },
+      "TaskType": {
+        "type": "string",
+        "enum": [
+          "RUN_DISCOVERY",
+          "ANALYZE_JOB",
+          "MATCH_JOB",
+          "INDEX_PROFILE",
+          "GENERATE_RESUME",
+          "RESEARCH_COMPANY",
+          "DISCOVER_CONTACTS",
+          "DRAFT_OUTREACH",
+          "SEND_OUTREACH",
+          "CHECK_OUTREACH",
+          "CHECK_DEADLINES",
+          "PREPARE_APPLICATION",
+          "SUBMIT_APPLICATION"
+        ],
+        "title": "TaskType"
       },
       "UserSettings": {
         "properties": {

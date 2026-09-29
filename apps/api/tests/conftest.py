@@ -26,13 +26,15 @@ from sqlalchemy.pool import NullPool
 from careeros.api.deps import get_session
 from careeros.config import API_ROOT, Settings
 from careeros.container import Container, build_container
+from careeros.core.http import PoliteHttpClient
 from careeros.db.session import Database
 from careeros.main import create_app
+from careeros.tasks.runtime import Worker, load_handlers, reuse_session
 
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://careeros:careeros@localhost:5433/careeros_test"
 )
-DB_FIXTURES = {"database", "session", "client", "app", "container", "other_client"}
+DB_FIXTURES = {"database", "session", "client", "app", "container", "other_client", "worker"}
 FIXTURES_DIR = Path(__file__).resolve().parents[3] / "fixtures"
 
 
@@ -70,6 +72,7 @@ def settings(tmp_path_factory: pytest.TempPathFactory) -> Settings:
         search_provider="none",
         task_dispatch_mode="database",
         http_respect_robots_txt=False,
+        http_min_host_interval_seconds=0,
         api_rate_limit_per_minute=10_000,
     )
 
@@ -123,11 +126,25 @@ async def session(database: Database) -> AsyncIterator[AsyncSession]:
                 await outer.rollback()
 
 
+async def public_resolver(host: str) -> list[str]:
+    """Tests never touch real DNS: every host resolves to a public documentation address."""
+    return ["93.184.216.34"]
+
+
 @pytest_asyncio.fixture
 async def container(settings: Settings, database: Database) -> AsyncIterator[Container]:
+    load_handlers()
     built = build_container(settings, db=database)
+    await built.fetcher.aclose()
+    built.fetcher = PoliteHttpClient(settings, resolver=public_resolver)
     yield built
     await built.aclose()
+
+
+@pytest_asyncio.fixture
+async def worker(container: Container, session: AsyncSession) -> Worker:
+    """Runs queued tasks inside the test transaction."""
+    return Worker(container, sessions=lambda: reuse_session(session), concurrency=10)
 
 
 @pytest_asyncio.fixture

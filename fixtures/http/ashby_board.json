@@ -1,0 +1,33 @@
+{
+  "apiVersion": "1",
+  "jobs": [
+    {
+      "id": "b4c1d2e3-0000-4000-8000-000000000001",
+      "title": "Machine Learning Intern",
+      "department": "AI",
+      "team": "Applied Research",
+      "employmentType": "Intern",
+      "location": "Bengaluru",
+      "secondaryLocations": [{"location": "Remote (India)"}],
+      "isRemote": false,
+      "workplaceType": "Hybrid",
+      "isListed": true,
+      "publishedAt": "2026-09-26T08:00:00.000+00:00",
+      "jobUrl": "https://jobs.ashbyhq.com/exampleashby/b4c1d2e3-0000-4000-8000-000000000001",
+      "applyUrl": "https://jobs.ashbyhq.com/exampleashby/b4c1d2e3-0000-4000-8000-000000000001/application",
+      "descriptionHtml": "<p>Train retrieval models.</p><ul><li>PyTorch</li><li>Information retrieval</li></ul>",
+      "descriptionPlain": "Train retrieval models. PyTorch. Information retrieval.",
+      "compensation": {
+        "summaryComponents": [
+          {"compensationType": "Salary", "interval": "1 MONTH", "currencyCode": "INR", "minValue": 50000, "maxValue": 70000}
+        ]
+      }
+    },
+    {
+      "id": "b4c1d2e3-0000-4000-8000-000000000002",
+      "title": "Unlisted role",
+      "isListed": false,
+      "location": "Bengaluru"
+    }
+  ]
+}

@@ -14,6 +14,7 @@ import httpx
 from careeros import __version__
 from careeros.auth.providers import AuthProvider, GoogleOIDCVerifier, build_auth_provider
 from careeros.config import Settings
+from careeros.core.http import PoliteHttpClient
 from careeros.core.ratelimit import InMemoryRateLimiter, RateLimiter
 from careeros.db.session import Database
 from careeros.llm.router import LLMRouter
@@ -25,6 +26,7 @@ class Container:
     settings: Settings
     db: Database
     http: httpx.AsyncClient
+    fetcher: PoliteHttpClient
     auth_provider: AuthProvider
     rate_limiter: RateLimiter
     llm: LLMRouter
@@ -34,6 +36,7 @@ class Container:
 
     async def aclose(self) -> None:
         await self.http.aclose()
+        await self.fetcher.aclose()
         if self.owns_db:
             await self.db.dispose()
 
@@ -58,6 +61,7 @@ def build_container(settings: Settings, *, db: Database | None = None) -> Contai
         settings=settings,
         db=database,
         http=http,
+        fetcher=PoliteHttpClient(settings),
         auth_provider=build_auth_provider(settings, http),
         rate_limiter=InMemoryRateLimiter(),
         llm=LLMRouter(settings, usage=DatabaseUsageSink(database)),

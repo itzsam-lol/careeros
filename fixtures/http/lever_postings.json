@@ -1,0 +1,22 @@
+[
+  {
+    "id": "5f0c7d2e-1111-4a2b-9c3d-aaaaaaaaaaaa",
+    "text": "Backend Engineer",
+    "hostedUrl": "https://jobs.lever.co/examplelever/5f0c7d2e-1111-4a2b-9c3d-aaaaaaaaaaaa?lever-source=linkedin",
+    "applyUrl": "https://jobs.lever.co/examplelever/5f0c7d2e-1111-4a2b-9c3d-aaaaaaaaaaaa/apply",
+    "createdAt": 1758900000000,
+    "workplaceType": "hybrid",
+    "categories": {
+      "commitment": "Full-time",
+      "location": "Pune, India",
+      "team": "Core Platform",
+      "allLocations": ["Pune, India", "Mumbai, India"]
+    },
+    "description": "<div>We build payments infrastructure.</div>",
+    "lists": [
+      {"text": "Requirements", "content": "<li>3+ years with Java or Kotlin</li><li>PostgreSQL</li>"}
+    ],
+    "additional": "<div>Equal opportunity employer.</div>",
+    "salaryRange": {"min": 1800000, "max": 2600000, "currency": "INR", "interval": "per-year-salary"}
+  }
+]

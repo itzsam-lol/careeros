@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>University Research Jobs</title>
+    <link>https://research-jobs.example.edu/</link>
+    <description>Research assistant openings</description>
+    <item>
+      <title>Research Assistant - Computational Biology</title>
+      <link>https://research-jobs.example.edu/positions/ra-compbio</link>
+      <guid>ra-compbio-2026</guid>
+      <pubDate>Mon, 21 Sep 2026 10:00:00 GMT</pubDate>
+      <description><![CDATA[<p>Python, statistics and genomics pipelines.</p>]]></description>
+    </item>
+  </channel>
+</rss>

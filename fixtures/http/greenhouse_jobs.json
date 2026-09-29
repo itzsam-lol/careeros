@@ -1,0 +1,27 @@
+{
+  "jobs": [
+    {
+      "id": 4012001,
+      "title": "Software Engineer Intern, Platform",
+      "absolute_url": "https://boards.greenhouse.io/examplecorp/jobs/4012001?gh_src=abc123",
+      "updated_at": "2026-09-25T10:00:00-04:00",
+      "first_published": "2026-09-01T10:00:00-04:00",
+      "requisition_id": "R-1024",
+      "location": {"name": "Bengaluru, Karnataka, India"},
+      "departments": [{"id": 1, "name": "Engineering"}],
+      "offices": [{"id": 2, "name": "Bengaluru"}],
+      "content": "&lt;p&gt;Build internal developer platforms.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Python or Go&lt;/li&gt;&lt;li&gt;Docker and Kubernetes&lt;/li&gt;&lt;/ul&gt;"
+    },
+    {
+      "id": 4012002,
+      "title": "Data Scientist (Remote)",
+      "absolute_url": "https://boards.greenhouse.io/examplecorp/jobs/4012002",
+      "updated_at": "2026-09-24T10:00:00-04:00",
+      "location": {"name": "Remote - India"},
+      "departments": [],
+      "offices": [],
+      "content": "&lt;p&gt;Statistics, SQL and Python.&lt;/p&gt;"
+    }
+  ],
+  "meta": {"total": 2}
+}
