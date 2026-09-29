@@ -1,0 +1,12 @@
+packages:
+  - "apps/web"
+  - "apps/mobile"
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - unrs-resolver
+
+ignoredBuiltDependencies:
+  - "@firebase/util"
+  - protobufjs
+  - sharp

@@ -1,0 +1,21 @@
+{
+  "name": "careeros",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @careeros/web dev",
+    "dev:mobile": "pnpm --filter @careeros/mobile start",
+    "build:web": "pnpm --filter @careeros/web build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write \"apps/web/src/**/*.{ts,tsx,css}\" \"apps/mobile/{app,src}/**/*.{ts,tsx}\" \"packages/*/src/**/*.ts\"",
+    "gen:api": "pnpm --filter @careeros/api-client generate"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.0"
+  }
+}
