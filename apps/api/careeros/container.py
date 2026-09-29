@@ -16,6 +16,8 @@ from careeros.auth.providers import AuthProvider, GoogleOIDCVerifier, build_auth
 from careeros.config import Settings
 from careeros.core.ratelimit import InMemoryRateLimiter, RateLimiter
 from careeros.db.session import Database
+from careeros.llm.router import LLMRouter
+from careeros.llm.usage import DatabaseUsageSink
 
 
 @dataclass
@@ -25,6 +27,7 @@ class Container:
     http: httpx.AsyncClient
     auth_provider: AuthProvider
     rate_limiter: RateLimiter
+    llm: LLMRouter
     internal_verifier: GoogleOIDCVerifier | None = None
     owns_db: bool = True
     extras: dict[str, object] = field(default_factory=dict)
@@ -50,12 +53,14 @@ def build_container(settings: Settings, *, db: Database | None = None) -> Contai
         internal_verifier = GoogleOIDCVerifier(
             settings.internal_oidc_audience, settings.internal_oidc_service_account, http
         )
+    database = db or Database.from_settings(settings)
     return Container(
         settings=settings,
-        db=db or Database.from_settings(settings),
+        db=database,
         http=http,
         auth_provider=build_auth_provider(settings, http),
         rate_limiter=InMemoryRateLimiter(),
+        llm=LLMRouter(settings, usage=DatabaseUsageSink(database)),
         internal_verifier=internal_verifier,
         owns_db=db is None,
     )

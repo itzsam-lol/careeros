@@ -1,0 +1,188 @@
+{
+  "basics": {
+    "full_name": "Alex Rivera",
+    "headline": "Machine learning engineer and researcher",
+    "current_role": "B.Tech Computer Science student",
+    "summary": "Final-year computer science student who builds applied machine learning systems end to end, from data pipelines and model training to FastAPI services on Google Cloud. Research interest in parameter-efficient fine-tuning for vision models.",
+    "location": "Bengaluru, India",
+    "phone": "+91 90000 00000",
+    "contact_email": "alex.rivera@example.com",
+    "linkedin_url": "https://www.linkedin.com/in/alex-rivera-demo",
+    "github_url": "https://github.com/alex-rivera-demo",
+    "portfolio_url": "https://alex-rivera-demo.example.com",
+    "work_authorization": "Citizen of India; authorised to work in India without sponsorship. Would require visa sponsorship for roles based outside India.",
+    "authorized_countries": ["India"],
+    "sponsorship_requirement": "REQUIRED",
+    "availability": "Available for a 6-month internship from January 2027 or full-time from July 2027.",
+    "earliest_start_date": "2027-01-04"
+  },
+  "preferences": {
+    "target_roles": ["Machine Learning Engineer", "AI Research Intern", "Software Engineer"],
+    "target_industries": ["Artificial Intelligence", "Developer Tools", "Healthcare"],
+    "target_technologies": ["PyTorch", "Large Language Models", "Computer Vision", "FastAPI"],
+    "target_companies": ["Nimbus AI", "Lumen Labs"],
+    "excluded_companies": ["Acme Gambling Co"],
+    "excluded_keywords": ["sales", "sales engineer"],
+    "target_countries": ["India"],
+    "target_cities": ["Bengaluru", "Hyderabad", "Pune"],
+    "remote_preference": "ANY",
+    "employment_types": ["INTERNSHIP", "FULL_TIME"],
+    "include_research": true,
+    "min_compensation": 40000,
+    "compensation_currency": "INR",
+    "compensation_period": "MONTH"
+  },
+  "education": [
+    {
+      "institution": "Northbridge Institute of Technology",
+      "degree": "B.Tech",
+      "field": "Computer Science and Engineering",
+      "start_date": "2023-08-01",
+      "end_date": "2027-06-30",
+      "is_current": true,
+      "gpa": "8.7/10",
+      "location": "Bengaluru, India",
+      "coursework": ["Machine Learning", "Deep Learning", "Data Structures and Algorithms", "Operating Systems", "Database Systems"],
+      "honors": ["Dean's List 2024 and 2025"]
+    }
+  ],
+  "experience": [
+    {
+      "organization": "Lumen Labs",
+      "role": "Machine Learning Engineering Intern",
+      "employment_type": "INTERNSHIP",
+      "location": "Bengaluru, India",
+      "start_date": "2026-05-01",
+      "end_date": "2026-07-31",
+      "description": "Worked on the document intelligence team building classification services for scanned insurance forms.",
+      "achievements": [
+        "Built a PyTorch document classifier served through FastAPI that routes scanned insurance forms to the right review queue",
+        "Reduced manual labelling time by 35% by adding an active-learning loop to the annotation workflow",
+        "Containerised the service with Docker and deployed it to Google Cloud Run with CI on GitHub Actions"
+      ],
+      "technologies": ["Python", "PyTorch", "FastAPI", "Docker", "Google Cloud", "GitHub Actions"]
+    },
+    {
+      "organization": "Orbit Retail",
+      "role": "Software Engineering Intern",
+      "employment_type": "INTERNSHIP",
+      "location": "Remote",
+      "start_date": "2025-06-01",
+      "end_date": "2025-08-15",
+      "achievements": [
+        "Shipped a React and TypeScript inventory dashboard used by 40 store managers",
+        "Wrote Node.js REST APIs backed by PostgreSQL for stock-level alerts"
+      ],
+      "technologies": ["React", "TypeScript", "Node.js", "PostgreSQL"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Campus RAG Assistant",
+      "role": "Lead developer",
+      "description": "Retrieval-augmented chatbot that answers student questions from university handbooks and notices.",
+      "technologies": ["Python", "LangChain", "pgvector", "FastAPI", "Next.js"],
+      "highlights": [
+        "Indexed 2,000+ handbook pages with pgvector and hybrid keyword search",
+        "Added source citations to every answer so students can verify responses"
+      ],
+      "metrics": ["Answered 1,200+ student queries during a four-week pilot"],
+      "repository_url": "https://github.com/alex-rivera-demo/campus-rag",
+      "start_date": "2025-09-01",
+      "end_date": "2025-12-15"
+    },
+    {
+      "name": "LeafScan",
+      "description": "Plant disease detection from smartphone photos using a fine-tuned convolutional network.",
+      "technologies": ["PyTorch", "OpenCV", "Flutter"],
+      "highlights": [
+        "Fine-tuned a ResNet-50 on a curated subset of a public plant-disease dataset",
+        "Shipped an offline Flutter app with an on-device quantised model"
+      ],
+      "metrics": ["94% top-1 accuracy on the held-out test split"],
+      "repository_url": "https://github.com/alex-rivera-demo/leafscan",
+      "start_date": "2024-12-01",
+      "end_date": "2025-03-01"
+    },
+    {
+      "name": "TripBoard",
+      "description": "Collaborative trip planner with shared itineraries and budgets.",
+      "technologies": ["Next.js", "TypeScript", "Supabase", "Tailwind CSS"],
+      "highlights": ["Real-time shared editing of itineraries for groups of friends"],
+      "url": "https://tripboard-demo.example.com",
+      "start_date": "2024-05-01",
+      "end_date": "2024-07-01"
+    }
+  ],
+  "research": [
+    {
+      "organization": "Northbridge Vision Lab",
+      "title": "Parameter-efficient fine-tuning of vision transformers for medical imaging",
+      "supervisor": "Dr. Meera Iyer",
+      "description": "Studying low-rank adaptation and distillation to adapt vision transformers to small chest X-ray datasets.",
+      "methods": ["LoRA", "Knowledge distillation", "Vision transformers"],
+      "technologies": ["PyTorch", "Hugging Face"],
+      "outcomes": ["Reduced trainable parameters by 90% with under 1 point accuracy drop on the validation set"],
+      "start_date": "2025-08-01",
+      "is_current": true
+    }
+  ],
+  "publications": [
+    {
+      "title": "Low-Rank Adaptation of Vision Transformers for Small Chest X-ray Datasets",
+      "venue": "Workshop on Efficient Medical AI",
+      "status": "UNDER_REVIEW",
+      "year": 2026,
+      "authors": ["A. Rivera", "M. Iyer"]
+    }
+  ],
+  "skills": [
+    {"name": "Python", "proficiency": "ADVANCED", "years_experience": 4},
+    {"name": "PyTorch", "proficiency": "ADVANCED", "years_experience": 2},
+    {"name": "TensorFlow", "proficiency": "INTERMEDIATE"},
+    {"name": "scikit-learn", "proficiency": "ADVANCED"},
+    {"name": "Hugging Face", "proficiency": "INTERMEDIATE"},
+    {"name": "LangChain", "proficiency": "INTERMEDIATE"},
+    {"name": "OpenCV", "proficiency": "INTERMEDIATE"},
+    {"name": "FastAPI", "proficiency": "ADVANCED"},
+    {"name": "Docker", "proficiency": "INTERMEDIATE"},
+    {"name": "Kubernetes", "proficiency": "BEGINNER"},
+    {"name": "Google Cloud", "proficiency": "INTERMEDIATE"},
+    {"name": "PostgreSQL", "proficiency": "INTERMEDIATE"},
+    {"name": "SQL", "proficiency": "INTERMEDIATE"},
+    {"name": "React", "proficiency": "INTERMEDIATE"},
+    {"name": "TypeScript", "proficiency": "INTERMEDIATE"},
+    {"name": "Git", "proficiency": "ADVANCED"},
+    {"name": "Linux", "proficiency": "INTERMEDIATE"},
+    {"name": "Computer Vision", "proficiency": "INTERMEDIATE"},
+    {"name": "Natural Language Processing", "proficiency": "INTERMEDIATE"}
+  ],
+  "achievements": [
+    {
+      "kind": "COMPETITION",
+      "title": "First place, Northbridge AI Hackathon",
+      "organization": "Northbridge Institute of Technology",
+      "achieved_on": "2024-10-20",
+      "description": "Built an accessibility assistant that reads medicine labels aloud, in a team of four."
+    },
+    {
+      "kind": "TEACHING",
+      "title": "Teaching Assistant, Machine Learning",
+      "organization": "Northbridge Institute of Technology",
+      "achieved_on": "2026-01-10",
+      "description": "Ran weekly lab sessions for 60 second-year students."
+    }
+  ],
+  "answers": [
+    {
+      "question": "Are you legally authorised to work in India?",
+      "answer": "Yes. I am a citizen of India.",
+      "category": "WORK_AUTHORIZATION"
+    },
+    {
+      "question": "Will you now or in the future require visa sponsorship?",
+      "answer": "Not for roles in India. I would require sponsorship for roles based outside India.",
+      "category": "SPONSORSHIP"
+    }
+  ]
+}
