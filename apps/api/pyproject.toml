@@ -1,0 +1,116 @@
+[project]
+name = "careeros"
+version = "0.1.0"
+description = "CareerOS API, workers and agents"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141",
+    "uvicorn[standard]>=0.54",
+    "pydantic[email]>=2.13",
+    "pydantic-settings>=2.15",
+    "sqlalchemy[asyncio]>=2.1",
+    "alembic>=1.20",
+    "asyncpg>=0.30",
+    "pgvector>=0.5",
+    "structlog>=26.1",
+    "httpx>=0.28",
+    "jinja2>=3.1",
+    "cryptography>=50",
+    "pyjwt[crypto]>=2.10",
+    "beautifulsoup4>=4.15",
+    "lxml>=6.1",
+    "feedparser>=6.0",
+    "python-dateutil>=2.9",
+    "python-multipart>=0.0.32",
+    "pypdf>=6.0",
+    "dnspython>=2.8",
+    "boto3>=1.43",
+    "google-genai>=2.25",
+    "google-cloud-storage>=3.15",
+    "google-cloud-pubsub>=2.41",
+]
+
+[project.optional-dependencies]
+# Only the browser worker image needs Playwright.
+browser = ["playwright>=1.63"]
+
+[dependency-groups]
+dev = [
+    "playwright>=1.63",
+    "pytest>=9.1",
+    "pytest-asyncio>=1.4",
+    "pytest-cov>=6.0",
+    "respx>=0.23",
+    "ruff>=0.16",
+    "mypy>=2.3",
+    "types-python-dateutil",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["careeros"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+addopts = "-ra --strict-markers"
+markers = [
+    "db: needs PostgreSQL with pgvector (TEST_DATABASE_URL)",
+    "browser: needs Playwright browsers installed",
+    "latex: needs a LaTeX engine (tectonic/xelatex/lualatex/pdflatex)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W", "I", "B", "UP", "SIM", "RUF", "ASYNC", "S", "PT", "C4", "DTZ", "T20", "N",
+]
+ignore = [
+    "E501",    # formatter owns line length
+    "S311",    # random is fine for jitter, never for secrets
+    "RUF001",  # ambiguous unicode in strings is intentional (resume/typography)
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["careeros"]
+# The local `alembic/` migrations folder would otherwise make the library look first-party.
+known-third-party = ["alembic"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S108", "PT011"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = ["alembic/versions/"]
+
+[[tool.mypy.overrides]]
+module = [
+    "feedparser.*",
+    "boto3.*",
+    "botocore.*",
+    "pgvector.*",
+    "google.cloud.*",
+    "google.api_core.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["careeros"]
+branch = true
