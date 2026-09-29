@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (lint · types · tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: careeros
+          POSTGRES_PASSWORD: careeros
+          POSTGRES_DB: careeros
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U careeros"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://careeros:careeros@localhost:5432/careeros_test
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+      - run: uv sync --frozen
+      - name: Lint
+        run: |
+          uv run ruff check careeros tests
+          uv run ruff format --check careeros tests
+      - name: Type check
+        run: uv run mypy careeros
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+      - name: Install Tectonic (LaTeX)
+        run: |
+          curl -fsSL https://drop-sh.fullyjustified.net | sh
+          sudo mv tectonic /usr/local/bin/
+      - name: Tests
+        run: uv run pytest --cov --cov-report=term-missing:skip-covered
+      - name: OpenAPI schema is up to date
+        run: |
+          uv run python -m careeros.tools.export_openapi ../../packages/api-client/openapi.json
+          git diff --exit-code -- ../../packages/api-client/openapi.json
+
+  frontend:
+    name: Frontend (lint · types · tests · build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Generated API types are up to date
+        run: |
+          pnpm --filter @careeros/api-client generate
+          git diff --exit-code -- packages/api-client/src/schema.d.ts
+      - run: pnpm --filter @careeros/api-client typecheck
+      - run: pnpm --filter @careeros/api-client test
+      - run: pnpm --filter @careeros/web lint
+      - run: pnpm --filter @careeros/web typecheck
+      - run: pnpm --filter @careeros/web test
+      - run: pnpm --filter @careeros/web build
+      - run: pnpm --filter @careeros/mobile typecheck
