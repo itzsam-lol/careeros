@@ -23,7 +23,16 @@ from careeros.profile.enums import VerificationStatus
 
 log = get_logger(__name__)
 
-_LABELS = {"project": "project", "experience": "experience", "research": "research", "publication": "publication", "education": "education", "achievement": "achievement", "career_fact": "fact", "skills": "skills"}  # fmt: skip
+_LABELS = {"project": "project", "experience": "experience", "research": "research", "publication": "publication", "education": "education", "achievement": "achievement"}  # fmt: skip
+# The skills summary is already reported through requirement coverage.
+_SKIP_STRENGTH_SOURCES = {"skills"}
+
+
+def _strength_text(source_type: str, title: str) -> str:
+    if source_type == "career_fact":
+        return f"From your profile: “{title}”"
+    kind = _LABELS.get(source_type, "work")
+    return f"Your {kind} “{title}” is closely related to this role"
 
 
 @dataclass
@@ -89,15 +98,11 @@ def deterministic_explanation(
             }
         )
     for ref in refs:
+        if ref["source_type"] in _SKIP_STRENGTH_SOURCES:
+            continue
         if ref["relevance"] >= 0.55 and len(strengths) < 4:
-            kind = _LABELS.get(ref["source_type"], ref["source_type"])
             title = re.sub(r"^(Project|Research|Publication|Fact): ", "", ref["title"])
-            strengths.append(
-                {
-                    "text": f"Your {kind} “{title}” is closely related to this role",
-                    "evidence": [ref],
-                }
-            )
+            strengths.append({"text": _strength_text(ref["source_type"], title), "evidence": [ref]})
     for check in checks:
         if (
             check.status == CheckStatus.PASS

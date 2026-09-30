@@ -120,6 +120,8 @@ async def test_end_to_end_matching_ranks_and_explains(
     for strength in ml.strengths:
         for ref in strength["evidence"]:
             assert ref["verified"] is True
+            # The skills summary is reported through coverage, never as "Your skills “Skills”".
+            assert ref["source_type"] != "skills"
 
 
 async def test_inbox_views_detail_and_actions(
