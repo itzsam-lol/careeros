@@ -101,6 +101,12 @@ def _authorization_check(job: Job, ex: JobExtraction, mp: MatchProfile) -> Eligi
             CheckStatus.PASS,
             "You indicated you do not need sponsorship",
         )
+    strict = countries & mp.strict_sponsorship_countries
+    # Reached only when none of the countries is one the user may already work in.
+    if strict and strict == countries and ex.sponsorship != Sponsorship.AVAILABLE:
+        # The user only wants roles here that explicitly offer a visa ("not stated" is not enough).
+        return EligibilityCheck("work_authorization", label, CheckStatus.FAIL,
+                                f"Based in {where}; the posting does not offer visa sponsorship")  # fmt: skip
     if ex.sponsorship == Sponsorship.NOT_AVAILABLE:
         return EligibilityCheck("work_authorization", label, CheckStatus.FAIL,
                                 f"Requires authorisation to work in {where} and does not sponsor visas")  # fmt: skip

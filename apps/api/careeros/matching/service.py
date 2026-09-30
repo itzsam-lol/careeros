@@ -18,7 +18,12 @@ from careeros.intelligence.extraction import JobExtraction
 from careeros.intelligence.service import job_embedding_text, latest_analysis
 from careeros.jobs.models import Job, JobLifecycle, UserJob
 from careeros.matching.coverage import requirement_coverage
-from careeros.matching.eligibility import evaluate_eligibility, is_eligible
+from careeros.matching.eligibility import (
+    CheckStatus,
+    EligibilityCheck,
+    evaluate_eligibility,
+    is_eligible,
+)
 from careeros.matching.explain import explain, label_for
 from careeros.matching.models import JobMatch
 from careeros.matching.profile_view import build_match_profile
@@ -131,6 +136,22 @@ async def match_job(
         )
         .values(status=JobLifecycle.MATCHED, updated_at=now)
     )
+    if _lacks_required_sponsorship(checks):
+        # Roles in "sponsorship only" countries without a visa offer are hidden, not just flagged.
+        await session.execute(
+            update(UserJob)
+            .where(
+                UserJob.user_id == user.id,
+                UserJob.job_id == job.id,
+                UserJob.status.in_((JobLifecycle.MATCHED, JobLifecycle.NOTIFIED)),
+            )
+            .values(
+                status=JobLifecycle.DISMISSED,
+                dismissed_at=now,
+                dismiss_reason=AUTO_DISMISS_NO_SPONSORSHIP,
+                updated_at=now,
+            )
+        )
     await emit(
         session,
         EventType.JOB_MATCHED,
@@ -143,6 +164,18 @@ async def match_job(
     await _notify(session, user, job, match, settings.matching.high_match_threshold,
                   settings.matching.notify_threshold, settings.notifications.notify_new_jobs)  # fmt: skip
     return match
+
+
+AUTO_DISMISS_NO_SPONSORSHIP = "Hidden automatically: no visa sponsorship offered"
+
+
+def _lacks_required_sponsorship(checks: list[EligibilityCheck]) -> bool:
+    return any(
+        c.key == "work_authorization"
+        and c.status == CheckStatus.FAIL
+        and c.detail.endswith("does not offer visa sponsorship")
+        for c in checks
+    )
 
 
 async def _notify(

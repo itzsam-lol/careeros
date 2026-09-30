@@ -125,6 +125,7 @@ class PreferencesIn(_Strict):
     excluded_keywords: Annotated[list[ShortText], Field(max_length=50)] | None = None
     target_countries: Annotated[list[ShortText], Field(max_length=30)] | None = None
     target_cities: Annotated[list[ShortText], Field(max_length=50)] | None = None
+    sponsorship_required_countries: Annotated[list[ShortText], Field(max_length=30)] | None = None
     remote_preference: RemotePreference | None = None
     employment_types: list[EmploymentType] | None = None
     seniority_levels: Annotated[list[ShortText], Field(max_length=10)] | None = None
@@ -146,6 +147,7 @@ class PreferencesOut(BaseModel):
     excluded_keywords: list[str]
     target_countries: list[str]
     target_cities: list[str]
+    sponsorship_required_countries: list[str]
     remote_preference: RemotePreference
     employment_types: list[str]
     seniority_levels: list[str]

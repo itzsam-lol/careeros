@@ -57,6 +57,8 @@ class MatchProfile:
     compensation_currency: str | None
     has_research: bool
     has_publications: bool
+    # Countries where only roles that explicitly offer visa sponsorship are acceptable.
+    strict_sponsorship_countries: set[str] = field(default_factory=set)
 
     def skill(self, name: str) -> SkillEvidence | None:
         return self.skills.get(canonical_key(normalize_skill_name(name)))
@@ -186,6 +188,9 @@ def build_match_profile(snapshot: ProfileSnapshot, *, today: date) -> MatchProfi
         target_countries=set(extract_countries(prefs.target_countries))
         | {c.strip() for c in prefs.target_countries if c.strip()},
         target_cities={normalize_location(c) for c in prefs.target_cities if c.strip()},
+        strict_sponsorship_countries=set(
+            extract_countries(prefs.sponsorship_required_countries or [])
+        ),
         target_companies={c.strip().lower() for c in prefs.target_companies if c.strip()},
         excluded_companies={c.strip().lower() for c in prefs.excluded_companies if c.strip()},
         excluded_keywords=[k.strip().lower() for k in prefs.excluded_keywords if k.strip()],

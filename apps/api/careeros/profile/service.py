@@ -300,6 +300,7 @@ async def update_preferences(
     list_fields = {
         "target_roles", "target_industries", "target_technologies", "target_companies",
         "excluded_companies", "excluded_keywords", "target_countries", "target_cities",
+        "sponsorship_required_countries",
         "employment_types", "seniority_levels",
     }  # fmt: skip
     for key, value in data.model_dump(exclude_unset=True).items():

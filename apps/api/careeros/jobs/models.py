@@ -49,6 +49,19 @@ class JobLifecycle(StrEnum):
     CLOSED = "CLOSED"
 
 
+class ApplicationStage(StrEnum):
+    """Where the user's application stands (tracked by the user; never set by automation)."""
+
+    PLANNED = "PLANNED"
+    APPLIED = "APPLIED"
+    ASSESSMENT = "ASSESSMENT"
+    INTERVIEW = "INTERVIEW"
+    OFFER = "OFFER"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    WITHDRAWN = "WITHDRAWN"
+
+
 class Job(UUIDPrimaryKey, Timestamped, Base):
     """A canonical, de-duplicated opportunity (spec §14). Shared by all users."""
 
@@ -167,3 +180,10 @@ class UserJob(UUIDPrimaryKey, Timestamped, Base):
     notified_at: Mapped[datetime | None]
     first_seen_at: Mapped[datetime]
     note: Mapped[str | None] = mapped_column(Text)
+    application_stage: Mapped[ApplicationStage | None] = mapped_column(enum_type(ApplicationStage))
+    stage_changed_at: Mapped[datetime | None]
+    applied_at: Mapped[datetime | None]
+    follow_up_at: Mapped[datetime | None]
+    stage_history: Mapped[list[dict[str, Any]]] = mapped_column(
+        default=list, server_default=text("'[]'::jsonb")
+    )

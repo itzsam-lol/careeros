@@ -82,6 +82,9 @@ def to_card(
         salary=salary,
         source_name=source_name,
         match=_summary(match) if match is not None else None,
+        application_stage=user_job.application_stage,
+        applied_at=user_job.applied_at,
+        follow_up_at=user_job.follow_up_at,
     )
 
 
@@ -119,6 +122,8 @@ def apply_view(
         return stmt.where(UserJob.status == JobLifecycle.SAVED)
     if view == JobView.DISMISSED:
         return stmt.where(UserJob.status == JobLifecycle.DISMISSED)
+    if view == JobView.APPLIED:
+        return stmt.where(UserJob.application_stage.is_not(None))
     return stmt.where(or_(UserJob.status == JobLifecycle.CLOSED, Job.is_active.is_(False)))
 
 
@@ -255,6 +260,7 @@ async def view_counts(
         JobView.DEADLINE_SOON,
         JobView.SAVED,
         JobView.ALL,
+        JobView.APPLIED,
     ):
         stmt = apply_view(_base_query(user_id), view, now=now, high_threshold=high_threshold)
         counts[view.value.lower()] = int(

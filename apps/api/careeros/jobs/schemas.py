@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 from careeros.core.enums import CompensationPeriod, EmploymentType, RemoteType, SeniorityLevel
 from careeros.intelligence.extraction import JobExtraction
-from careeros.jobs.models import ApplicationPlatform, JobLifecycle
+from careeros.jobs.models import ApplicationPlatform, ApplicationStage, JobLifecycle
 
 
 class JobView(StrEnum):
@@ -20,6 +20,7 @@ class JobView(StrEnum):
     SAVED = "SAVED"
     DISMISSED = "DISMISSED"
     CLOSED = "CLOSED"
+    APPLIED = "APPLIED"  # anything with an application stage (the tracker)
 
 
 class JobSort(StrEnum):
@@ -66,6 +67,9 @@ class JobCard(BaseModel):
     salary: Salary | None
     source_name: str | None
     match: MatchSummary | None
+    application_stage: ApplicationStage | None = None
+    applied_at: datetime | None = None
+    follow_up_at: datetime | None = None
 
 
 class JobList(BaseModel):
@@ -129,3 +133,25 @@ class DismissRequest(BaseModel):
 
 class NoteRequest(BaseModel):
     note: str | None = Field(None, max_length=4000)
+
+
+class ApplicationUpdate(BaseModel):
+    stage: ApplicationStage | None = None  # null clears tracking for this job
+    applied_at: datetime | None = None
+    follow_up_at: datetime | None = None
+    clear_follow_up: bool = False
+    note: str | None = Field(None, max_length=5000)
+
+
+class StageEvent(BaseModel):
+    stage: ApplicationStage | None
+    at: datetime
+
+
+class ApplicationOut(BaseModel):
+    job_id: uuid.UUID
+    stage: ApplicationStage | None
+    applied_at: datetime | None
+    follow_up_at: datetime | None
+    note: str | None
+    history: list[StageEvent]

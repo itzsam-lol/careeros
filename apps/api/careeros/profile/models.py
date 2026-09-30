@@ -82,6 +82,9 @@ class CareerPreferences(UUIDPrimaryKey, Timestamped, Base):
     excluded_keywords: Mapped[list[str]] = mapped_column(default=list, server_default=_EMPTY_LIST)
     target_countries: Mapped[list[str]] = mapped_column(default=list, server_default=_EMPTY_LIST)
     target_cities: Mapped[list[str]] = mapped_column(default=list, server_default=_EMPTY_LIST)
+    sponsorship_required_countries: Mapped[list[str]] = mapped_column(
+        default=list, server_default=_EMPTY_LIST
+    )
     remote_preference: Mapped[RemotePreference] = mapped_column(
         enum_type(RemotePreference), default=RemotePreference.ANY
     )
