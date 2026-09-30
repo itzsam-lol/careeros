@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from careeros.core.http import PoliteHttpClient
 from careeros.discovery.adapters._common import (
+    BOARD_API_MAX_BYTES,
     as_float,
     parse_datetime,
     period_from_text,
@@ -41,7 +42,9 @@ class LeverAdapter:
 
     async def discover_jobs(self) -> list[RawJob]:
         company = self.config.company_name or title_from_slug(self.config.company)
-        data = await self.http.get_json(self.base, params={"mode": "json"}, respect_robots=False)
+        data = await self.http.get_json(
+            self.base, params={"mode": "json"}, respect_robots=False, max_bytes=BOARD_API_MAX_BYTES
+        )
         postings: list[dict[str, Any]] = data if isinstance(data, list) else []
         results: list[RawJob] = []
         for posting in postings:

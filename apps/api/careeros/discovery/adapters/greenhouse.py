@@ -6,7 +6,11 @@ from typing import TYPE_CHECKING, Any
 
 from careeros.core.errors import SourceFetchError
 from careeros.core.http import PoliteHttpClient
-from careeros.discovery.adapters._common import parse_datetime, title_from_slug
+from careeros.discovery.adapters._common import (
+    BOARD_API_MAX_BYTES,
+    parse_datetime,
+    title_from_slug,
+)
 from careeros.discovery.raw import RawJob
 
 if TYPE_CHECKING:
@@ -40,6 +44,7 @@ class GreenhouseAdapter:
             f"{API}/{self.config.board_token}/jobs",
             params={"content": "true"},
             respect_robots=False,
+            max_bytes=BOARD_API_MAX_BYTES,
         )
         jobs: list[dict[str, Any]] = data.get("jobs", []) if isinstance(data, dict) else []
         results: list[RawJob] = []

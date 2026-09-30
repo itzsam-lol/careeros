@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from careeros.core.http import PoliteHttpClient
 from careeros.discovery.adapters._common import (
+    BOARD_API_MAX_BYTES,
     as_float,
     parse_datetime,
     period_from_text,
@@ -45,6 +46,7 @@ class AshbyAdapter:
             f"{API}/{self.config.organization}",
             params={"includeCompensation": "true"},
             respect_robots=False,
+            max_bytes=BOARD_API_MAX_BYTES,
         )
         jobs: list[dict[str, Any]] = data.get("jobs", []) if isinstance(data, dict) else []
         results: list[RawJob] = []

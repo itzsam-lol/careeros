@@ -8,6 +8,10 @@ from dateutil import parser as date_parser
 from careeros.core.clock import ensure_aware
 from careeros.core.enums import CompensationPeriod
 
+# Official board APIs return every posting (with its description) in one JSON response;
+# large employers exceed the default page limit (Databricks is ~10 MB).
+BOARD_API_MAX_BYTES = 40_000_000
+
 
 def parse_datetime(value: Any) -> datetime | None:
     """Parse ISO strings, epoch milliseconds/seconds or datetimes; None on failure."""
