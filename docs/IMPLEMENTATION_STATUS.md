@@ -34,9 +34,10 @@ _Last updated: 2026-09-30_
 | Workday career sites | ✅ | `discovery/adapters/workday.py` | `unit/test_adapters.py` | Country facet or text search |
 | Curated catalogue: 117 boards with India/Australia roles | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
 | Per-source country filter | ✅ | `discovery/service.py` | `test_discovery.py` | Applied before the per-run cap |
-| Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ATS country codes and AU/IN states recognised |
+| Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ~100 countries, ATS country codes, numbered levels (SDE I) |
 | JD extraction (heuristic + optional LLM), injection defence | ✅ | `intelligence/` | `unit/test_extraction.py` | — |
-| Matching: eligibility, coverage, scoring, explanations | ✅ | `matching/` | `test_matching.py` | — |
+| Matching: eligibility, coverage, scoring, explanations | ✅ | `matching/`, [MATCHING.md](MATCHING.md) | `test_matching.py`, `unit/test_match_rules.py` | Scorer `match-v3`: role type, level fit, implied skills |
+| Job function from the title (software, data, research, hardware, sales...) | ✅ | `intelligence/functions.py` | `unit/test_match_rules.py` | Roles outside the target functions are scored down |
 | Sponsorship-only countries (e.g. Australia) | ✅ | `matching/eligibility.py`, `matching/service.py` | `test_resumes_api.py` | Ineligible roles there are hidden automatically |
 | Inbox, dashboard, notifications | ✅ | `jobs/`, `dashboard/`, `notifications/` | `test_matching.py` | — |
 

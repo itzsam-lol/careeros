@@ -75,7 +75,7 @@ Each domain is a vertical slice (`models.py`, `schemas.py`, `service.py`, `route
 3. **Matching.** `MATCH_JOB` runs per user: hard eligibility checks → requirement coverage against
    the verified profile → vector retrieval of relevant evidence → semantic dimension scores →
    explanation (strengths, gaps, concerns) citing evidence ids. Scores are relevance, never
-   "hiring probability".
+   "hiring probability". See [MATCHING.md](MATCHING.md).
 4. **Notify.** High matches, deadlines, ready resumes, outreach approvals, replies, ... become
    notifications in the inbox (web + mobile).
 5. **Prepare.** Resume generation, company research, contact discovery and outreach drafting run
