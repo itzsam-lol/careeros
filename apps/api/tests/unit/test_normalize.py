@@ -144,3 +144,24 @@ def test_normalize_builds_canonical_job() -> None:
     assert job.countries == ["India"]
     assert job.description == "PyTorch and Python."
     assert job.dedup_key == "nimbus ai|machine learning intern|remote india"
+
+
+@pytest.mark.parametrize(
+    ("location", "countries"),
+    [
+        ("AU, Queensland, Morningside", ["Australia"]),
+        ("IN, BANGALORE", ["India"]),
+        ("Brisbane", ["Australia"]),
+        ("Sydney, AU", ["Australia"]),
+        ("Melbourne, VIC", ["Australia"]),
+        ("Sanand - 303A - AT/SSD/MOD, India", ["India"]),
+        ("Karnataka", ["India"]),
+        ("Victoria, BC", []),
+        ("Remote", []),
+        ("in person", []),
+    ],
+)
+def test_extract_countries_handles_ats_location_formats(
+    location: str, countries: list[str]
+) -> None:
+    assert extract_countries([location]) == countries

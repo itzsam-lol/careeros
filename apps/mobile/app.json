@@ -2,7 +2,7 @@
   "expo": {
     "name": "CareerOS",
     "slug": "careeros",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "careeros",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.careeros.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#1E7BFF",
         "foregroundImage": "./assets/images/adaptive-foreground.png",

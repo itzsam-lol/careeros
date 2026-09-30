@@ -80,7 +80,7 @@ export const DEFAULT_PREFS: Prefs = {
   cardInsights: true,
   showSalary: true,
   showSource: false,
-  hideIneligible: false,
+  hideIneligible: true,
   minScore: 0,
   dateStyle: "relative",
   confirmDismiss: true,

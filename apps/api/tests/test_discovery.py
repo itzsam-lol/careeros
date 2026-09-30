@@ -268,7 +268,8 @@ async def test_catalog_lists_and_adds_boards(client: AsyncClient) -> None:
     assert len(sources) == 2
     assert all(s["config"]["countries"] == ["India", "Australia"] for s in sources)
     refreshed = {b["id"]: b["added"] for b in (await client.get("/api/v1/sources/catalog")).json()}
-    assert refreshed[first] and refreshed[second]
+    assert refreshed[first]
+    assert refreshed[second]
     searched = (await client.get("/api/v1/sources/catalog", params={"q": "canva"})).json()
     assert [b["name"] for b in searched] == ["Canva"]
 

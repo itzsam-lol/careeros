@@ -227,7 +227,21 @@ _CITY_COUNTRY: dict[str, str] = {
         "bengaluru", "bangalore", "mumbai", "delhi", "new delhi", "gurugram", "gurgaon", "noida",
         "hyderabad", "pune", "chennai", "kolkata", "ahmedabad", "jaipur", "kochi", "chandigarh",
         "indore", "coimbatore", "trivandrum", "thiruvananthapuram", "mysuru", "mysore",
+        "navi mumbai", "thane", "ghaziabad", "faridabad", "greater noida", "vadodara", "surat",
+        "nagpur", "bhubaneswar", "visakhapatnam", "vizag", "lucknow", "mohali", "bhopal", "sanand",
+        "madurai", "mangalore", "mangaluru", "guwahati", "kanpur", "vijayawada", "gandhinagar",
+        # States and regions (as they appear in ATS location strings)
+        "karnataka", "maharashtra", "telangana", "tamil nadu", "haryana", "uttar pradesh", "gujarat",
+        "kerala", "west bengal", "andhra pradesh", "rajasthan", "punjab", "odisha", "madhya pradesh",
+        "delhi ncr",
     ), "India"),
+    **dict.fromkeys((
+        "sydney", "melbourne", "brisbane", "perth", "adelaide", "canberra", "hobart", "gold coast",
+        "darwin", "geelong", "wollongong", "parramatta", "north sydney", "macquarie park", "docklands",
+        "sunshine coast", "newcastle, nsw", "newcastle, australia",
+        "new south wales", "queensland", "western australia", "south australia", "tasmania",
+        "australian capital territory", "northern territory", "victoria, australia",
+    ), "Australia"),
     **dict.fromkeys((
         "new york", "san francisco", "seattle", "austin", "boston", "mountain view", "palo alto",
         "menlo park", "sunnyvale", "san jose", "los angeles", "chicago", "redmond", "cambridge, ma",
@@ -237,7 +251,7 @@ _CITY_COUNTRY: dict[str, str] = {
     **dict.fromkeys(("toronto", "vancouver", "montreal", "waterloo", "ottawa"), "Canada"),
     **dict.fromkeys(("berlin", "munich", "münchen", "hamburg", "frankfurt"), "Germany"),
     "amsterdam": "Netherlands", "paris": "France", "dublin": "Ireland", "zurich": "Switzerland",
-    "tokyo": "Japan", "sydney": "Australia", "melbourne": "Australia", "dubai": "United Arab Emirates",
+    "tokyo": "Japan", "dubai": "United Arab Emirates",
     "tel aviv": "Israel", "singapore": "Singapore", "stockholm": "Sweden", "warsaw": "Poland",
 }  # fmt: skip
 
@@ -246,10 +260,51 @@ _US_STATE = re.compile(
 )
 
 
+# Codes that ATS feeds (notably Workday) use as a whole location part: "IN, BANGALORE", "AU, Queensland".
+_PART_CODES: dict[str, str] = {
+    "in": "India", "ind": "India", "au": "Australia", "aus": "Australia",
+    "nsw": "Australia", "qld": "Australia", "vic": "Australia",
+    "sg": "Singapore", "sgp": "Singapore", "gb": "United Kingdom", "gbr": "United Kingdom",
+    "de": "Germany", "deu": "Germany", "ca": "Canada", "jp": "Japan", "nl": "Netherlands",
+    "ie": "Ireland", "fr": "France", "ae": "United Arab Emirates", "il": "Israel", "usa": "United States",
+}  # fmt: skip
+_US_STATE_CODES = {
+    "in",
+    "ca",
+    "de",
+    "il",
+    "ia",
+    "ma",
+    "me",
+    "md",
+    "mn",
+    "mo",
+    "pa",
+    "va",
+    "wa",
+    "co",
+    "ct",
+    "ga",
+    "id",
+}
+_PART_SPLIT = re.compile(r"\s*[,;/|]\s*|\s+-\s+")
+
+
 def extract_countries(locations: list[str]) -> list[str]:
     found: dict[str, None] = {}
     for location in locations:
         lowered = location.lower()
+        parts = [part.strip().rstrip(".") for part in _PART_SPLIT.split(lowered) if part.strip()]
+        if len(parts) > 1:
+            # Workday-style leading country code: "IN, Bangalore", "AU, Queensland, Brisbane".
+            if parts[0] in _PART_CODES:
+                found.setdefault(_PART_CODES[parts[0]], None)
+            # Trailing codes are ambiguous with US states ("Indianapolis, IN", "Mountain View, CA"),
+            # so only codes that are not also state abbreviations count at the end.
+            if parts[-1] in _PART_CODES and parts[-1] not in _US_STATE_CODES:
+                found.setdefault(_PART_CODES[parts[-1]], None)
+        if location.strip().upper() in {"IN", "AU", "IND", "AUS"}:
+            found.setdefault(_PART_CODES[location.strip().lower()], None)
         for alias, country in _COUNTRY_ALIASES.items():
             if len(alias) <= 3:
                 if re.search(rf"(^|[\s,(/-]){re.escape(alias)}($|[\s,)/-])", lowered):
