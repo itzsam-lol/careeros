@@ -9,6 +9,15 @@ export function titleCase(value: string | null | undefined): string {
     .join(" ");
 }
 
+/** Workday sends "IN, BANGALORE"; show "IN, Bangalore" (codes such as "NSW" stay as they are). */
+export function placeName(value: string): string {
+  if (/[a-z]/.test(value)) return value;
+  return value
+    .split(",")
+    .map((part) => (part.trim().length <= 3 ? part : part.replace(/[A-Z]+/g, (word) => word.charAt(0) + word.slice(1).toLowerCase())))
+    .join(",");
+}
+
 export function relativeTime(iso: string | null | undefined): string {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();

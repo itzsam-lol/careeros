@@ -7,7 +7,7 @@ import { Screen, useRefresh } from "@/components/screen";
 import { Button, Card, Chip, EmptyState, Loading, T } from "@/components/ui";
 import { type JobCard, useJobs } from "@/lib/api";
 import { type ApplicationStage, STAGES, stageInfo } from "@/lib/careers";
-import { shortDate, useWhen } from "@/lib/format";
+import { placeName, shortDate, useWhen } from "@/lib/format";
 import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
@@ -41,7 +41,7 @@ function TrackerCard({ job }: { job: JobCard }) {
         </T>
         <T v="subhead" color={theme.colors.text2} numberOfLines={1}>
           {job.company}
-          {job.location ? ` · ${job.location}` : ""}
+          {job.location ? ` · ${placeName(job.location)}` : ""}
         </T>
         <View style={styles.meta}>
           {stage ? <Chip label={stage.label} tone={stage.tone} /> : null}

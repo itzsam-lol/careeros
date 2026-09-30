@@ -4,13 +4,13 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Chip, Score, T, type Tone } from "@/components/ui";
 import { type JobCard as Job, useJobAction } from "@/lib/api";
 import { stageInfo } from "@/lib/careers";
-import { deadlineLabel, salaryText, titleCase, useWhen } from "@/lib/format";
+import { deadlineLabel, placeName, salaryText, titleCase, useWhen } from "@/lib/format";
 import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 export function locationLine(job: Pick<Job, "company" | "location" | "remote_type" | "employment_type">): string {
   const parts = [job.company];
-  if (job.location) parts.push(job.location);
+  if (job.location) parts.push(placeName(job.location));
   // Avoid "Remote · Remote" when the location already says it.
   if (job.remote_type !== "UNKNOWN" && !job.location?.toLowerCase().includes(job.remote_type.toLowerCase())) {
     parts.push(titleCase(job.remote_type));
