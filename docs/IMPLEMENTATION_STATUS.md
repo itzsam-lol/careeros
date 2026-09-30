@@ -32,7 +32,7 @@ _Last updated: 2026-09-30_
 | --- | --- | --- | --- | --- |
 | Greenhouse, Lever, Ashby, SmartRecruiters, RSS, career pages | ✅ | `discovery/adapters/` | `unit/test_adapters.py` | Official public APIs only |
 | Workday career sites | ✅ | `discovery/adapters/workday.py` | `unit/test_adapters.py` | Country facet or text search |
-| Curated catalogue: 117 boards with India/Australia roles | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
+| Curated catalogue: 136 boards with India/Australia roles (incl. Optiver, Akuna, Point72, Quantium) | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
 | Per-source country filter | ✅ | `discovery/service.py` | `test_discovery.py` | Applied before the per-run cap |
 | Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ~100 countries, ATS country codes, numbered levels (SDE I) |
 | JD extraction (heuristic + optional LLM), injection defence | ✅ | `intelligence/` | `unit/test_extraction.py` | — |

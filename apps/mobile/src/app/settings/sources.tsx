@@ -6,6 +6,7 @@ import { Screen, useRefresh } from "@/components/screen";
 import { OptionGroup } from "@/components/settings-kit";
 import { Button, Card, EmptyState, Field, Group, IconButton, Loading, Row, Segmented, SwitchRow, T } from "@/components/ui";
 import { type Schema, useSourceActions, useSources } from "@/lib/api";
+import { useCatalog } from "@/lib/careers";
 import { titleCase, useWhen } from "@/lib/format";
 import { useTheme } from "@/lib/theme";
 
@@ -144,6 +145,7 @@ function AddSource({ onDone }: { onDone: () => void }) {
 
 export default function SourcesScreen() {
   const sources = useSources();
+  const catalog = useCatalog(undefined, "");
   const [adding, setAdding] = useState(false);
   const refresh = useRefresh(() => sources.refetch());
 
@@ -156,7 +158,7 @@ export default function SourcesScreen() {
       refresh={refresh}
       accessory={!adding ? <Button label="Add" icon="add" variant="tinted" size="small" onPress={() => setAdding(true)} /> : undefined}
     >
-      <Group footer="117 verified company boards for India and Australia (Greenhouse, Lever, Ashby, SmartRecruiters and Workday).">
+      <Group footer={`${catalog.data ? `${catalog.data.length} verified` : "Verified"} company boards for India and Australia (Greenhouse, Lever, Ashby, SmartRecruiters and Workday).`}>
         <Row title="Browse Companies" icon="business" iconColor="#5856D6" chevron onPress={() => router.push("/settings/catalog")} />
       </Group>
       {adding ? <AddSource onDone={() => setAdding(false)} /> : null}
