@@ -1,5 +1,5 @@
 {
-	email {$ACME_EMAIL}
+	# ACME account email is optional; set it in the Caddyfile if you want expiry notices.
 	servers {
 		protocols h1 h2 h3
 	}

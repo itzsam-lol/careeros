@@ -59,6 +59,9 @@ services:
     restart: unless-stopped
     <<: *app-env
     command: python -m careeros.workers
+    # The image's HTTP healthcheck targets the API; the worker has no server (restart policy covers crashes).
+    healthcheck:
+      disable: true
     volumes:
       - storage:/data/storage
       - tectonic-cache:/home/app/.cache
