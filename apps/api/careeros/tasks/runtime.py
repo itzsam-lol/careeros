@@ -259,12 +259,13 @@ class Worker:
         running: set[asyncio.Task[TaskStatus]] = set()
         poll = self.container.settings.worker_poll_interval_seconds
         while not stop.is_set():
+            running = {t for t in running if not t.done()}
+            claimed: list[ClaimedTask] = []
             try:
                 if time.monotonic() - self._last_maintenance > 60:
                     self._last_maintenance = time.monotonic()
                     await self.maintenance()
                 free = self.concurrency - len(running)
-                claimed: list[ClaimedTask] = []
                 if free > 0:
                     async with self.sessions() as session:
                         claimed = [
@@ -279,10 +280,12 @@ class Worker:
                         await session.commit()
                 for task in claimed:
                     running.add(asyncio.create_task(self._guarded(semaphore, task)))
-                running = {t for t in running if not t.done()}
             except Exception as exc:  # keep the worker alive through transient DB errors
                 log.error("worker_loop_error", error_type=type(exc).__name__, error=str(exc)[:500])
-            if not claimed:
+            if len(running) >= self.concurrency:
+                # Every slot is busy: claim more as soon as one frees up, not after a full poll.
+                await asyncio.wait(running, timeout=poll, return_when=asyncio.FIRST_COMPLETED)
+            elif not claimed:
                 with contextlib.suppress(TimeoutError):
                     await asyncio.wait_for(stop.wait(), timeout=poll)
         if running:
