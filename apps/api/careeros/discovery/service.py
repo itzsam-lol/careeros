@@ -21,7 +21,13 @@ from careeros.core.logging import get_logger
 from careeros.discovery.adapters import build_adapter
 from careeros.discovery.dedup import upsert_job
 from careeros.discovery.models import CADENCE_INTERVALS, JobSource
-from careeros.discovery.normalize import NormalizedJob, normalize, normalize_company
+from careeros.discovery.normalize import (
+    NormalizedJob,
+    extract_countries,
+    normalize,
+    normalize_company,
+)
+from careeros.discovery.raw import RawJob
 from careeros.events.models import EventType
 from careeros.events.service import emit
 from careeros.jobs.models import Job, JobLifecycle, JobSourceLink, UserJob
@@ -177,6 +183,23 @@ def schedule_next(source: JobSource, now: datetime) -> None:
     source.next_run_at = now + interval if interval else None
 
 
+def _within_regions(
+    raws: list[RawJob], countries: list[str] | None, stats: Counter[str]
+) -> list[RawJob]:
+    """Keep jobs in the source's configured countries (global boards list the whole world)."""
+    wanted = set(extract_countries(countries or []))
+    if not wanted:
+        return raws
+    kept = []
+    for raw in raws:
+        found = set(extract_countries(raw.locations or ([raw.location] if raw.location else [])))
+        if found and not found & wanted:
+            stats["out_of_region"] += 1
+            continue
+        kept.append(raw)  # no stated country: let eligibility decide
+    return kept
+
+
 async def run_source(
     session: AsyncSession,
     source_id: uuid.UUID,
@@ -212,6 +235,7 @@ async def run_source(
 
     exclusions = await load_exclusions(session, source.user_id)
     stats: Counter[str] = Counter(found=len(raws))
+    raws = _within_regions(raws, source.config.get("countries"), stats)
     seen: set[str] = set()
     for raw in raws[:MAX_JOBS_PER_RUN]:
         try:

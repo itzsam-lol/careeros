@@ -25,6 +25,9 @@ CompanyName = Annotated[str, StringConstraints(strip_whitespace=True, min_length
 class _Config(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # Only keep jobs located in these countries (unset = everything the source lists).
+    countries: Annotated[list[CompanyName], Field(max_length=10)] | None = None
+
 
 class GreenhouseConfig(_Config):
     board_token: Slug
@@ -46,6 +49,22 @@ class SmartRecruitersConfig(_Config):
     company: Slug
     company_name: CompanyName | None = None
     max_details: Annotated[int, Field(ge=0, le=100)] = 40
+
+
+class WorkdayConfig(_Config):
+    url: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            pattern=r"^https://[a-z0-9-]+\.wd\d{1,3}\.myworkdayjobs\.com/",
+            max_length=300,
+        ),
+    ]
+    company_name: CompanyName | None = None
+    countries: Annotated[list[CompanyName], Field(min_length=1, max_length=10)] = Field(
+        default_factory=lambda: ["India", "Australia"]
+    )
+    max_jobs: Annotated[int, Field(ge=1, le=300)] = 60
 
 
 class RSSConfig(_Config):
@@ -70,6 +89,7 @@ CONFIG_MODELS: dict[SourceType, type[_Config]] = {
     SourceType.LEVER: LeverConfig,
     SourceType.ASHBY: AshbyConfig,
     SourceType.SMARTRECRUITERS: SmartRecruitersConfig,
+    SourceType.WORKDAY: WorkdayConfig,
     SourceType.RSS: RSSConfig,
     SourceType.CAREER_PAGE: CareerPageConfig,
     SourceType.FIXTURE: FixtureConfig,
@@ -99,6 +119,14 @@ def validate_config(
             identity = f"ashby:{parsed.organization.lower()}"
         case SmartRecruitersConfig():
             identity = f"smartrecruiters:{parsed.company.lower()}"
+        case WorkdayConfig():
+            from careeros.discovery.adapters.workday import parse_site
+
+            try:
+                tenant, _wd, site = parse_site(parsed.url)
+            except ValueError as exc:
+                raise ValidationFailedError(str(exc)) from exc
+            identity = f"workday:{tenant}:{site.lower()}"
         case RSSConfig() | CareerPageConfig():
             canonical = canonicalize_url(parsed.url)
             if canonical is None:
@@ -121,6 +149,7 @@ def build_adapter(
     from careeros.discovery.adapters.lever import LeverAdapter
     from careeros.discovery.adapters.rss import RSSAdapter
     from careeros.discovery.adapters.smartrecruiters import SmartRecruitersAdapter
+    from careeros.discovery.adapters.workday import WorkdayAdapter
 
     model = CONFIG_MODELS[source_type]
     parsed: Any = model.model_validate(config)
@@ -129,6 +158,7 @@ def build_adapter(
         SourceType.LEVER: LeverAdapter,
         SourceType.ASHBY: AshbyAdapter,
         SourceType.SMARTRECRUITERS: SmartRecruitersAdapter,
+        SourceType.WORKDAY: WorkdayAdapter,
         SourceType.RSS: RSSAdapter,
         SourceType.CAREER_PAGE: CareerPageAdapter,
         SourceType.FIXTURE: FixtureAdapter,

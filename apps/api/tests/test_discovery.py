@@ -252,3 +252,41 @@ async def test_task_policy_retry_fail_wait_and_recover(
     stale.locked_until = utcnow() - timedelta(seconds=1)
     await session.commit()
     assert await queue.recover_stale(session) == 1
+
+
+async def test_catalog_lists_and_adds_boards(client: AsyncClient) -> None:
+    boards = (await client.get("/api/v1/sources/catalog", params={"region": "AU"})).json()
+    assert len(boards) > 20
+    assert all("AU" in b["regions"] for b in boards)
+    assert not any(b["added"] for b in boards)
+    first, second = boards[0]["id"], boards[1]["id"]
+    added = (await client.post("/api/v1/sources/catalog", json={"ids": [first, second]})).json()
+    assert added == {"added": 2, "already_present": 0}
+    again = (await client.post("/api/v1/sources/catalog", json={"ids": [first]})).json()
+    assert again == {"added": 0, "already_present": 1}
+    sources = (await client.get("/api/v1/sources")).json()
+    assert len(sources) == 2
+    assert all(s["config"]["countries"] == ["India", "Australia"] for s in sources)
+    refreshed = {b["id"]: b["added"] for b in (await client.get("/api/v1/sources/catalog")).json()}
+    assert refreshed[first] and refreshed[second]
+    searched = (await client.get("/api/v1/sources/catalog", params={"q": "canva"})).json()
+    assert [b["name"] for b in searched] == ["Canva"]
+
+
+def test_region_filter_keeps_target_countries_and_unknown_locations() -> None:
+    from collections import Counter
+
+    from careeros.discovery.raw import RawJob
+    from careeros.discovery.service import _within_regions
+
+    raws = [
+        RawJob(title="A", company="X", location="Bengaluru, India"),
+        RawJob(title="B", company="X", location="Berlin, Germany"),
+        RawJob(title="C", company="X", location=None),
+        RawJob(title="D", company="X", locations=["Sydney, Australia", "London, UK"]),
+    ]
+    stats: Counter[str] = Counter()
+    kept = _within_regions(raws, ["India", "Australia"], stats)
+    assert [r.title for r in kept] == ["A", "C", "D"]
+    assert stats["out_of_region"] == 1
+    assert _within_regions(raws, None, stats) == raws

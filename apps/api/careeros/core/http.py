@@ -181,6 +181,27 @@ class PoliteHttpClient:
         except ValueError as exc:
             raise SourceFetchError(f"{urlsplit(url).netloc} returned invalid JSON") from exc
 
+    async def post_json(
+        self, url: str, payload: dict[str, Any], *, headers: dict[str, str] | None = None
+    ) -> Any:
+        """POST a JSON body to a public JSON API (e.g. job-board search endpoints)."""
+        page = await self._request(
+            url,
+            headers={"Accept": "application/json", **(headers or {})},
+            method="POST",
+            json_body=payload,
+        )
+        if page.status_code >= 400:
+            raise SourceFetchError(
+                f"{urlsplit(url).netloc} returned HTTP {page.status_code}",
+                details={"status": page.status_code},
+                retryable=page.status_code in _RETRY_STATUSES,
+            )
+        try:
+            return page.json()
+        except ValueError as exc:
+            raise SourceFetchError(f"{urlsplit(url).netloc} returned invalid JSON") from exc
+
     async def _request(
         self,
         url: str,
@@ -188,6 +209,8 @@ class PoliteHttpClient:
         headers: dict[str, str] | None = None,
         max_bytes: int | None = None,
         retries: int = 3,
+        method: str = "GET",
+        json_body: dict[str, Any] | None = None,
     ) -> FetchedPage:
         limit = max_bytes or self._settings.http_max_response_bytes
         current = url
@@ -196,8 +219,14 @@ class PoliteHttpClient:
                 await self.ensure_public_url(current)
                 await self._throttle(urlsplit(current).netloc)
                 try:
-                    async with self._client.stream("GET", current, headers=headers) as response:
-                        if response.is_redirect and "location" in response.headers:
+                    async with self._client.stream(
+                        method, current, headers=headers, json=json_body
+                    ) as response:
+                        if (
+                            method == "GET"
+                            and response.is_redirect
+                            and "location" in response.headers
+                        ):
                             current = urljoin(current, response.headers["location"])
                             continue
                         body = bytearray()

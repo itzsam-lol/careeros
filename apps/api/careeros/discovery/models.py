@@ -16,6 +16,7 @@ class SourceType(StrEnum):
     LEVER = "LEVER"
     ASHBY = "ASHBY"
     SMARTRECRUITERS = "SMARTRECRUITERS"
+    WORKDAY = "WORKDAY"
     RSS = "RSS"
     CAREER_PAGE = "CAREER_PAGE"
     FIXTURE = "FIXTURE"

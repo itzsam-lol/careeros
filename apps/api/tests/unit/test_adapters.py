@@ -133,3 +133,78 @@ def test_config_validation_and_identity() -> None:
         SourceType.RSS, {"url": "https://Feeds.Example.com/jobs/?utm_source=x"}, settings
     )
     assert rss_identity == "rss:https://feeds.example.com/jobs"
+
+
+@respx.mock
+async def test_workday_adapter_uses_country_facets(http: PoliteHttpClient) -> None:
+    api = "https://examplecorp.wd5.myworkdayjobs.com/wday/cxs/examplecorp/Careers"
+    facets = [
+        {
+            "facetParameter": "locationCountry",
+            "values": [
+                {"descriptor": "India", "id": "in-id", "count": 1},
+                {"descriptor": "Germany", "id": "de-id", "count": 9},
+            ],
+        }
+    ]
+    searches: list[dict[str, object]] = []
+
+    def search(request: httpx.Request) -> httpx.Response:
+        import json
+
+        body = json.loads(request.content)
+        searches.append(body)
+        if not body["appliedFacets"]:
+            return httpx.Response(200, json={"total": 10, "facets": facets, "jobPostings": []})
+        return httpx.Response(
+            200,
+            json={
+                "total": 1,
+                "jobPostings": [
+                    {
+                        "title": "Data Analyst",
+                        "externalPath": "/job/Pune/Data-Analyst_R1",
+                        "locationsText": "Pune, India",
+                    }
+                ],
+            },
+        )
+
+    respx.post(f"{api}/jobs").mock(side_effect=search)
+    respx.get(f"{api}/job/Pune/Data-Analyst_R1").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "jobPostingInfo": {
+                    "title": "Data Analyst",
+                    "jobDescription": "<p>SQL and Python. Visa sponsorship is not available.</p>",
+                    "location": "Pune, India",
+                    "startDate": "2026-09-01",
+                    "timeType": "Full time",
+                    "jobReqId": "R1",
+                    "externalUrl": "https://examplecorp.wd5.myworkdayjobs.com/Careers/job/Pune/Data-Analyst_R1",
+                }
+            },
+        )
+    )
+    config, identity = validate_config(
+        SourceType.WORKDAY,
+        {"url": "https://examplecorp.wd5.myworkdayjobs.com/en-US/Careers", "countries": ["India"]},
+        _settings(),
+    )
+    assert identity == "workday:examplecorp:careers"
+    jobs = await build_adapter(SourceType.WORKDAY, config, http).discover_jobs()
+    assert [(j.external_id, j.title, j.location) for j in jobs] == [
+        ("R1", "Data Analyst", "Pune, India")
+    ]
+    assert searches[-1]["appliedFacets"] == {"locationCountry": ["in-id"]}
+    assert "India" in normalize(jobs[0]).countries
+
+
+def test_workday_rejects_non_workday_urls() -> None:
+    from careeros.core.errors import ValidationFailedError
+
+    with pytest.raises(ValidationFailedError):
+        validate_config(
+            SourceType.WORKDAY, {"url": "https://evil.example.com/Careers"}, _settings()
+        )
