@@ -97,6 +97,16 @@ def deterministic_explanation(
                 "evidence": [],
             }
         )
+    implied = [
+        c
+        for c in required
+        if c.status == CoverageStatus.PARTIAL and c.note and c.note.startswith("shown through")
+    ]
+    if implied:
+        covered = ", ".join(
+            f"{c.skill} ({(c.note or '').removeprefix('shown through ')})" for c in implied[:3]
+        )
+        strengths.append({"text": f"Your work also covers {covered}", "evidence": []})
     for ref in refs:
         if ref["source_type"] in _SKIP_STRENGTH_SOURCES:
             continue
@@ -128,7 +138,10 @@ def deterministic_explanation(
         if check.status == CheckStatus.FAIL:
             gaps.append({"text": check.detail, "kind": check.key})
 
-    concerns = [check.detail for check in checks if check.status == CheckStatus.UNKNOWN]
+    concerns = [
+        *scores.notes,
+        *(check.detail for check in checks if check.status == CheckStatus.UNKNOWN),
+    ]
     unverified = [
         c.skill
         for c in coverage

@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from careeros.core.enums import RemotePreference, RemoteType
-from careeros.discovery.normalize import normalize_title
+from careeros.core.enums import RemotePreference, RemoteType, SeniorityLevel
+from careeros.discovery.normalize import detect_seniority, normalize_title
 from careeros.evidence.service import EvidenceHit
 from careeros.intelligence.extraction import JobExtraction
+from careeros.intelligence.functions import LABELS, title_functions
 from careeros.jobs.models import Job
-from careeros.matching.coverage import RequirementCoverage, skills_score
+from careeros.matching.coverage import CoverageStatus, RequirementCoverage, skills_score
 from careeros.matching.eligibility import CheckStatus, EligibilityCheck
 from careeros.matching.profile_view import MatchProfile
 from careeros.profile.enums import VerificationStatus
 
-SCORER_VERSION = "match-v1"
+# v2: kind of work (title function), role level vs. experience, per-project skill evidence.
+SCORER_VERSION = "match-v2"
 DEFAULT_WEIGHTS = {
     "skills": 0.3, "projects": 0.2, "experience": 0.15, "research": 0.05, "domain": 0.15, "preferences": 0.15,
 }  # fmt: skip
@@ -23,6 +25,19 @@ RESEARCH_WEIGHTS = {
 }  # fmt: skip
 _TITLE_NOISE = {"intern", "internship", "senior", "junior", "lead", "staff", "principal", "i", "ii", "iii", "the", "and", "of"}  # fmt: skip
 UNVERIFIED_DISCOUNT = 0.6
+# Roles in a different line of work (sales, HR, legal...) from every target role sink, even at
+# companies in the user's field.
+FUNCTION_MISMATCH_FACTOR = 0.6
+
+_S = SeniorityLevel
+# How well a role's level suits the user: students and new graduates, <3, <6 and 6+ years.
+_LEVEL_FIT: dict[str, dict[SeniorityLevel, float]] = {
+    "early": {_S.INTERN: 1.0, _S.ENTRY: 1.0, _S.MID: 0.45, _S.SENIOR: 0.1, _S.LEAD: 0.05, _S.MANAGER: 0.05},
+    "junior": {_S.INTERN: 0.4, _S.ENTRY: 0.95, _S.MID: 0.8, _S.SENIOR: 0.35, _S.LEAD: 0.2, _S.MANAGER: 0.2},
+    "mid": {_S.INTERN: 0.1, _S.ENTRY: 0.6, _S.MID: 1.0, _S.SENIOR: 0.8, _S.LEAD: 0.5, _S.MANAGER: 0.4},
+    "senior": {_S.INTERN: 0.05, _S.ENTRY: 0.3, _S.MID: 0.8, _S.SENIOR: 1.0, _S.LEAD: 0.9, _S.MANAGER: 0.8},
+}  # fmt: skip
+UNKNOWN_LEVEL_FIT = 0.6
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +45,8 @@ class Scores:
     dimensions: dict[str, float]
     overall: float
     weights: dict[str, float]
+    # Caveats for the explanation ("looks like a sales role").
+    notes: list[str] = field(default_factory=list)
 
 
 def hit_relevance(hit: EvidenceHit) -> float:
@@ -52,6 +69,56 @@ def _by_type(hits: list[EvidenceHit], *types: str) -> list[float]:
     return [hit_relevance(h) for h in hits if h.item.source_type in types]
 
 
+def effective_seniority(job: Job) -> SeniorityLevel:
+    """The stored level, or one read from the title (older rows were classified with fewer rules)."""
+    if job.seniority != SeniorityLevel.UNKNOWN:
+        return job.seniority
+    return detect_seniority(job.title, job.employment_type)
+
+
+def level_fit(level: SeniorityLevel, mp: MatchProfile) -> float:
+    if level == SeniorityLevel.UNKNOWN:
+        return UNKNOWN_LEVEL_FIT
+    years = mp.professional_years
+    if mp.is_student or years < 1:
+        if level == SeniorityLevel.INTERN and not mp.is_student:
+            return 0.6  # internships usually require current enrolment
+        return _LEVEL_FIT["early"][level]
+    band = "junior" if years < 3 else "mid" if years < 6 else "senior"
+    return _LEVEL_FIT[band][level]
+
+
+def function_fit(title: str, mp: MatchProfile) -> bool | None:
+    """Whether the title's kind of work matches a target role; None when either is unknown."""
+    if not mp.target_functions:
+        return None
+    functions = title_functions(title)
+    if not functions:
+        return None
+    return bool(functions & mp.target_functions)
+
+
+def evidence_skill_fit(coverage: list[RequirementCoverage], prefix: str) -> float:
+    """Share of the job's skills that a single project (or job) of the user demonstrates.
+
+    One project that used four of the requested skills is stronger evidence than four
+    projects that each used one. Lists shorter than three skills are not a full fit.
+    """
+    per_item: dict[str, float] = {}
+    total = 0.0
+    for c in coverage:
+        weight = 1.0 if c.required else 0.5
+        total += weight
+        if c.status != CoverageStatus.MATCHED:
+            continue
+        for source in c.sources:
+            if source.startswith(prefix):
+                per_item[source] = per_item.get(source, 0.0) + weight
+    if not per_item:
+        return 0.0
+    return min(1.0, max(per_item.values()) / min(max(total, 3.0), 4.0))
+
+
 def role_alignment(title: str, extraction: JobExtraction, mp: MatchProfile) -> float:
     title_tokens = set(normalize_title(title).split()) - _TITLE_NOISE
     best = 0.0
@@ -60,6 +127,11 @@ def role_alignment(title: str, extraction: JobExtraction, mp: MatchProfile) -> f
         if title_tokens and target_tokens:
             best = max(best, len(title_tokens & target_tokens) / len(title_tokens | target_tokens))
     domain_hit = extraction.domain in mp.target_domains
+    fit = function_fit(title, mp)
+    if fit is False:
+        return 0.0  # a sales role is not an engineering role, whatever the company builds
+    if fit:
+        return min(1.0, max(best * 1.4, 0.85 if domain_hit else 0.7))
     return min(1.0, max(best * 1.4, 0.8 if domain_hit else 0.0))
 
 
@@ -109,13 +181,19 @@ def compute_scores(
     checks: list[EligibilityCheck],
     eligible: bool,
 ) -> Scores:
+    notes: list[str] = []
     skills = skills_score(coverage)
     if skills is None:
         skills = _blend(_by_type(hits, "skills")) or 0.5
-    projects = _blend(_by_type(hits, "project"))
-    experience = _blend(_by_type(hits, "experience"))
+    projects = max(_blend(_by_type(hits, "project")), evidence_skill_fit(coverage, "project:"))
+    work = max(_blend(_by_type(hits, "experience")), evidence_skill_fit(coverage, "experience:"))
     if any(c.key == "experience" and c.status == CheckStatus.PASS for c in checks):
-        experience = min(1.0, experience + 0.1)
+        work = min(1.0, work + 0.1)
+    level = effective_seniority(job)
+    fit_for_level = level_fit(level, mp)
+    experience = 0.5 * work + 0.5 * fit_for_level
+    if level == SeniorityLevel.MID and fit_for_level < 0.6:
+        notes.append("Mid-level role: it usually expects a few years of full-time experience")
     research = max(_by_type(hits, "research", "publication") or [0.0])
     if extraction.is_research and mp.has_publications:
         research = min(1.0, research + 0.1)
@@ -137,10 +215,19 @@ def compute_scores(
     }
     weights = RESEARCH_WEIGHTS if extraction.is_research else DEFAULT_WEIGHTS
     overall = sum(weights[k] * v for k, v in dimensions.items())
+    if function_fit(job.title, mp) is False:
+        overall *= FUNCTION_MISMATCH_FACTOR
+        kinds = " / ".join(sorted(LABELS[f] for f in title_functions(job.title)))
+        notes.insert(
+            0, f"This looks like a {kinds} role, not the kind of work in your target roles"
+        )
     if not eligible:
         overall = min(overall * 0.5, 0.45)
     elif any(c.status == CheckStatus.UNKNOWN and c.key == "work_authorization" for c in checks):
         overall *= 0.9
     return Scores(
-        dimensions=dimensions, overall=round(max(0.0, min(1.0, overall)), 3), weights=weights
+        dimensions=dimensions,
+        overall=round(max(0.0, min(1.0, overall)), 3),
+        weights=weights,
+        notes=notes,
     )

@@ -10,6 +10,7 @@ from careeros.core.enums import EmploymentType, RemotePreference
 from careeros.discovery.normalize import extract_countries, normalize_location
 from careeros.intelligence.domains import JobDomain, domains_for_text
 from careeros.intelligence.extraction import DegreeLevel, degree_levels_in
+from careeros.intelligence.functions import JobFunction, title_functions
 from careeros.intelligence.skills import canonical_key, extract_skill_names, normalize_skill_name
 from careeros.profile.enums import SponsorshipRequirement, VerificationStatus
 from careeros.profile.service import ProfileSnapshot
@@ -59,6 +60,9 @@ class MatchProfile:
     has_publications: bool
     # Countries where only roles that explicitly offer visa sponsorship are acceptable.
     strict_sponsorship_countries: set[str] = field(default_factory=set)
+    # Kinds of work the target roles describe (engineering, data...), to tell a sales role at an
+    # AI company apart from an AI engineering role.
+    target_functions: set[JobFunction] = field(default_factory=set)
 
     def skill(self, name: str) -> SkillEvidence | None:
         return self.skills.get(canonical_key(normalize_skill_name(name)))
@@ -184,6 +188,7 @@ def build_match_profile(snapshot: ProfileSnapshot, *, today: date) -> MatchProfi
         authorized_countries=authorized,
         sponsorship_requirement=profile.sponsorship_requirement,
         target_roles=list(prefs.target_roles),
+        target_functions={f for role in prefs.target_roles for f in title_functions(role)},
         target_domains=target_domains,
         target_countries=set(extract_countries(prefs.target_countries))
         | {c.strip() for c in prefs.target_countries if c.strip()},

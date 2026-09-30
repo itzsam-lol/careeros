@@ -40,6 +40,14 @@ def _fmt_types(values: set[str]) -> str:
 def _location_check(job: Job, mp: MatchProfile) -> EligibilityCheck | None:
     label = "Location"
     if job.remote_type == RemoteType.REMOTE:
+        # "Remote, Turkey" is remote for people in Turkey, not for everyone.
+        restricted = set(job.countries)
+        allowed = mp.target_countries | mp.authorized_countries
+        if restricted and allowed and not restricted & allowed:
+            where = ", ".join(sorted(restricted))
+            return EligibilityCheck(
+                "location", label, CheckStatus.FAIL, f"Remote, but only for people based in {where}"
+            )
         if mp.remote_preference == RemotePreference.ONSITE:
             return EligibilityCheck(
                 "location",

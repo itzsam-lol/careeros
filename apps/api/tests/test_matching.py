@@ -13,7 +13,8 @@ from careeros.container import Container
 from careeros.intelligence.models import JobAnalysis
 from careeros.jobs.models import Job
 from careeros.matching.models import JobMatch
-from careeros.matching.tasks import enqueue_stale_matches
+from careeros.matching.scoring import SCORER_VERSION
+from careeros.matching.tasks import enqueue_rescoring, enqueue_stale_matches
 from careeros.tasks.models import AgentTask, TaskStatus, TaskType
 from careeros.tasks.runtime import Worker
 
@@ -234,6 +235,31 @@ async def test_profile_changes_trigger_rematching(
     await session.refresh(analyst)
     coverage: dict[str, Any] = {c["skill"]: c["status"] for c in analyst.requirement_coverage}
     assert coverage.get("Tableau") == "MATCHED"
+
+
+async def test_scorer_changes_rescore_open_matches(
+    client: AsyncClient,
+    session: AsyncSession,
+    worker: Worker,
+    container: Container,
+    fixtures_dir: Path,
+) -> None:
+    await _setup(client, worker, fixtures_dir)
+    matches = (await session.execute(select(JobMatch))).scalars().all()
+    assert matches
+    assert all(m.scorer.startswith(SCORER_VERSION) for m in matches)
+    for match in matches:
+        match.scorer = "match-v1"
+    await session.flush()
+
+    queued = await enqueue_rescoring(session, container)
+    assert 0 < queued <= len(matches)  # dismissed jobs are left alone
+    await session.commit()
+    await worker.drain()
+    for match in matches:
+        await session.refresh(match)
+    assert sum(m.scorer.startswith(SCORER_VERSION) for m in matches) == queued
+    assert await enqueue_rescoring(session, container) == 0
 
 
 @pytest.mark.parametrize("threshold", [0.99])

@@ -1,4 +1,4 @@
-"""MATCH_JOB handler and periodic producers (stale re-matching, missing matches, deadlines)."""
+"""MATCH_JOB handler and periodic producers (stale re-matching, rescoring, missing matches, deadlines)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from careeros.core.clock import utcnow
 from careeros.jobs.models import AnalysisStatus, Job, JobLifecycle, UserJob
 from careeros.matching.models import JobMatch
+from careeros.matching.scoring import SCORER_VERSION
 from careeros.matching.service import match_job
 from careeros.notifications.models import NotificationPriority, NotificationType
 from careeros.notifications.service import notify
@@ -68,6 +69,32 @@ async def enqueue_stale_matches(session: AsyncSession, container: Container) -> 
             {"job_id": str(job_id), "user_id": str(user_id)},
             user_id=user_id,
             idempotency_key=f"match:{user_id}:{job_id}:v{version}",
+        )
+    return len(rows)
+
+
+@periodic("rescore_new_scorer")
+async def enqueue_rescoring(session: AsyncSession, container: Container) -> int:
+    """After the scoring rules change, open matches from an older scorer are recomputed."""
+    rows = (
+        await session.execute(
+            select(JobMatch.user_id, JobMatch.job_id)
+            .join(
+                UserJob,
+                and_(UserJob.user_id == JobMatch.user_id, UserJob.job_id == JobMatch.job_id),
+            )
+            .where(~JobMatch.scorer.startswith(SCORER_VERSION), UserJob.status.in_(_OPEN))
+            .limit(500)
+        )
+    ).all()
+    for user_id, job_id in rows:
+        await enqueue(
+            session,
+            TaskType.MATCH_JOB,
+            {"job_id": str(job_id), "user_id": str(user_id)},
+            user_id=user_id,
+            idempotency_key=f"match:{user_id}:{job_id}:{SCORER_VERSION}",
+            priority=1,
         )
     return len(rows)
 

@@ -32,6 +32,39 @@ RELATED_GROUPS: list[set[str]] = [
 ]
 
 
+# Broad skills that specific, verified tools demonstrate: building FastAPI services is REST API
+# work. Credited as PARTIAL with the tool named ("shown through FastAPI"), never as MATCHED.
+IMPLIED_BY: dict[str, set[str]] = {
+    "REST APIs": {"FastAPI", "Express", "Flask", "Django", "Spring Boot", "NestJS", "API Design"},
+    "API Design": {"REST APIs", "GraphQL", "gRPC", "FastAPI", "Express", "Django", "Spring Boot"},
+    "Backend Development": {"FastAPI", "Express", "Flask", "Django", "Spring Boot", "NestJS",
+                            "Node.js", "Ruby on Rails", ".NET"},
+    "Frontend Development": {"React", "Next.js", "Vue.js", "Angular", "Svelte"},
+    "Web Development": {"React", "Next.js", "Vue.js", "Angular", "Django", "Express", "FastAPI"},
+    "Machine Learning": {"scikit-learn", "TensorFlow", "PyTorch", "XGBoost", "LightGBM", "Keras",
+                         "Deep Learning"},
+    "Deep Learning": {"TensorFlow", "PyTorch", "Keras", "JAX"},
+    "Data Science": {"Machine Learning", "scikit-learn", "Statistics"},
+    "Data Analysis": {"Pandas", "SQL", "Statistics"},
+    "Data Visualization": {"Matplotlib", "Plotly", "Seaborn", "Tableau", "Power BI", "D3.js"},
+    "SQL": {"PostgreSQL", "MySQL", "SQLite", "SQL Server", "Oracle Database", "BigQuery",
+            "Snowflake"},
+    "Cloud Computing": {"AWS", "Google Cloud", "Microsoft Azure"},
+    "Large Language Models": {"LangChain", "LlamaIndex", "Retrieval-Augmented Generation",
+                              "Prompt Engineering", "vLLM"},
+    "Generative AI": {"Large Language Models", "LangChain", "LlamaIndex",
+                      "Retrieval-Augmented Generation", "Prompt Engineering"},
+    "Natural Language Processing": {"Large Language Models", "Transformers", "spaCy", "NLTK",
+                                    "Hugging Face"},
+    "Artificial Intelligence": {"Machine Learning", "Deep Learning", "Large Language Models",
+                                "Computer Vision", "Natural Language Processing"},
+    "Computer Vision": {"OpenCV"},
+    "Object-Oriented Programming": {"Java", "C++", "C#", "Kotlin", "Scala"},
+    "Unit Testing": {"pytest", "Jest", "JUnit", "Cypress"},
+}  # fmt: skip
+IMPLIED_SCORE = 0.75
+
+
 class CoverageStatus(StrEnum):
     MATCHED = "MATCHED"
     PARTIAL = "PARTIAL"
@@ -72,6 +105,22 @@ def assess(skill: str, required: bool, mp: MatchProfile) -> RequirementCoverage:
         )
         return RequirementCoverage(
             skill, required, CoverageStatus.PARTIAL, evidence.weight * 0.8, evidence.sources, note
+        )
+    implied = [
+        found
+        for name in sorted(IMPLIED_BY.get(skill, ()))
+        if (found := mp.skills.get(canonical_key(name))) is not None and found.weight >= 0.75
+    ]
+    if implied:
+        names = ", ".join(e.name for e in implied[:2])
+        sources = list(dict.fromkeys(s for e in implied for s in e.sources))[:6]
+        return RequirementCoverage(
+            skill,
+            required,
+            CoverageStatus.PARTIAL,
+            IMPLIED_SCORE,
+            sources,
+            f"shown through {names}",
         )
     for other in sorted(_related(skill)):
         adjacent = mp.skills.get(canonical_key(other))
