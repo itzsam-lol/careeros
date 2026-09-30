@@ -6,7 +6,15 @@ import { Button, Card, EmptyState, Group, Loading, Row, Segmented, StepperRow, S
 import { type Preferences, type Schema, useProfile, useUpdatePreferences } from "@/lib/api";
 import { compactMoney } from "@/lib/format";
 
-type ListField = "target_roles" | "target_technologies" | "target_companies" | "target_countries" | "target_cities" | "excluded_companies" | "excluded_keywords";
+type ListField =
+  | "target_roles"
+  | "target_technologies"
+  | "target_companies"
+  | "target_countries"
+  | "target_cities"
+  | "sponsorship_required_countries"
+  | "excluded_companies"
+  | "excluded_keywords";
 
 const LISTS: { field: ListField; header: string; placeholder: string; footer?: string }[] = [
   { field: "target_roles", header: "Target roles", placeholder: "e.g. ML engineer", footer: "Roles close to these titles score higher." },
@@ -14,6 +22,12 @@ const LISTS: { field: ListField; header: string; placeholder: string; footer?: s
   { field: "target_companies", header: "Dream companies", placeholder: "e.g. DeepMind" },
   { field: "target_countries", header: "Countries", placeholder: "e.g. India", footer: "Roles elsewhere are marked ineligible unless remote." },
   { field: "target_cities", header: "Cities", placeholder: "e.g. Bengaluru" },
+  {
+    field: "sponsorship_required_countries",
+    header: "Only with visa sponsorship",
+    placeholder: "e.g. Australia",
+    footer: "Roles in these countries are hidden unless the posting explicitly offers visa sponsorship.",
+  },
   { field: "excluded_companies", header: "Never show companies", placeholder: "Company name", footer: "Roles from these companies are skipped entirely." },
   { field: "excluded_keywords", header: "Never show keywords", placeholder: "e.g. unpaid", footer: "Postings containing these words are skipped." },
 ];

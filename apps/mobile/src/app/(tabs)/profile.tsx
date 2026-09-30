@@ -1,7 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 
-import { Screen, useRefresh } from "@/components/screen";
+import { HeaderButton, Screen, useRefresh } from "@/components/screen";
 import { Bar, Button, Card, Chip, EmptyState, Group, IconButton, Loading, Row, T } from "@/components/ui";
 import { type Schema, useProfile, useVerify } from "@/lib/api";
 import { titleCase } from "@/lib/format";
@@ -74,17 +75,18 @@ export default function ProfileScreen() {
   const profile = useProfile();
   const verify = useVerify();
   const refresh = useRefresh(() => profile.refetch());
+  const settingsButton = <HeaderButton icon="settings-outline" label="Settings" onPress={() => router.push("/settings")} />;
 
   if (profile.isPending) {
     return (
-      <Screen title="Profile">
+      <Screen title="Profile" accessory={settingsButton}>
         <Loading />
       </Screen>
     );
   }
   if (profile.isError) {
     return (
-      <Screen title="Profile" refresh={refresh}>
+      <Screen title="Profile" refresh={refresh} accessory={settingsButton}>
         <Card>
           <EmptyState
             icon="cloud-offline-outline"
@@ -126,7 +128,7 @@ export default function ProfileScreen() {
     );
 
   return (
-    <Screen title="Profile" refresh={refresh}>
+    <Screen title="Profile" refresh={refresh} accessory={settingsButton}>
       <View style={styles.identity}>
         <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
           <T v="title1" color="#FFFFFF">

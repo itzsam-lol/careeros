@@ -4,9 +4,9 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { JobCardView, useJobFilter } from "@/components/job-card";
 import { NotificationStack } from "@/components/notification-stack";
-import { Screen, useRefresh } from "@/components/screen";
+import { HeaderButton, Screen, useRefresh } from "@/components/screen";
 import { Button, Card, EmptyState, Group, type IconName, Loading, Row, T } from "@/components/ui";
-import { type JobView, type Notification, useDashboard, useMarkRead, useMe } from "@/lib/api";
+import { type JobView, type Notification, useDashboard, useMarkRead, useMe, useUnreadCount } from "@/lib/api";
 import { useWhen } from "@/lib/format";
 import type { HomeSection } from "@/lib/prefs";
 import { useTheme } from "@/lib/theme";
@@ -70,6 +70,7 @@ export default function TodayScreen() {
   const markRead = useMarkRead();
   const when = useWhen();
   const keep = useJobFilter();
+  const unread = useUnreadCount().data?.unread ?? 0;
   const refresh = useRefresh(() => Promise.all([dashboard.refetch(), me.refetch()]));
 
   const openJobs = (view: JobView) => router.navigate({ pathname: "/jobs", params: { view } });
@@ -92,6 +93,8 @@ export default function TodayScreen() {
             <StatTile label="High matches" value={counts.high_match ?? 0} icon="star" color="#5856D6" onPress={() => openJobs("HIGH_MATCH")} />
             <StatTile label="Closing soon" value={counts.deadline_soon ?? 0} icon="time" color="#FF3B30" onPress={() => openJobs("DEADLINE_SOON")} />
             <StatTile label="Saved" value={counts.saved ?? 0} icon="bookmark" color="#FF9500" onPress={() => openJobs("SAVED")} />
+            <StatTile label="Applying" value={counts.applied ?? 0} icon="paper-plane" color="#34C759" onPress={() => router.navigate("/tracker")} />
+            <StatTile label="Unread alerts" value={counts.unread_notifications ?? 0} icon="notifications" color="#AF52DE" onPress={() => router.push("/alerts")} />
           </View>
         ),
         alerts:
@@ -138,7 +141,12 @@ export default function TodayScreen() {
     : ({} as Record<HomeSection, React.ReactNode>);
 
   return (
-    <Screen title={prefs.greeting ? `${greeting()}${firstName ? `, ${firstName}` : ""}` : "Today"} subtitle={date} refresh={refresh}>
+    <Screen
+      title={prefs.greeting ? `${greeting()}${firstName ? `, ${firstName}` : ""}` : "Today"}
+      subtitle={date}
+      refresh={refresh}
+      accessory={<HeaderButton icon="notifications-outline" label="Alerts" badge={unread} onPress={() => router.push("/alerts")} />}
+    >
       {dashboard.isPending ? (
         <Loading />
       ) : dashboard.isError ? (

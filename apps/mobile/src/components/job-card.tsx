@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { Chip, Score, T, type Tone } from "@/components/ui";
 import { type JobCard as Job, useJobAction } from "@/lib/api";
+import { stageInfo } from "@/lib/careers";
 import { deadlineLabel, salaryText, titleCase, useWhen } from "@/lib/format";
 import { useTheme } from "@/lib/theme";
 
@@ -89,6 +90,9 @@ export function JobCardView({ job, compact = false }: { job: Job; compact?: bool
             </View>
           ) : null}
           <View style={[styles.meta, { marginTop: theme.space.sm }]}>
+            {job.application_stage ? (
+              <Chip label={stageInfo(job.application_stage)?.label ?? "Tracked"} tone={stageInfo(job.application_stage)?.tone ?? "accent"} icon="git-network-outline" />
+            ) : null}
             {match ? <Chip label={match.label} tone={matchTone(match.label, match.eligible)} /> : <Chip label="Analysing" />}
             {deadline ? <Chip label={deadline.text} tone={deadline.urgent ? "bad" : "neutral"} icon="calendar-outline" /> : null}
             {salary ? <Chip label={salary} icon="cash-outline" /> : null}

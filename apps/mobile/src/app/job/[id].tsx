@@ -3,6 +3,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 
+import { ApplicationCard, JobDocuments } from "@/components/job-actions";
 import { locationLine, matchTone } from "@/components/job-card";
 import { Screen, useRefresh } from "@/components/screen";
 import { Bar, Button, Card, Chip, EmptyState, Group, type IconName, Loading, Row, Score, T } from "@/components/ui";
@@ -301,6 +302,9 @@ export default function JobDetailScreen() {
           </T>
         </View>
       ) : null}
+
+      <ApplicationCard jobId={id} />
+      <JobDocuments jobId={id} />
 
       {match ? (
         <>

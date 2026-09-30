@@ -2,6 +2,7 @@ import { router, Tabs } from "expo-router";
 import { useEffect, useRef } from "react";
 
 import { AppTabBar } from "@/components/tab-bar";
+import { START_TABS } from "@/lib/prefs";
 import { useTheme } from "@/lib/theme";
 
 export default function TabsLayout() {
@@ -13,7 +14,7 @@ export default function TabsLayout() {
   useEffect(() => {
     if (opened.current) return;
     opened.current = true;
-    if (startTab !== "index") router.navigate(`/${startTab}`);
+    if (startTab !== "index" && START_TABS.includes(startTab)) router.navigate(`/${startTab}`);
   }, [startTab]);
 
   return (
@@ -27,9 +28,9 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Today" }} />
       <Tabs.Screen name="jobs" options={{ title: "Jobs" }} />
-      <Tabs.Screen name="alerts" options={{ title: "Alerts" }} />
+      <Tabs.Screen name="tracker" options={{ title: "Tracker" }} />
+      <Tabs.Screen name="resumes" options={{ title: "Résumés" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
-      <Tabs.Screen name="settings" options={{ title: "Settings" }} />
     </Tabs>
   );
 }

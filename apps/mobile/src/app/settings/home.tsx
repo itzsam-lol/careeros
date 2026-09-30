@@ -16,7 +16,8 @@ const SECTIONS: Record<HomeSection, { label: string; icon: IconName; color: stri
 const START_TABS: { value: StartTab; label: string }[] = [
   { value: "index", label: "Today" },
   { value: "jobs", label: "Jobs" },
-  { value: "alerts", label: "Alerts" },
+  { value: "tracker", label: "Tracker" },
+  { value: "resumes", label: "Résumés" },
   { value: "profile", label: "Profile" },
 ];
 

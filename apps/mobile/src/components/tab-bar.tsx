@@ -10,9 +10,9 @@ import { useTheme } from "@/lib/theme";
 const ICONS: Record<string, [IconName, IconName]> = {
   index: ["today", "today-outline"],
   jobs: ["briefcase", "briefcase-outline"],
-  alerts: ["notifications", "notifications-outline"],
+  tracker: ["git-network", "git-network-outline"],
+  resumes: ["document-text", "document-text-outline"],
   profile: ["person-circle", "person-circle-outline"],
-  settings: ["settings", "settings-outline"],
 };
 
 /** Bottom tab bar in the style of UITabBar: translucent, hairline on top, accent tint. */
@@ -34,7 +34,7 @@ export function AppTabBar({ state, descriptors, navigation, insets }: BottomTabB
           const [active, inactive] = ICONS[route.name] ?? ["ellipse", "ellipse-outline"];
           const icon = focused ? active : inactive;
           const color = focused ? theme.accent : "#8E8E93";
-          const badge = route.name === "alerts" && unread > 0 ? (unread > 99 ? "99+" : String(unread)) : null;
+          const badge = route.name === "index" && unread > 0 ? (unread > 99 ? "99+" : String(unread)) : null;
           return (
             <Pressable
               key={route.key}

@@ -39,7 +39,7 @@ export default function SettingsScreen() {
     ]);
 
   return (
-    <Screen title="Settings">
+    <Screen title="Settings" back="Profile" tabBar={false}>
       <Group>
         <Row
           title={name}

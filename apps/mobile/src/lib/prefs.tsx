@@ -15,7 +15,8 @@ export type FontChoice = "inter" | "system" | "serif" | "mono";
 export type Density = "comfortable" | "compact";
 export type ScoreStyle = "ring" | "badge" | "hidden";
 export type HomeSection = "stats" | "alerts" | "topMatches" | "deadlines" | "activity";
-export type StartTab = "index" | "jobs" | "alerts" | "profile";
+export type StartTab = "index" | "jobs" | "tracker" | "resumes" | "profile";
+export const START_TABS: StartTab[] = ["index", "jobs", "tracker", "resumes", "profile"];
 export type JobViewPref = "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "ALL";
 export type JobSortPref = "SCORE" | "RECENT" | "DEADLINE";
 
@@ -110,6 +111,7 @@ function sanitize(raw: unknown): Prefs {
     }
   }
   const prefs = merged as unknown as Prefs;
+  if (!START_TABS.includes(prefs.startTab)) prefs.startTab = DEFAULT_PREFS.startTab;
   // Keep the section order complete even if new sections were added since it was saved.
   const known = DEFAULT_PREFS.homeOrder;
   const order = Array.isArray(prefs.homeOrder) ? prefs.homeOrder.filter((s) => known.includes(s)) : [];

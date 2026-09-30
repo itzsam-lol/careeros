@@ -61,6 +61,43 @@ export function BackButton({ label = "Back", fallback = "/" }: { label?: string;
   );
 }
 
+/** Round icon button for the large-title header (e.g. the bell on Today), with an optional badge. */
+export function HeaderButton({
+  icon,
+  label,
+  onPress,
+  badge,
+}: {
+  icon: React.ComponentProps<typeof Ionicons>["name"];
+  label: string;
+  onPress: () => void;
+  badge?: number;
+}) {
+  const theme = useTheme();
+  const count = badge && badge > 0 ? (badge > 99 ? "99+" : String(badge)) : null;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={count ? `${label}, ${count} unread` : label}
+      hitSlop={8}
+      onPress={() => {
+        theme.haptic("select");
+        onPress();
+      }}
+      style={({ pressed }) => [styles.headerButton, { backgroundColor: theme.colors.card, opacity: pressed ? 0.6 : 1 }]}
+    >
+      <Ionicons name={icon} size={21} color={theme.colors.text} />
+      {count ? (
+        <View style={styles.headerBadge}>
+          <T v="caption2" color="#FFFFFF" style={{ fontSize: 10, lineHeight: 12 }}>
+            {count}
+          </T>
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
+
 interface ScreenProps {
   title?: string;
   subtitle?: string;
@@ -124,4 +161,17 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   back: { flexDirection: "row", alignItems: "center", height: 44, alignSelf: "flex-start" },
   titleRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  headerButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center" },
+  headerBadge: {
+    position: "absolute",
+    top: -3,
+    right: -3,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: "#FF3B30",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

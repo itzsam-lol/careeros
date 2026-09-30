@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 
@@ -155,6 +156,9 @@ export default function SourcesScreen() {
       refresh={refresh}
       accessory={!adding ? <Button label="Add" icon="add" variant="tinted" size="small" onPress={() => setAdding(true)} /> : undefined}
     >
+      <Group footer="117 verified company boards for India and Australia (Greenhouse, Lever, Ashby, SmartRecruiters and Workday).">
+        <Row title="Browse Companies" icon="business" iconColor="#5856D6" chevron onPress={() => router.push("/settings/catalog")} />
+      </Group>
       {adding ? <AddSource onDone={() => setAdding(false)} /> : null}
       {sources.isPending ? (
         <Loading />

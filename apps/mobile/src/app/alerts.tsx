@@ -26,6 +26,8 @@ export default function AlertsScreen() {
 
   return (
     <Screen
+      back="Today"
+      tabBar={false}
       title="Alerts"
       subtitle={unread > 0 ? `${unread} unread` : "You're all caught up"}
       refresh={refresh}
