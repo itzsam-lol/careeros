@@ -1,0 +1,70 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}
+\usepackage[left=0.55in,right=0.55in,top=0.4in,bottom=0.4in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\raggedright
+
+\titleformat{\section}{\normalfont\bfseries\large}{}{0em}{\MakeUppercase}[\vspace{-6pt}\rule{\linewidth}{0.6pt}]
+\titlespacing*{\section}{0pt}{5.5pt}{3pt}
+
+\newlist{bl}{itemize}{1}
+\setlist[bl]{label=\textbullet, leftmargin=0.18in, topsep=2pt, itemsep=1pt, parsep=0pt, partopsep=0pt}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries ALEX RIVERA}\\[4pt]
+Bengaluru, India \enspace|\enspace alex@example.com
+\end{center}
+
+\section{Summary}
+Final-year computer science student who builds data products and explains them clearly.
+
+\section{Education}
+\noindent\textbf{Northbridge Institute of Technology}\hfill Bengaluru, India\\
+\textit{B.Tech in Computer Science}\hfill \textit{2023 – 2027}
+\begin{bl}
+  \item Dean’s List.
+\end{bl}
+
+\section{Experience}
+\noindent\textbf{Lumen Labs}\hfill Bengaluru, India\\
+\textit{Engineering Intern}\hfill \textit{May 2026 – Jul 2026}
+\begin{bl}
+  \item Presented weekly findings to the team in review meetings.
+  \item Built a FastAPI service backed by PostgreSQL that served 20,000 requests a day.
+  \item Wrote Python scripts that cut report preparation from 3 hours to 20 minutes.
+\end{bl}
+
+\section{Projects}
+\noindent\textbf{Poster Search: Campus Event Finder} \enspace|\enspace \textit{React, Firebase}\hfill \href{https://example.com/poster}{example.com/poster}
+\begin{bl}
+  \item Built a React app that lists campus events for 3,000 students.
+\end{bl}
+\vspace{3pt}
+\noindent\textbf{Budget Buddy: Expense Tracker} \enspace|\enspace \textit{Flutter}\hfill \href{https://example.com/budget}{example.com/budget}
+\begin{bl}
+  \item Built a mobile expense tracker with monthly charts.
+\end{bl}
+
+\section{Activities}
+\begin{bl}
+  \item \textbf{Lead, Coding Club:} ran weekly sessions for 60 members.
+  \item \textbf{Volunteer, Robotics Fair:} guided visitors through exhibits.
+\end{bl}
+
+\section{Skills}
+\textbf{Programming:} Python, JavaScript, SQL\\[2pt]
+\textbf{Tools \& Frameworks:} React, FastAPI, Git\\[2pt]
+\textbf{Languages:} English, Hindi
+
+\end{document}
