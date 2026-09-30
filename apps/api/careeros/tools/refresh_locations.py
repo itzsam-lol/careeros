@@ -62,8 +62,7 @@ async def _run() -> tuple[int, int]:
 
 def main() -> None:
     changed, queued = asyncio.run(_run())
-    sys.stdout.write(f"Updated countries on {changed} jobs; queued {queued} re-matches.
-")
+    sys.stdout.write(f"Updated countries on {changed} jobs; queued {queued} re-matches.\n")
 
 
 if __name__ == "__main__":
