@@ -44,9 +44,17 @@ def interview_prep(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> di
     points: list[TalkingPoint] = []
     for topic in topics:
         key = canonical_key(_display(topic))
-        hits = [s for s in stories if key in s.skills or key in canonical_key(s.text)]
-        if hits:
-            points.append(TalkingPoint(_display(topic), "STRONG", [f"{h.context}: {h.text}" for h in hits[:2]],
+        # Quote achievements that name the skill; for items that only list it in their tech
+        # stack, name the item rather than quoting an unrelated bullet from it.
+        evidence = [f"{s.context}: {s.text}" for s in stories if key in s.named][:2]
+        for context in dict.fromkeys(
+            s.context for s in stories if key in s.skills and key not in s.named
+        ):
+            if len(evidence) >= 2:
+                break
+            evidence.append(f"{context}: built with {_display(topic)}")
+        if evidence:
+            points.append(TalkingPoint(_display(topic), "STRONG", evidence,
                                        f"Walk through one example end to end: the problem, what you built with {_display(topic)}, and the result."))  # fmt: skip
         elif key in mine:
             points.append(TalkingPoint(_display(topic), "RELATED", [],

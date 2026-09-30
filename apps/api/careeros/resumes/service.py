@@ -342,11 +342,17 @@ class Story:
     kind: str
     # Canonical skills this story demonstrates: named in the text or in the item's tech stack.
     skills: frozenset[str] = frozenset()
+    # Only the skills the text itself names ("Built the dashboard in React").
+    named: frozenset[str] = frozenset()
 
 
 def _skills_of(text: str, technologies: list[str]) -> frozenset[str]:
     names = [*extract_skill_names(text), *technologies]
     return frozenset(tailoring.canonical_key(normalize_skill_name(n)) for n in names)
+
+
+def _named_in(text: str) -> frozenset[str]:
+    return frozenset(tailoring.canonical_key(n) for n in extract_skill_names(text))
 
 
 def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> list[Story]:
@@ -369,6 +375,7 @@ def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> 
                     scorer.score(text + " " + " ".join(exp.technologies)) + 1.0,
                     "experience",
                     _skills_of(text, exp.technologies),
+                    _named_in(text),
                 )
             )
     for project in snapshot.projects:
@@ -383,6 +390,7 @@ def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> 
                     scorer.score(text + " " + " ".join(project.technologies)),
                     "project",
                     _skills_of(text, project.technologies),
+                    _named_in(text),
                 )
             )
     stories.sort(key=lambda s: -s.score)

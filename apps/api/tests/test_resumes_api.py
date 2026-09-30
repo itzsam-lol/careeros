@@ -123,6 +123,11 @@ async def test_prep_and_outreach_are_grounded(
     prep = (await client.get(f"/api/v1/jobs/{job_id}/prep")).json()
     statuses = {p["topic"]: p["status"] for p in prep["talking_points"]}
     assert statuses.get("PyTorch") == "STRONG"
+    # Quoted achievements name the skill, or the item is cited as "built with <skill>".
+    for point in prep["talking_points"]:
+        for line in point["evidence"]:
+            story = line.split(": ", 1)[1]
+            assert point["topic"].lower() in story.lower(), line
     assert prep["behavioural"]
     assert prep["questions_to_ask"]
     drafts = (await client.get(f"/api/v1/jobs/{job_id}/outreach")).json()
