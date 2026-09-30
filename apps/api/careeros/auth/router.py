@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Request
-from pydantic import BaseModel, EmailStr, Field, StringConstraints
+from pydantic import BaseModel, Field, StringConstraints
 from sqlalchemy import select
 
 from careeros.api.deps import ContainerDep, CurrentUser, DbSession
@@ -31,8 +31,13 @@ class AuthConfig(BaseModel):
     app_name: str
 
 
+# Login only needs to match an existing account, so any address is accepted here (strict
+# validation would lock out accounts on reserved domains such as ".local").
+LoginEmail = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=320)]
+
+
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: LoginEmail
     password: Password
 
 

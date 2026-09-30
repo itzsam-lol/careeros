@@ -190,3 +190,15 @@ async def test_tokens_never_create_users_and_forged_tokens_fail(
     assert (
         await password_client.get("/api/v1/me", headers={"Authorization": f"Bearer {forged}"})
     ).status_code == 401
+
+
+async def test_login_accepts_reserved_domain_accounts(
+    password_client: AsyncClient, session: AsyncSession
+) -> None:
+    # create_user allows any address, so login must not reject e.g. ".local" domains.
+    await _create_user(session, email="owner@careeros.local")
+    response = await password_client.post(
+        "/api/v1/auth/login", json={"email": " Owner@careeros.local ", "password": PASSWORD}
+    )
+    assert response.status_code == 200
+    assert response.json()["email"] == "owner@careeros.local"
