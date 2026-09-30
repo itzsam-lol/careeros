@@ -11,7 +11,8 @@ from enum import StrEnum
 
 
 class JobFunction(StrEnum):
-    ENGINEERING = "ENGINEERING"
+    ENGINEERING = "ENGINEERING"  # software
+    HARDWARE = "HARDWARE"  # electrical, circuit, mechanical and facilities engineering
     DATA = "DATA"  # data science, analytics, ML and AI
     RESEARCH = "RESEARCH"
     PRODUCT = "PRODUCT"
@@ -26,7 +27,8 @@ class JobFunction(StrEnum):
 
 
 LABELS = {
-    JobFunction.ENGINEERING: "engineering",
+    JobFunction.ENGINEERING: "software engineering",
+    JobFunction.HARDWARE: "hardware engineering",
     JobFunction.DATA: "data and AI",
     JobFunction.RESEARCH: "research",
     JobFunction.PRODUCT: "product management",
@@ -59,6 +61,8 @@ _DOMINANT: list[tuple[JobFunction, re.Pattern[str]]] = [
         r"business development", r"bdr", r"sdr", r"territory", r"key accounts?", r"client partner",
         r"partner(?:ship)?s? (?:manager|lead|director)", r"channel (?:manager|sales|partner)",
         r"inside sales", r"commercial (?:manager|lead|director|executive)",
+        r"partner(?:ship)?s? leader", r"field partner", r"alliances?", r"solutions? consultant",
+        r"go-to-market", r"gtm",
     )),
     (JobFunction.CUSTOMER, _words(
         r"customer success", r"customer support", r"customer service", r"customer experience",
@@ -80,7 +84,18 @@ _DOMINANT: list[tuple[JobFunction, re.Pattern[str]]] = [
         r"social media", r"community manager", r"demand gen\w*", r"content (?:writer|strategist|manager)",
         r"events? (?:manager|coordinator)",
     )),
+    # Chip, electrical and plant engineering: "engineer" in the title, but not software.
+    (JobFunction.HARDWARE, _words(
+        r"electrical", r"electronics?", r"circuit", r"layout", r"analog", r"mixed[- ]signal",
+        r"digital design", r"asic", r"fpga", r"vlsi", r"rtl", r"physical design",
+        r"design verification", r"silicon", r"semiconductor", r"mechanical", r"civil",
+        r"facilities", r"manufacturing", r"process engineer\w*", r"equipment", r"hardware",
+        r"pcb", r"yield", r"packaging", r"signal integrity", r"hbm", r"dram", r"nand",
+        r"memory (?:circuit|design|product)",
+    )),
 ]  # fmt: skip
+# "Electronics Software Engineer" still writes software.
+_SOFTWARE = _words(r"software", r"firmware", r"sde", r"swe")
 _TECH: list[tuple[JobFunction, re.Pattern[str]]] = [
     (JobFunction.ENGINEERING, _words(
         r"engineer\w*", r"developer", r"development", r"sde", r"swe", r"sdet", r"programmer",
@@ -126,6 +141,8 @@ def _segment_functions(segment: str) -> set[JobFunction]:
     if _STRONG_DATA.search(segment):
         return {JobFunction.DATA, *tech}
     for function, pattern in _DOMINANT:
+        if function is JobFunction.HARDWARE and _SOFTWARE.search(segment):
+            continue
         if pattern.search(segment):
             return {function}
     if tech:
@@ -142,15 +159,30 @@ def _segment_functions(segment: str) -> set[JobFunction]:
     return set()
 
 
+# A bare role noun ("Engineer", "Senior Analyst II") says less than the specialty after it:
+# "ENGINEER, SIG ELECTRICAL DESIGN", "Analyst, Algorithm Research".
+_GENERIC = re.compile(
+    r"^(?:(?:senior|sr|staff|principal|lead|junior|jr|associate|intern)\s+)*"
+    r"(?:engineer|analyst|developer|scientist|specialist|associate|consultant)"
+    r"(?:\s+(?:i{1,3}|iv|[1-5]))?$"
+)
+
+
 def title_functions(title: str) -> set[JobFunction]:
     """Functions named by the first part of the title that names any (empty if unclear).
 
     "Strategic Account Executive - Turkey" -> {SALES}; "Machine Learning Engineer" ->
     {DATA, ENGINEERING}; "Binance Accelerator Program - AI Engineer" -> {ENGINEERING, DATA}.
     """
-    for segment in _SEGMENTS.split(title.lower()):
-        if segment:
-            found = _segment_functions(segment)
-            if found:
-                return found
+    segments = [s for s in _SEGMENTS.split(title.lower()) if s]
+    for index, segment in enumerate(segments):
+        found = _segment_functions(segment)
+        if not found:
+            continue
+        if _GENERIC.match(segment):
+            for later in segments[index + 1 :]:
+                specific = _segment_functions(later)
+                if specific:
+                    return specific
+        return found
     return set()

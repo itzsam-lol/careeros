@@ -112,6 +112,15 @@ def _extraction(title: str, **overrides: Any) -> JobExtraction:
         ("Senior Product Manager, Payments", {JobFunction.PRODUCT}),
         ("Recruiter", {JobFunction.PEOPLE}),
         ("Graduate Trainee", set()),
+        ("ENGINEER, SIG ELECTRICAL DESIGN", {JobFunction.HARDWARE}),
+        ("Memory Circuit Design Engineer", {JobFunction.HARDWARE}),
+        ("Electronics Software Engineer", {JobFunction.ENGINEERING}),
+        ("Product Engineer", {JobFunction.ENGINEERING}),
+        ("Solutions Consultant", {JobFunction.SALES}),
+        (
+            "Analyst, Algorithm Research & Development",
+            {JobFunction.ENGINEERING, JobFunction.RESEARCH},
+        ),
     ],
 )
 def test_title_functions(title: str, functions: set[JobFunction]) -> None:

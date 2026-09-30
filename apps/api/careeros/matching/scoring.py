@@ -16,7 +16,8 @@ from careeros.matching.profile_view import MatchProfile
 from careeros.profile.enums import VerificationStatus
 
 # v2: kind of work (title function), role level vs. experience, per-project skill evidence.
-SCORER_VERSION = "match-v2"
+# v3: hardware vs. software engineering, specialty after a bare "Engineer," in the title.
+SCORER_VERSION = "match-v3"
 DEFAULT_WEIGHTS = {
     "skills": 0.3, "projects": 0.2, "experience": 0.15, "research": 0.05, "domain": 0.15, "preferences": 0.15,
 }  # fmt: skip
