@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from careeros.core.errors import SourceFetchError
@@ -17,6 +18,11 @@ if TYPE_CHECKING:
     from careeros.discovery.adapters import GreenhouseConfig
 
 API = "https://boards-api.greenhouse.io/v1/boards"
+_WORK_MODE = re.compile(
+    r"(?:hybrid|remote|distributed|in-office|in office|on-?site|flexible)"
+    r"(?:\s*(?:[;/,]|\bor\b|\band\b)\s*(?:hybrid|remote|distributed|in-office|in office|on-?site|flexible))*",
+    re.IGNORECASE,
+)
 
 
 class GreenhouseAdapter:
@@ -53,6 +59,11 @@ class GreenhouseAdapter:
                 continue
             location = (item.get("location") or {}).get("name")
             offices = [o.get("name") for o in item.get("offices") or [] if o.get("name")]
+            # Some boards (Cloudflare) put the work mode in `location` ("Hybrid", "Distributed")
+            # and the cities in `offices`; both are needed to know the country.
+            if location and offices and _WORK_MODE.fullmatch(location.strip()):
+                location = f"{'; '.join(offices[:3])} ({location.strip()})"
+            places = list(dict.fromkeys(p for p in [location, *offices] if p))
             departments = [d.get("name") for d in item.get("departments") or [] if d.get("name")]
             results.append(
                 RawJob(
@@ -62,7 +73,7 @@ class GreenhouseAdapter:
                     url=item.get("absolute_url"),
                     apply_url=item.get("absolute_url"),
                     location=location,
-                    locations=[location] if location else offices,
+                    locations=places,
                     description_html=item.get("content"),
                     posted_at=parse_datetime(item.get("first_published") or item.get("updated_at")),
                     department=departments[0] if departments else None,

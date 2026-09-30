@@ -53,6 +53,28 @@ async def test_greenhouse_adapter(http: PoliteHttpClient) -> None:
 
 
 @respx.mock
+async def test_greenhouse_work_mode_locations_use_offices(http: PoliteHttpClient) -> None:
+    """Cloudflare-style boards: `location` is "Hybrid", the cities are in `offices`."""
+    job = {
+        "id": 1,
+        "title": "Software Engineer",
+        "absolute_url": "https://boards.greenhouse.io/modecorp/jobs/1",
+        "location": {"name": "Hybrid"},
+        "offices": [{"name": "Austin, TX"}, {"name": "New York, NY"}],
+        "content": "<p>Build things.</p>",
+    }
+    respx.get("https://boards-api.greenhouse.io/v1/boards/modecorp/jobs").mock(
+        return_value=httpx.Response(200, json={"jobs": [job]})
+    )
+    adapter = build_adapter(
+        SourceType.GREENHOUSE, {"board_token": "modecorp", "company_name": "Mode"}, http
+    )
+    [raw] = await adapter.discover_jobs()
+    assert raw.location == "Austin, TX; New York, NY (Hybrid)"
+    assert normalize(raw).countries == ["United States"]
+
+
+@respx.mock
 async def test_lever_adapter(http: PoliteHttpClient) -> None:
     respx.get("https://api.lever.co/v0/postings/examplelever").mock(
         return_value=httpx.Response(200, text=(FIXTURES / "lever_postings.json").read_text("utf-8"))
