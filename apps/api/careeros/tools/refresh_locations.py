@@ -9,6 +9,7 @@ were discovered, and eligibility rules (e.g. sponsorship-only countries) depend 
 from __future__ import annotations
 
 import asyncio
+import sys
 
 from sqlalchemy import select
 
@@ -60,7 +61,9 @@ async def _run() -> tuple[int, int]:
 
 
 def main() -> None:
-    _changed, _queued = asyncio.run(_run())
+    changed, queued = asyncio.run(_run())
+    sys.stdout.write(f"Updated countries on {changed} jobs; queued {queued} re-matches.
+")
 
 
 if __name__ == "__main__":
