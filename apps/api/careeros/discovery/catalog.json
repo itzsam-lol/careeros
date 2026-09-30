@@ -128,6 +128,21 @@
    ]
   },
   {
+   "name": "Akuna Capital",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "akunacapital",
+    "company_name": "Akuna Capital",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
    "name": "Analog Devices",
    "type": "WORKDAY",
    "config": {
@@ -479,6 +494,21 @@
    ]
   },
   {
+   "name": "CyberCX",
+   "type": "SMARTRECRUITERS",
+   "config": {
+    "company": "cybercx",
+    "company_name": "CyberCX",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
    "name": "Databricks",
    "type": "GREENHOUSE",
    "config": {
@@ -573,6 +603,21 @@
    ]
   },
   {
+   "name": "FamPay",
+   "type": "LEVER",
+   "config": {
+    "company": "fampay",
+    "company_name": "FamPay",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN"
+   ]
+  },
+  {
    "name": "Figma",
    "type": "GREENHOUSE",
    "config": {
@@ -663,6 +708,21 @@
    "regions": [
     "IN",
     "AU"
+   ]
+  },
+  {
+   "name": "Glance",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "glance",
+    "company_name": "Glance",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN"
    ]
   },
   {
@@ -786,6 +846,21 @@
    },
    "regions": [
     "AU"
+   ]
+  },
+  {
+   "name": "InMobi",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "inmobi",
+    "company_name": "InMobi",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN"
    ]
   },
   {
@@ -936,6 +1011,21 @@
    },
    "regions": [
     "IN",
+    "AU"
+   ]
+  },
+  {
+   "name": "Mable",
+   "type": "LEVER",
+   "config": {
+    "company": "mable",
+    "company_name": "Mable",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
     "AU"
    ]
   },
@@ -1123,6 +1213,21 @@
    ]
   },
   {
+   "name": "Nearmap",
+   "type": "SMARTRECRUITERS",
+   "config": {
+    "company": "nearmap",
+    "company_name": "Nearmap",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
    "name": "New Relic",
    "type": "GREENHOUSE",
    "config": {
@@ -1230,6 +1335,37 @@
    ]
   },
   {
+   "name": "Optiver",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "optiverus",
+    "company_name": "Optiver",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN",
+    "AU"
+   ]
+  },
+  {
+   "name": "Oyster",
+   "type": "ASHBY",
+   "config": {
+    "organization": "oyster",
+    "company_name": "Oyster",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN"
+   ]
+  },
+  {
    "name": "PayPal",
    "type": "WORKDAY",
    "config": {
@@ -1259,6 +1395,36 @@
    ]
   },
   {
+   "name": "PEXA",
+   "type": "LEVER",
+   "config": {
+    "company": "pexa",
+    "company_name": "PEXA",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
+   "name": "Plenti",
+   "type": "LEVER",
+   "config": {
+    "company": "plenti",
+    "company_name": "Plenti",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
    "name": "Pocket FM",
    "type": "LEVER",
    "config": {
@@ -1274,6 +1440,22 @@
    ]
   },
   {
+   "name": "Point72",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "point72",
+    "company_name": "Point72",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN",
+    "AU"
+   ]
+  },
+  {
    "name": "Prospa",
    "type": "GREENHOUSE",
    "config": {
@@ -1285,6 +1467,22 @@
     ]
    },
    "regions": [
+    "AU"
+   ]
+  },
+  {
+   "name": "Quantium",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "quantium",
+    "company_name": "Quantium",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN",
     "AU"
    ]
   },
@@ -1325,6 +1523,21 @@
    "config": {
     "organization": "relevanceai",
     "company_name": "Relevance AI",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
+   "name": "Remote",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "remotecom",
+    "company_name": "Remote",
     "countries": [
      "India",
      "Australia"
@@ -1379,6 +1592,21 @@
    },
    "regions": [
     "IN"
+   ]
+  },
+  {
+   "name": "Secure Code Warrior",
+   "type": "LEVER",
+   "config": {
+    "company": "securecodewarrior",
+    "company_name": "Secure Code Warrior",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
    ]
   },
   {
@@ -1662,6 +1890,52 @@
    ]
   },
   {
+   "name": "UpGuard",
+   "type": "ASHBY",
+   "config": {
+    "organization": "upguard",
+    "company_name": "UpGuard",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
+   "name": "Vercel",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "vercel",
+    "company_name": "Vercel",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "IN",
+    "AU"
+   ]
+  },
+  {
+   "name": "VivCourt",
+   "type": "GREENHOUSE",
+   "config": {
+    "board_token": "vivcourt",
+    "company_name": "VivCourt",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
+   ]
+  },
+  {
    "name": "Warner Bros. Discovery",
    "type": "WORKDAY",
    "config": {
@@ -1704,6 +1978,21 @@
    },
    "regions": [
     "IN"
+   ]
+  },
+  {
+   "name": "WiseTech Global",
+   "type": "SMARTRECRUITERS",
+   "config": {
+    "company": "wisetechglobal",
+    "company_name": "WiseTech Global",
+    "countries": [
+     "India",
+     "Australia"
+    ]
+   },
+   "regions": [
+    "AU"
    ]
   },
   {
