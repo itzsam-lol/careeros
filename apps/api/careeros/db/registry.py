@@ -14,6 +14,7 @@ from careeros.llm import models as llm_models
 from careeros.matching import models as matching_models
 from careeros.notifications import models as notification_models
 from careeros.profile import models as profile_models
+from careeros.resumes import models as resume_models
 from careeros.tasks import models as task_models
 from careeros.users import models as user_models
 
@@ -32,6 +33,7 @@ __all__ = [
     "metadata",
     "notification_models",
     "profile_models",
+    "resume_models",
     "task_models",
     "user_models",
 ]

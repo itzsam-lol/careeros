@@ -11,6 +11,8 @@ from careeros.evidence.router import router as evidence_router
 from careeros.jobs.router import router as jobs_router
 from careeros.notifications.router import router as notifications_router
 from careeros.profile.router import router as profile_router
+from careeros.resumes.router import coaching_router
+from careeros.resumes.router import router as resumes_router
 from careeros.tasks.router import router as activity_router
 from careeros.users.router import router as me_router
 
@@ -22,5 +24,7 @@ router.include_router(profile_router)
 router.include_router(evidence_router)
 router.include_router(sources_router)
 router.include_router(jobs_router)
+router.include_router(coaching_router)
+router.include_router(resumes_router)
 router.include_router(notifications_router)
 router.include_router(activity_router)
