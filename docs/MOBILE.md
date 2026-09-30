@@ -6,19 +6,33 @@ CareerOS API over HTTPS; the default server is baked in at build time from
 
 ## Features
 
+Tabs: **Today**, **Jobs**, **Tracker**, **Résumés** and **Profile**. Alerts open from the bell on
+Today and Settings from the gear on Profile.
+
 - **Today**: stats, notification stack, top matches, deadlines and agent activity. Sections can be
   reordered and hidden.
-- **Jobs**: views, search and sort, plus save/dismiss/restore and a full match explanation with evidence.
-- **Alerts**, and a **Profile** review queue for verifying or rejecting imported facts.
+- **Jobs**: views, search and sort, save/dismiss/restore, and a full match explanation with
+  evidence. Each job page also has:
+  - application tracking (stage, follow-up reminder, notes)
+  - a tailored résumé and a cover letter (professional, warm or concise)
+  - interview prep and editable message drafts
+- **Tracker**: the application pipeline by stage, with overdue follow-ups highlighted.
+- **Résumés**: the master LaTeX résumé (view the PDF, replace the `.tex` file, see which sections
+  get tailored) and every generated résumé or letter. Each one shows its skill coverage, what
+  changed and why, and has open, share and star actions.
+- **Profile**: a review queue for verifying or rejecting imported facts.
 - **Settings**
   - On-device preferences:
     - Appearance: accent, background, card style, corners, text size, bold text, font, density.
     - Navigation and motion: tab labels, reduced motion, haptics.
     - Jobs: list filters and card details.
     - Data: refresh interval.
-  - Server settings: alert thresholds and job-search preferences (roles, locations, exclusions,
-    pay, work style).
-  - Job sources: add, schedule, run, disable, delete.
+  - Server settings:
+    - Alert thresholds.
+    - Job-search preferences: roles, locations, exclusions, pay, work style, and
+      sponsorship-only countries.
+  - Job sources: add, schedule, run, disable, delete, and **Browse Companies** (117 verified boards
+    for India and Australia).
 
 ## Building a release APK (Windows)
 

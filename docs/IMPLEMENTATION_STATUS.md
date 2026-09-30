@@ -1,45 +1,65 @@
 # Implementation status
 
-Legend: ✅ Complete · 🟡 In progress · 🔴 Blocked · ⚪ Not started
+Legend: ✅ Complete · 🟡 Partial · ⚪ Not started
 
-_Last updated: 2026-09-29_
+_Last updated: 2026-09-30_
 
 ## Phase 1 — Foundation
 
-| Feature | Status | Files | Tests | Known issues | Next step |
-| --- | --- | --- | --- | --- | --- |
-| Monorepo layout, docs, env template | ✅ | `README.md`, `docs/`, `.env.example` | — | — | — |
-| FastAPI app factory, settings, structured logging | ✅ | `careeros/main.py`, `config.py`, `core/` | `tests/test_foundation.py` | — | — |
-| Error envelope, security headers, request ids | ✅ | `careeros/api/` | `test_foundation.py` | — | — |
-| Postgres + pgvector, SQLAlchemy 2 async, Alembic | ✅ | `careeros/db/`, `alembic/` | DB fixtures | — | — |
-| Auth abstraction (Firebase + dev) | ✅ | `careeros/auth/` | `test_foundation.py` | Firebase path needs a real project to exercise end-to-end | — |
-| Audit log | ✅ | `careeros/audit/` | `test_foundation.py` | — | — |
-| Rate limiting (interface + in-memory) | ✅ | `core/ratelimit.py` | `test_foundation.py` | per-instance only | Redis backend if scaled out |
-| Docker Compose, dev task runner, Makefile | ✅ | `docker-compose.yml`, `scripts/dev.py` | — | — | — |
-| Next.js web scaffold | ⚪ | `apps/web` | — | — | — |
-| Expo mobile scaffold | ⚪ | `apps/mobile` | — | — | — |
-| CI (GitHub Actions) | ⚪ | `.github/workflows` | — | — | — |
+| Feature | Status | Where | Tests | Notes |
+| --- | --- | --- | --- | --- |
+| Monorepo, docs, env template, task runner | ✅ | `README.md`, `docs/`, `scripts/dev.py` | — | pnpm workspace uses `node-linker=hoisted` for React Native |
+| FastAPI app, settings, structured logging, error envelope | ✅ | `careeros/main.py`, `config.py`, `core/`, `api/` | `test_foundation.py` | — |
+| Postgres + pgvector, SQLAlchemy 2 async, Alembic (0001–0006) | ✅ | `careeros/db/`, `alembic/` | DB fixtures | — |
+| Auth: self-hosted passwords, Firebase, dev | ✅ | `careeros/auth/` | `test_auth_password.py` | Login rate-limited per process |
+| Audit log, rate limiting | ✅ | `careeros/audit/`, `core/ratelimit.py` | `test_foundation.py` | In-memory limiter (single worker in prod) |
+| Web app (Next.js) | ✅ | `apps/web` | typecheck, lint, vitest | Glass UI |
+| Android app (Expo) | ✅ | `apps/mobile` | typecheck | Light, Apple-style UI; see `docs/MOBILE.md` |
+| Single-VM deployment (Compose + Caddy HTTPS) | ✅ | `docker-compose.prod.yml`, `infrastructure/vm/`, `scripts/deploy.py` | — | Nightly `pg_dump` backups |
 
 ## Phase 2 — Career profile
 
-| Feature | Status | Files | Tests | Known issues | Next step |
-| --- | --- | --- | --- | --- | --- |
-| Profile domain + verification model | ⚪ | | | | |
-| Career facts derivation | ⚪ | | | | |
-| Evidence index (pgvector) | ⚪ | | | | |
-| Profile UI | ⚪ | | | | |
+| Feature | Status | Where | Tests | Notes |
+| --- | --- | --- | --- | --- |
+| Profile sections + verification model | ✅ | `careeros/profile/` | `test_profile_api.py` | Imported data starts unverified |
+| Career facts derivation | ✅ | `profile/facts.py` | `test_profile_api.py` | — |
+| Evidence index (pgvector) | ✅ | `careeros/evidence/` | `test_evidence.py` | Local hashing embedder by default |
+| Profile import + loader script | ✅ | `profile/importer.py`, `scripts/load_profile.py` | `test_profile_api.py` | — |
 
-## Phase 3+ (planned)
+## Phase 3–5 — Discovery, intelligence, inbox
 
-| Phase | Status |
-| --- | --- |
-| 3 Job discovery (sources, adapters, normalisation, dedup, scheduler, workers) | ⚪ |
-| 4 Job intelligence (JD extraction, embeddings, matching, explanations) | ⚪ |
-| 5 Career inbox (dashboard, cards, notifications, job detail) | ⚪ |
-| 6 Resume engine (LaTeX, grounding, validation, versions) | ⚪ |
-| 7 Company research | ⚪ |
-| 8 Contact discovery | ⚪ |
-| 9 Outreach + Gmail | ⚪ |
-| 10 Application automation (Playwright) | ⚪ |
-| 11 Tracking & timelines | ⚪ |
-| 12 Hardening, deployment, CI/CD | ⚪ |
+| Feature | Status | Where | Tests | Notes |
+| --- | --- | --- | --- | --- |
+| Greenhouse, Lever, Ashby, SmartRecruiters, RSS, career pages | ✅ | `discovery/adapters/` | `unit/test_adapters.py` | Official public APIs only |
+| Workday career sites | ✅ | `discovery/adapters/workday.py` | `unit/test_adapters.py` | Country facet or text search |
+| Curated catalogue: 117 boards with India/Australia roles | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
+| Per-source country filter | ✅ | `discovery/service.py` | `test_discovery.py` | Applied before the per-run cap |
+| Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ATS country codes and AU/IN states recognised |
+| JD extraction (heuristic + optional LLM), injection defence | ✅ | `intelligence/` | `unit/test_extraction.py` | — |
+| Matching: eligibility, coverage, scoring, explanations | ✅ | `matching/` | `test_matching.py` | — |
+| Sponsorship-only countries (e.g. Australia) | ✅ | `matching/eligibility.py`, `matching/service.py` | `test_resumes_api.py` | Ineligible roles there are hidden automatically |
+| Inbox, dashboard, notifications | ✅ | `jobs/`, `dashboard/`, `notifications/` | `test_matching.py` | — |
+
+## Phase 6 — Resume engine
+
+| Feature | Status | Where | Tests | Notes |
+| --- | --- | --- | --- | --- |
+| LaTeX document model (exact round-trip) | ✅ | `resumes/document.py` | `unit/test_resume_engine.py` | — |
+| Tailoring: reorder, project swap, verified skills, page fit | ✅ | `resumes/tailor.py` | `unit/test_resume_engine.py` | Deterministic, explainable change log |
+| Grounded LLM rephrasing with validator | ✅ | `resumes/tailor.py` | `unit/test_resume_engine.py` | Only runs when an LLM provider is configured |
+| Compilation (tectonic/xelatex/lualatex/pdflatex), pdfTeX shim | ✅ | `resumes/latex.py` | `test_resumes_api.py` | — |
+| Versions, PDFs, signed download links, notifications | ✅ | `resumes/router.py`, `resumes/service.py` | `test_resumes_api.py` | — |
+| Grounded cover letters | ✅ | `resumes/service.py` | `test_resumes_api.py` | — |
+
+## Phase 7–11
+
+| Feature | Status | Notes |
+| --- | --- | --- |
+| Interview prep (talking points, stories, questions) | ✅ | `resumes/coaching.py` |
+| Outreach drafts (referral, LinkedIn note, follow-up, thank-you) | ✅ | Drafts only; the user sends them |
+| Application tracking (stages, history, follow-ups, notes) | ✅ | `jobs/router.py`, Tracker tab, web Applications board |
+| Company research | ⚪ | — |
+| Contact discovery | ⚪ | — |
+| Gmail sending with approval | ⚪ | `AUTO_SEND_EMAILS` stays false |
+| Application automation (Playwright) | ⚪ | `AUTO_SUBMIT_APPLICATIONS` stays false |
+| Push notifications on the phone | ⚪ | Alerts are in-app for now |
