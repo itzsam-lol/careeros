@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { ApplicationPanel, DocumentsPanel } from "@/components/job-application";
 import { MatchLabel, MatchRing } from "@/components/match-ring";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -333,6 +334,8 @@ export default function JobDetailPage() {
           </Section>
         </div>
         <aside className="space-y-5">
+          <ApplicationPanel jobId={id} />
+          <DocumentsPanel jobId={id} />
           {match ? <Breakdown match={match} /> : null}
           {analysis ? <AtAGlance analysis={analysis} detail={detail} /> : null}
           {analysis && (analysis.responsibilities ?? []).length > 0 ? (
