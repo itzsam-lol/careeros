@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { View } from "react-native";
 
 import { Screen } from "@/components/screen";
 import { SavingNote, TagEditor } from "@/components/settings-kit";
@@ -50,9 +49,7 @@ export default function SearchSettingsScreen() {
           <Group header="Work style">
             <Row
               title="Location"
-              right={
-                <View style={{ width: 230 }}>
-                  <Segmented
+              below={<Segmented
                     options={[
                       { value: "ANY", label: "Any" },
                       { value: "REMOTE", label: "Remote" },
@@ -61,9 +58,7 @@ export default function SearchSettingsScreen() {
                     ]}
                     value={prefs.remote_preference}
                     onChange={(remote_preference) => save({ remote_preference })}
-                  />
-                </View>
-              }
+                  />}
             />
             <SwitchRow
               title="Include Research Roles"

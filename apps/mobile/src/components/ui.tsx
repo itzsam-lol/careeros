@@ -243,6 +243,7 @@ export function Row({
   destructive,
   right,
   left,
+  below,
   disabled,
   numberOfLines = 1,
 }: {
@@ -257,6 +258,8 @@ export function Row({
   destructive?: boolean;
   right?: React.ReactNode;
   left?: React.ReactNode;
+  /** Wide control (e.g. a segmented control) shown full-width under the title. */
+  below?: React.ReactNode;
   disabled?: boolean;
   numberOfLines?: number;
 }) {
@@ -285,7 +288,15 @@ export function Row({
       {chevron ? <Ionicons name="chevron-forward" size={18} color={theme.colors.text3} /> : null}
     </View>
   );
-  if (!onPress) return content;
+  const body = below ? (
+    <View>
+      {content}
+      <View style={{ paddingHorizontal: theme.space.lg, paddingBottom: theme.space.md, marginTop: -2 }}>{below}</View>
+    </View>
+  ) : (
+    content
+  );
+  if (!onPress) return body;
   return (
     <Pressable
       accessibilityRole="button"
@@ -297,7 +308,7 @@ export function Row({
       }}
       style={({ pressed }) => ({ backgroundColor: pressed ? theme.colors.fill : "transparent", opacity: disabled ? 0.4 : 1 })}
     >
-      {content}
+      {body}
     </Pressable>
   );
 }

@@ -106,9 +106,7 @@ export default function AppearanceScreen() {
       <Group header="Cards & corners">
         <Row
           title="Card style"
-          right={
-            <View style={{ width: 210 }}>
-              <Segmented
+          below={<Segmented
                 options={[
                   { value: "flat", label: "Flat" },
                   { value: "outlined", label: "Outline" },
@@ -116,15 +114,11 @@ export default function AppearanceScreen() {
                 ]}
                 value={prefs.cardStyle}
                 onChange={(cardStyle) => set({ cardStyle })}
-              />
-            </View>
-          }
+              />}
         />
         <Row
           title="Corners"
-          right={
-            <View style={{ width: 210 }}>
-              <Segmented
+          below={<Segmented
                 options={[
                   { value: "round", label: "Round" },
                   { value: "soft", label: "Soft" },
@@ -132,24 +126,18 @@ export default function AppearanceScreen() {
                 ]}
                 value={prefs.corners}
                 onChange={(corners) => set({ corners })}
-              />
-            </View>
-          }
+              />}
         />
         <Row
           title="Density"
-          right={
-            <View style={{ width: 210 }}>
-              <Segmented
+          below={<Segmented
                 options={[
                   { value: "comfortable", label: "Comfortable" },
                   { value: "compact", label: "Compact" },
                 ]}
                 value={prefs.density}
                 onChange={(density) => set({ density })}
-              />
-            </View>
-          }
+              />}
         />
       </Group>
 

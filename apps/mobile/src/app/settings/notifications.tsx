@@ -1,4 +1,3 @@
-import { View } from "react-native";
 
 import { Screen } from "@/components/screen";
 import { SavingNote } from "@/components/settings-kit";
@@ -71,9 +70,7 @@ export default function NotificationSettingsScreen() {
           title="Auto-refresh"
           subtitle="How often open screens check for updates."
           numberOfLines={2}
-          right={
-            <View style={{ width: 190 }}>
-              <Segmented
+          below={<Segmented
                 options={[
                   { value: 0, label: "Off" },
                   { value: 1, label: "1m" },
@@ -82,9 +79,7 @@ export default function NotificationSettingsScreen() {
                 ]}
                 value={prefs.refreshMinutes}
                 onChange={(refreshMinutes) => set({ refreshMinutes })}
-              />
-            </View>
-          }
+              />}
         />
       </Group>
     </Screen>

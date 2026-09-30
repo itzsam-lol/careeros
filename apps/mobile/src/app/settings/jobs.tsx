@@ -1,5 +1,3 @@
-import { View } from "react-native";
-
 import { Screen } from "@/components/screen";
 import { OptionGroup } from "@/components/settings-kit";
 import { Group, Row, Segmented, StepperRow, SwitchRow } from "@/components/ui";
@@ -13,17 +11,8 @@ const VIEWS: { value: JobViewPref; label: string }[] = [
   { value: "ALL", label: "All roles" },
 ];
 
-function SegmentRow<V extends string>({ title, options, value, onChange, width = 210 }: { title: string; options: { value: V; label: string }[]; value: V; onChange: (v: V) => void; width?: number }) {
-  return (
-    <Row
-      title={title}
-      right={
-        <View style={{ width }}>
-          <Segmented options={options} value={value} onChange={onChange} />
-        </View>
-      }
-    />
-  );
+function SegmentRow<V extends string>({ title, options, value, onChange }: { title: string; options: { value: V; label: string }[]; value: V; onChange: (v: V) => void }) {
+  return <Row title={title} below={<Segmented options={options} value={value} onChange={onChange} />} />;
 }
 
 export default function JobSettingsScreen() {
@@ -61,7 +50,6 @@ export default function JobSettingsScreen() {
           ]}
           value={prefs.dateStyle}
           onChange={(dateStyle) => set({ dateStyle })}
-          width={170}
         />
       </Group>
 
@@ -95,7 +83,6 @@ export default function JobSettingsScreen() {
           ]}
           value={prefs.openLinks}
           onChange={(openLinks) => set({ openLinks })}
-          width={170}
         />
       </Group>
     </Screen>

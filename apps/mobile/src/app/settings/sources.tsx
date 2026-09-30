@@ -77,11 +77,7 @@ function SourceDetail({ source }: { source: Source }) {
       <SwitchRow title="Enabled" value={source.enabled} onChange={(enabled) => update.mutate({ id: source.id, patch: { enabled } })} />
       <Row
         title="Check"
-        right={
-          <View style={{ width: 236 }}>
-            <Segmented options={cadenceOptions} value={source.cadence} onChange={(cadence) => update.mutate({ id: source.id, patch: { cadence } })} />
-          </View>
-        }
+        below={<Segmented options={cadenceOptions} value={source.cadence} onChange={(cadence) => update.mutate({ id: source.id, patch: { cadence } })} />}
       />
       <Row title="Delete Source" destructive onPress={confirmDelete} />
     </Group>

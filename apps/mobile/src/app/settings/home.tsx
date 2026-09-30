@@ -67,18 +67,14 @@ export default function HomeSettingsScreen() {
       <Group header="Notifications on Today">
         <Row
           title="Style"
-          right={
-            <View style={{ width: 170 }}>
-              <Segmented
+          below={<Segmented
                 options={[
                   { value: "stack", label: "Stack" },
                   { value: "list", label: "List" },
                 ]}
                 value={prefs.alertsStyle}
                 onChange={(alertsStyle) => set({ alertsStyle })}
-              />
-            </View>
-          }
+              />}
         />
       </Group>
 

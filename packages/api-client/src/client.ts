@@ -48,15 +48,16 @@ export function createApiClient(options: ApiClientOptions) {
     fetch: options.fetch,
   });
 
+  // Middleware returns nothing when it does not replace the request/response: openapi-fetch
+  // checks returned values with `instanceof Request/Response`, which fails for the fetch
+  // polyfill classes on React Native even when the object is passed straight back.
   const auth: Middleware = {
     async onRequest({ request }) {
       const token = await options.getToken();
       if (token) request.headers.set("Authorization", `Bearer ${token}`);
-      return request;
     },
-    async onResponse({ response }) {
+    onResponse({ response }) {
       if (response.status === 401) options.onUnauthorized?.();
-      return response;
     },
   };
   client.use(auth);
