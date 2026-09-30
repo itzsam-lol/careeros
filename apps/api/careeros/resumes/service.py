@@ -19,6 +19,7 @@ from careeros.core.clock import utcnow
 from careeros.core.errors import LLMProviderError, NotFoundError, ValidationFailedError
 from careeros.core.logging import get_logger
 from careeros.intelligence.service import latest_analysis
+from careeros.intelligence.skills import extract_skill_names, normalize_skill_name
 from careeros.jobs.models import Job
 from careeros.llm.prompting import PromptBuilder
 from careeros.notifications.models import NotificationPriority, NotificationType
@@ -339,6 +340,13 @@ class Story:
     text: str
     score: float
     kind: str
+    # Canonical skills this story demonstrates: named in the text or in the item's tech stack.
+    skills: frozenset[str] = frozenset()
+
+
+def _skills_of(text: str, technologies: list[str]) -> frozenset[str]:
+    names = [*extract_skill_names(text), *technologies]
+    return frozenset(tailoring.canonical_key(normalize_skill_name(n)) for n in names)
 
 
 def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> list[Story]:
@@ -360,6 +368,7 @@ def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> 
                     text,
                     scorer.score(text + " " + " ".join(exp.technologies)) + 1.0,
                     "experience",
+                    _skills_of(text, exp.technologies),
                 )
             )
     for project in snapshot.projects:
@@ -373,10 +382,48 @@ def evidence_stories(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> 
                     text,
                     scorer.score(text + " " + " ".join(project.technologies)),
                     "project",
+                    _skills_of(text, project.technologies),
                 )
             )
     stories.sort(key=lambda s: -s.score)
     return stories
+
+
+def _studying(education: Any) -> str:
+    """'I am a final-year B.Tech student in CS at X' or 'I am studying for a ... graduating in 2028'."""
+    field = f" in {education.field}" if education.field else ""
+    end = education.end_date
+    if end is not None:
+        months_left = (end.year - utcnow().year) * 12 + (end.month - utcnow().month)
+        if 0 <= months_left <= 12:
+            return f"I am a final-year {education.degree} student{field} at {education.institution}"
+        if months_left > 12:
+            return f"I am studying for a {education.degree}{field} at {education.institution}, graduating in {end.year}"
+        return f"I graduated with a {education.degree}{field} from {education.institution}"
+    if education.is_current:
+        return f"I am studying for a {education.degree}{field} at {education.institution}"
+    return f"I hold a {education.degree}{field} from {education.institution}"
+
+
+def _and_list(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else f"{', '.join(items[:-1])} and {items[-1]}"
+
+
+def student_phrase(education: Any) -> str:
+    """'a final-year B.Tech student at IIIT-Delhi', 'a B.Tech student at X' or 'a B.Tech graduate of X'."""
+    school = (
+        education.institution.split("(")[-1].rstrip(")")
+        if "(" in education.institution
+        else education.institution
+    )
+    end = education.end_date
+    if end is not None:
+        months_left = (end.year - utcnow().year) * 12 + (end.month - utcnow().month)
+        if 0 <= months_left <= 12:
+            return f"a final-year {education.degree} student at {school}"
+        if months_left < 0:
+            return f"a {education.degree} graduate of {school}"
+    return f"a {education.degree} student at {school}"
 
 
 def cover_letter_text(
@@ -392,9 +439,7 @@ def cover_letter_text(
     role = f"the {target.title} role" + (f" at {target.company}" if target.company else "")
     intro = f"I am writing to apply for {role}."
     if education:
-        year = f", graduating in {education.end_date.year}" if education.end_date else ""
-        field = f" in {education.field}" if education.field else ""
-        intro += f" I am a {education.degree}{field} student at {education.institution}{year}"
+        intro += f" {_studying(education)}"
         intro += f", with internships at {' and '.join(orgs[:2])}." if orgs else "."
     stories = evidence_stories(snapshot, target)
     picked, seen_contexts = [], set()
@@ -415,7 +460,8 @@ def cover_letter_text(
     ]
     skills_line = ""
     if skills:
-        skills_line = f"The role calls for {', '.join(skills[:5])}; I have used each of these in the work described above and on my resume."
+        # Only claim what is verifiably true: these are skills on the user's verified profile.
+        skills_line = f"My skills include {_and_list(skills[:5])}, which this role asks for."
     company = target.company or "your team"
     closing = {
         "warm": f"I would love the chance to bring this energy to {company}. Thank you for considering my application; I would be glad to talk about how I can help.",

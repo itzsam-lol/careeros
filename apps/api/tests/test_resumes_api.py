@@ -90,6 +90,7 @@ async def test_tailored_resume_and_cover_letter_end_to_end(
     cover = (await client.get(f"/api/v1/resumes/{letter.json()['id']}")).json()
     assert cover["status"] == "READY"
     assert "Quasar Health" in cover["body"]
+    assert "used each of these" not in cover["body"]  # never over-claims experience
     assert "Backend Engineer Intern" in cover["body"]
 
     # A ready notification links to the document.

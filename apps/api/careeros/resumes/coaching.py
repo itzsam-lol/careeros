@@ -8,11 +8,11 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass
 
-from careeros.intelligence.skills import canonical_key, extract_skill_names, lookup
+from careeros.intelligence.skills import canonical_key, lookup
 from careeros.profile.enums import VerificationStatus
 from careeros.profile.service import ProfileSnapshot
 from careeros.resumes import tailor as tailoring
-from careeros.resumes.service import evidence_stories, verified_skills
+from careeros.resumes.service import evidence_stories, student_phrase, verified_skills
 
 _VERIFIED = VerificationStatus.VERIFIED
 
@@ -44,12 +44,7 @@ def interview_prep(snapshot: ProfileSnapshot, target: tailoring.JobTarget) -> di
     points: list[TalkingPoint] = []
     for topic in topics:
         key = canonical_key(_display(topic))
-        hits = [
-            s
-            for s in stories
-            if key in {canonical_key(n) for n in extract_skill_names(s.text)}
-            or key in canonical_key(s.text)
-        ]
+        hits = [s for s in stories if key in s.skills or key in canonical_key(s.text)]
         if hits:
             points.append(TalkingPoint(_display(topic), "STRONG", [f"{h.context}: {h.text}" for h in hits[:2]],
                                        f"Walk through one example end to end: the problem, what you built with {_display(topic)}, and the result."))  # fmt: skip
@@ -132,11 +127,7 @@ def outreach_drafts(
     profile = snapshot.profile
     name = profile.full_name or "I"
     education = next((e for e in snapshot.education if e.verification_status == _VERIFIED), None)
-    who = (
-        f"a final-year {education.degree} student at {education.institution.split('(')[-1].rstrip(')')}"
-        if education
-        else (profile.headline or "a candidate")
-    )
+    who = student_phrase(education) if education else (profile.headline or "a candidate")
     stories = evidence_stories(snapshot, target)
     best = stories[0] if stories else None
     hook = ""

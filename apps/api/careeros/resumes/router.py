@@ -15,7 +15,7 @@ from careeros.core.errors import AuthenticationError, NotFoundError
 from careeros.jobs.models import Job
 from careeros.profile.service import get_or_create_profile, load_snapshot
 from careeros.resumes import coaching, service
-from careeros.resumes.models import DocumentKind, DocumentStatus, ResumeDocument
+from careeros.resumes.models import DocumentKind, DocumentStatus, ResumeDocument, ResumeMaster
 
 router = APIRouter(prefix="/resumes", tags=["resumes"])
 coaching_router = APIRouter(prefix="/jobs", tags=["resumes"])
@@ -147,6 +147,43 @@ async def master_pdf(user: CurrentUser, session: DbSession) -> Response:
     return _pdf_response(master.pdf, f"{name}_Resume.pdf")
 
 
+@router.post(
+    "/master/link", response_model=DownloadLink, summary="A short-lived link to open the master PDF"
+)
+async def master_link(
+    request: Request, user: CurrentUser, session: DbSession, container: ContainerDep
+) -> DownloadLink:
+    master = await service.get_master(session, user.id)
+    if master is None or master.pdf is None:
+        raise NotFoundError("The master resume has not been compiled yet")
+    token = service.sign_download(container.settings.signing_secret.get_secret_value(), master.id)
+    return DownloadLink(
+        url=f"{_public_base(request)}/api/v1/resumes/master/download/{master.id}?token={token}",
+        expires_in=900,
+    )
+
+
+@router.get("/master/download/{master_id}", include_in_schema=False)
+async def master_download(
+    master_id: uuid.UUID, session: DbSession, container: ContainerDep, token: str = ""
+) -> Response:
+    if not service.verify_download(
+        container.settings.signing_secret.get_secret_value(), master_id, token
+    ):
+        raise AuthenticationError("This download link has expired")
+    master = await session.get(ResumeMaster, master_id)
+    if master is None or master.pdf is None:
+        raise NotFoundError("Resume not found")
+    return _pdf_response(master.pdf, "Resume.pdf")
+
+
+def _public_base(request: Request) -> str:
+    base = str(request.base_url).rstrip("/")
+    if request.headers.get("x-forwarded-proto") == "https":
+        base = base.replace("http://", "https://", 1)
+    return base
+
+
 # --- documents ------------------------------------------------------------------------------------
 
 
@@ -238,11 +275,9 @@ async def document_link(
     if document.pdf is None:
         raise NotFoundError("This document has no PDF yet")
     token = service.sign_download(container.settings.signing_secret.get_secret_value(), document.id)
-    base = str(request.base_url).rstrip("/")
-    if request.headers.get("x-forwarded-proto") == "https":
-        base = base.replace("http://", "https://", 1)
     return DownloadLink(
-        url=f"{base}/api/v1/resumes/{document.id}/download?token={token}", expires_in=900
+        url=f"{_public_base(request)}/api/v1/resumes/{document.id}/download?token={token}",
+        expires_in=900,
     )
 
 
