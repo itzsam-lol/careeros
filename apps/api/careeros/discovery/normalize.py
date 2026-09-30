@@ -220,7 +220,33 @@ _COUNTRY_ALIASES: dict[str, str] = {
     "united arab emirates": "United Arab Emirates", "uae": "United Arab Emirates",
     "israel": "Israel", "spain": "Spain", "poland": "Poland", "sweden": "Sweden",
     "brazil": "Brazil", "mexico": "Mexico", "china": "China", "south korea": "South Korea",
+    # Global boards (GitLab, Binance, Coinbase...) list roles in many more countries; knowing
+    # them keeps "Remote, Turkey" out of an India/Australia search.
+    "turkey": "Turkey", "türkiye": "Turkey", "turkiye": "Turkey", "korea": "South Korea",
+    "republic of korea": "South Korea", "new zealand": "New Zealand", "hong kong": "Hong Kong",
+    "taiwan": "Taiwan", "macau": "Macau", "philippines": "Philippines", "vietnam": "Vietnam",
+    "viet nam": "Vietnam", "indonesia": "Indonesia", "malaysia": "Malaysia", "thailand": "Thailand",
+    "bangladesh": "Bangladesh", "pakistan": "Pakistan", "sri lanka": "Sri Lanka", "nepal": "Nepal",
+    "cambodia": "Cambodia", "saudi arabia": "Saudi Arabia", "ksa": "Saudi Arabia", "qatar": "Qatar",
+    "bahrain": "Bahrain", "kuwait": "Kuwait", "oman": "Oman", "jordan": "Jordan", "lebanon": "Lebanon",
+    "egypt": "Egypt", "morocco": "Morocco", "tunisia": "Tunisia", "nigeria": "Nigeria",
+    "kenya": "Kenya", "ghana": "Ghana", "south africa": "South Africa", "ethiopia": "Ethiopia",
+    "rwanda": "Rwanda", "uganda": "Uganda", "tanzania": "Tanzania", "italy": "Italy",
+    "portugal": "Portugal", "belgium": "Belgium", "austria": "Austria", "denmark": "Denmark",
+    "norway": "Norway", "finland": "Finland", "greece": "Greece", "romania": "Romania",
+    "hungary": "Hungary", "czech republic": "Czech Republic", "czechia": "Czech Republic",
+    "slovakia": "Slovakia", "slovenia": "Slovenia", "croatia": "Croatia", "serbia": "Serbia",
+    "bulgaria": "Bulgaria", "ukraine": "Ukraine", "lithuania": "Lithuania", "latvia": "Latvia",
+    "estonia": "Estonia", "luxembourg": "Luxembourg", "cyprus": "Cyprus", "malta": "Malta",
+    "iceland": "Iceland", "russia": "Russia", "belarus": "Belarus", "armenia": "Armenia",
+    "kazakhstan": "Kazakhstan", "azerbaijan": "Azerbaijan", "argentina": "Argentina",
+    "chile": "Chile", "colombia": "Colombia", "peru": "Peru", "uruguay": "Uruguay",
+    "costa rica": "Costa Rica", "ecuador": "Ecuador", "venezuela": "Venezuela",
+    "guatemala": "Guatemala", "panama": "Panama", "puerto rico": "Puerto Rico",
+    "scotland": "United Kingdom", "wales": "United Kingdom",
 }  # fmt: skip
+# Place names that contain a country alias but are somewhere else entirely.
+_ALIAS_SHADOWS = re.compile(r"\bnew (?:mexico|south wales)\b")
 
 _CITY_COUNTRY: dict[str, str] = {
     **dict.fromkeys((
@@ -253,6 +279,58 @@ _CITY_COUNTRY: dict[str, str] = {
     "amsterdam": "Netherlands", "paris": "France", "dublin": "Ireland", "zurich": "Switzerland",
     "tokyo": "Japan", "dubai": "United Arab Emirates",
     "tel aviv": "Israel", "singapore": "Singapore", "stockholm": "Sweden", "warsaw": "Poland",
+    **dict.fromkeys((
+        "alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut",
+        "delaware", "florida", "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky",
+        "louisiana", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri",
+        "montana", "nebraska", "nevada", "new hampshire", "new jersey", "new mexico", "north carolina",
+        "north dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina",
+        "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", "wisconsin", "wyoming",
+        "raleigh", "dallas", "houston", "miami", "phoenix", "portland", "philadelphia", "detroit",
+        "minneapolis", "salt lake city", "nashville", "irvine", "santa clara", "san mateo",
+        "bellevue", "kirkland", "boulder",
+    ), "United States"),
+    **dict.fromkeys(("glasgow", "leeds", "bristol, uk", "belfast", "reading, uk"), "United Kingdom"),
+    **dict.fromkeys(("calgary", "edmonton", "winnipeg", "quebec", "ontario", "british columbia", "alberta"), "Canada"),
+    **dict.fromkeys(("cologne", "köln", "stuttgart", "düsseldorf", "dusseldorf", "leipzig", "dresden"), "Germany"),
+    **dict.fromkeys(("rotterdam", "utrecht", "eindhoven", "the hague"), "Netherlands"),
+    **dict.fromkeys(("lyon", "toulouse", "grenoble"), "France"),
+    **dict.fromkeys(("istanbul", "ankara", "izmir"), "Turkey"),
+    **dict.fromkeys(("manila", "makati", "taguig", "cebu", "quezon city"), "Philippines"),
+    **dict.fromkeys(("jakarta", "bandung", "surabaya"), "Indonesia"),
+    **dict.fromkeys(("kuala lumpur", "penang", "cyberjaya"), "Malaysia"),
+    **dict.fromkeys(("ho chi minh", "hanoi", "da nang"), "Vietnam"),
+    **dict.fromkeys(("taipei", "hsinchu"), "Taiwan"),
+    **dict.fromkeys(("seoul", "pangyo"), "South Korea"),
+    **dict.fromkeys(("beijing", "shanghai", "shenzhen", "hangzhou", "guangzhou", "chengdu", "suzhou"), "China"),
+    **dict.fromkeys(("osaka", "kyoto", "fukuoka"), "Japan"),
+    **dict.fromkeys(("auckland", "wellington", "christchurch"), "New Zealand"),
+    **dict.fromkeys(("sao paulo", "são paulo", "rio de janeiro", "florianopolis", "belo horizonte"), "Brazil"),
+    **dict.fromkeys(("buenos aires",), "Argentina"),
+    **dict.fromkeys(("bogota", "bogotá", "medellin", "medellín"), "Colombia"),
+    **dict.fromkeys(("guadalajara", "monterrey"), "Mexico"),
+    **dict.fromkeys(("madrid", "barcelona", "malaga", "málaga"), "Spain"),
+    **dict.fromkeys(("milan", "milano", "rome", "turin"), "Italy"),
+    **dict.fromkeys(("lisbon", "lisboa"), "Portugal"),
+    **dict.fromkeys(("brussels", "antwerp"), "Belgium"),
+    **dict.fromkeys(("vienna", "wien"), "Austria"),
+    **dict.fromkeys(("copenhagen", "aarhus"), "Denmark"),
+    "oslo": "Norway", "helsinki": "Finland", "espoo": "Finland", "athens, greece": "Greece",
+    **dict.fromkeys(("prague", "brno"), "Czech Republic"),
+    **dict.fromkeys(("bucharest", "cluj"), "Romania"),
+    "budapest": "Hungary", "vilnius": "Lithuania", "riga": "Latvia", "tallinn": "Estonia",
+    "belgrade": "Serbia", "zagreb": "Croatia",
+    **dict.fromkeys(("kyiv", "kiev", "lviv", "kharkiv"), "Ukraine"),
+    **dict.fromkeys(("krakow", "kraków", "wroclaw", "wrocław", "gdansk", "gdańsk", "poznan"), "Poland"),
+    **dict.fromkeys(("cape town", "johannesburg", "durban"), "South Africa"),
+    **dict.fromkeys(("lagos", "abuja"), "Nigeria"),
+    "nairobi": "Kenya", "cairo": "Egypt", "casablanca": "Morocco", "accra": "Ghana",
+    **dict.fromkeys(("riyadh", "jeddah"), "Saudi Arabia"),
+    "doha": "Qatar", "abu dhabi": "United Arab Emirates", "manama": "Bahrain",
+    **dict.fromkeys(("karachi", "lahore", "islamabad"), "Pakistan"),
+    "dhaka": "Bangladesh", "colombo": "Sri Lanka", "kathmandu": "Nepal",
+    **dict.fromkeys(("haifa", "herzliya"), "Israel"),
+    "bangkok": "Thailand",
 }  # fmt: skip
 
 _US_STATE = re.compile(
@@ -305,11 +383,12 @@ def extract_countries(locations: list[str]) -> list[str]:
                 found.setdefault(_PART_CODES[parts[-1]], None)
         if location.strip().upper() in {"IN", "AU", "IND", "AUS"}:
             found.setdefault(_PART_CODES[location.strip().lower()], None)
+        unshadowed = _ALIAS_SHADOWS.sub(" ", lowered)
         for alias, country in _COUNTRY_ALIASES.items():
             if len(alias) <= 3:
-                if re.search(rf"(^|[\s,(/-]){re.escape(alias)}($|[\s,)/-])", lowered):
+                if re.search(rf"(^|[\s,(/-]){re.escape(alias)}($|[\s,)/-])", unshadowed):
                     found.setdefault(country, None)
-            elif re.search(rf"\b{re.escape(alias)}\b", lowered):
+            elif re.search(rf"\b{re.escape(alias)}\b", unshadowed):
                 found.setdefault(country, None)
         for city, country in _CITY_COUNTRY.items():
             if re.search(rf"\b{re.escape(city)}\b", lowered):
@@ -388,6 +467,13 @@ def detect_remote(
     return RemoteType.UNKNOWN
 
 
+# Numbered levels only count right after a role noun: "SDE I", "Software Engineer 2", "Analyst III".
+_LEVEL_NOUN = (
+    r"\b(?:engineer|developer|scientist|analyst|sde|swe|sdet|associate|specialist|consultant"
+    r"|designer|researcher|programmer|technologist)"
+)
+
+
 def detect_seniority(title: str, employment_type: EmploymentType | None) -> SeniorityLevel:
     t = title.lower()
     if employment_type == EmploymentType.INTERNSHIP or re.search(r"\bintern", t):
@@ -396,13 +482,19 @@ def detect_seniority(title: str, employment_type: EmploymentType | None) -> Seni
         return SeniorityLevel.MANAGER
     if re.search(r"\b(staff|principal|lead|distinguished|architect)\b", t):
         return SeniorityLevel.LEAD
-    if re.search(r"\b(senior|sr)\b|\biii\b", t):
+    if re.search(r"\b(senior|sr)\b|\b(iii|iv)\b", t) or re.search(rf"{_LEVEL_NOUN}\s*[345]\b", t):
         return SeniorityLevel.SENIOR
-    if re.search(r"\b(junior|jr|entry[- ]level|new grad|graduate|fresher)\b", t) or re.match(
-        r"^associate\b(?!.*\b(director|principal)\b)", t
+    if (
+        re.search(
+            r"\b(junior|jr|entry[- ]level|new grad|graduate|fresher|trainee|early[- ]career"
+            r"|campus hire|apprentice)\b",
+            t,
+        )
+        or re.match(r"^associate\b(?!.*\b(director|principal)\b)", t)
+        or re.search(rf"{_LEVEL_NOUN}\s*(?:i|1)\b", t)
     ):
         return SeniorityLevel.ENTRY
-    if re.search(r"\b(ii|mid[- ]level)\b", t):
+    if re.search(r"\b(ii|mid[- ]level)\b", t) or re.search(rf"{_LEVEL_NOUN}\s*2\b", t):
         return SeniorityLevel.MID
     return SeniorityLevel.UNKNOWN
 

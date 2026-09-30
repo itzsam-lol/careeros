@@ -159,9 +159,37 @@ def test_normalize_builds_canonical_job() -> None:
         ("Victoria, BC", []),
         ("Remote", []),
         ("in person", []),
+        ("Remote, Turkey", ["Turkey"]),
+        ("Istanbul, Türkiye", ["Turkey"]),
+        ("Manila, Philippines", ["Philippines"]),
+        ("Auckland, New Zealand", ["New Zealand"]),
+        # Names that contain another country's name.
+        ("New Mexico, USA", ["United States"]),
+        ("Sydney, New South Wales, Australia", ["Australia"]),
+        ("Porto Alegre, Brazil", ["Brazil"]),
+        ("Remote - EMEA", []),
     ],
 )
 def test_extract_countries_handles_ats_location_formats(
     location: str, countries: list[str]
 ) -> None:
     assert extract_countries([location]) == countries
+
+
+@pytest.mark.parametrize(
+    ("title", "level"),
+    [
+        ("SDE I", SeniorityLevel.ENTRY),
+        ("Software Engineer 1", SeniorityLevel.ENTRY),
+        ("Computer Scientist I (Frontend)", SeniorityLevel.ENTRY),
+        ("Early Career Software Engineer", SeniorityLevel.ENTRY),
+        ("Graduate Trainee", SeniorityLevel.ENTRY),
+        ("Software Engineer II", SeniorityLevel.MID),
+        ("Data Scientist 2", SeniorityLevel.MID),
+        ("Analyst III", SeniorityLevel.SENIOR),
+        ("Software Engineer in Test", SeniorityLevel.UNKNOWN),
+        ("Software Engineer", SeniorityLevel.UNKNOWN),
+    ],
+)
+def test_numbered_levels(title: str, level: SeniorityLevel) -> None:
+    assert detect_seniority(title, None) == level
