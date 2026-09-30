@@ -8,6 +8,7 @@ import { Button, Card, Chip, EmptyState, Loading, T } from "@/components/ui";
 import { type JobCard, useJobs } from "@/lib/api";
 import { type ApplicationStage, STAGES, stageInfo } from "@/lib/careers";
 import { shortDate, useWhen } from "@/lib/format";
+import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 type Filter = "ACTIVE" | "ALL" | ApplicationStage;
@@ -31,7 +32,7 @@ function TrackerCard({ job }: { job: JobCard }) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${job.title} at ${job.company}, ${stage?.label ?? "tracked"}`}
-      onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.job_id } })}
+      onPress={() => openJob(job.job_id, "Tracker")}
       style={({ pressed }) => [theme.card, styles.card, { borderRadius: theme.radius.card, padding: theme.space.lg, opacity: pressed ? 0.75 : 1 }]}
     >
       <View style={{ flex: 1, gap: 3 }}>
@@ -81,7 +82,7 @@ export default function TrackerScreen() {
               <T v="title2" style={{ fontVariant: ["tabular-nums"] }}>
                 {counts[stage] ?? 0}
               </T>
-              <T v="caption" color={theme.colors.text2} numberOfLines={1}>
+              <T v="caption" color={theme.colors.text2} fit>
                 {stageInfo(stage)?.label}
               </T>
             </Card>

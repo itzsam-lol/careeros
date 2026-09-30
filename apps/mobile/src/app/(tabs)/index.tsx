@@ -8,6 +8,7 @@ import { HeaderButton, Screen, useRefresh } from "@/components/screen";
 import { Button, Card, EmptyState, Group, type IconName, Loading, Row, T } from "@/components/ui";
 import { type JobView, type Notification, useDashboard, useMarkRead, useMe, useUnreadCount } from "@/lib/api";
 import { useWhen } from "@/lib/format";
+import { openNotificationTarget } from "@/lib/nav";
 import type { HomeSection } from "@/lib/prefs";
 import { useTheme } from "@/lib/theme";
 
@@ -76,8 +77,7 @@ export default function TodayScreen() {
   const openJobs = (view: JobView) => router.navigate({ pathname: "/jobs", params: { view } });
   const openNotification = (notification: Notification) => {
     if (!notification.read && prefs.markReadOnOpen) markRead.mutate([notification.id]);
-    if (notification.job_id) router.push({ pathname: "/job/[id]", params: { id: notification.job_id } });
-    else router.navigate("/alerts");
+    if (!openNotificationTarget(notification, "Today")) router.navigate("/alerts");
   };
 
   const firstName = me.data?.name?.split(" ")[0];
@@ -112,7 +112,7 @@ export default function TodayScreen() {
                 <EmptyState icon="sparkles-outline" title="No matches yet" message="Matches appear here as soon as the agent analyses new roles." />
               </Card>
             ) : (
-              data.top_matches.filter(keep).map((job) => <JobCardView key={job.job_id} job={job} />)
+              data.top_matches.filter(keep).map((job) => <JobCardView key={job.job_id} job={job} from="Today" />)
             )}
           </View>
         ),
@@ -121,7 +121,7 @@ export default function TodayScreen() {
             <View style={{ gap: theme.space.md }}>
               <SectionHeader title="Closing soon" action="See All" onAction={() => openJobs("DEADLINE_SOON")} />
               {data.upcoming_deadlines.filter(keep).map((job) => (
-                <JobCardView key={job.job_id} job={job} compact />
+                <JobCardView key={job.job_id} job={job} compact from="Today" />
               ))}
             </View>
           ) : null,

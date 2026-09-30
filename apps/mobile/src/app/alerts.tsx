@@ -1,4 +1,3 @@
-import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -6,6 +5,7 @@ import { NotificationContent } from "@/components/notification-stack";
 import { Screen, useRefresh } from "@/components/screen";
 import { Button, Card, EmptyState, Loading, Segmented } from "@/components/ui";
 import { type Notification, useMarkRead, useNotifications } from "@/lib/api";
+import { openNotificationTarget } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 export default function AlertsScreen() {
@@ -19,9 +19,9 @@ export default function AlertsScreen() {
   const shown = filter === "unread" ? items.filter((n) => !n.read) : items;
 
   const open = (notification: Notification) => {
-    if (!notification.read && theme.prefs.markReadOnOpen) markRead.mutate([notification.id]);
-    if (notification.job_id) router.push({ pathname: "/job/[id]", params: { id: notification.job_id } });
-    else if (!notification.read) markRead.mutate([notification.id]);
+    const opened = openNotificationTarget(notification, "Alerts");
+    // Tapping an alert with nothing to open still marks it read.
+    if (!notification.read && (theme.prefs.markReadOnOpen || !opened)) markRead.mutate([notification.id]);
   };
 
   return (

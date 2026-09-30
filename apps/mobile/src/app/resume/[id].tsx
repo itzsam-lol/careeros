@@ -8,6 +8,7 @@ import { Bar, Button, Card, Chip, EmptyState, Group, type IconName, Loading, Row
 import { useCreateDocument, useDocument, useDocumentActions } from "@/lib/careers";
 import { openPdf, sharePdf } from "@/lib/files";
 import { useWhen } from "@/lib/format";
+import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 const CHANGE_ICONS: Record<string, [IconName, string]> = {
@@ -25,7 +26,7 @@ export default function DocumentScreen() {
   const theme = useTheme();
   const { colors } = theme;
   const when = useWhen();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const doc = useDocument(id);
   const actions = useDocumentActions(id);
   const regenerate = useCreateDocument();
@@ -34,7 +35,7 @@ export default function DocumentScreen() {
 
   if (doc.isPending || doc.isError) {
     return (
-      <Screen back="Résumés" tabBar={false} refresh={refresh}>
+      <Screen back={from ?? "Résumés"} tabBar={false} refresh={refresh}>
         {doc.isPending ? <Loading /> : <EmptyState icon="alert-circle-outline" title="Couldn't load this document" message={doc.error.message} />}
       </Screen>
     );
@@ -66,7 +67,7 @@ export default function DocumentScreen() {
   const again = () =>
     regenerate.mutate(
       { kind: d.kind, jobId: d.job_id, tone: (d.options?.tone as "professional" | "warm" | "concise") ?? "professional" },
-      { onSuccess: (next) => router.replace({ pathname: "/resume/[id]", params: { id: next.id } }) },
+      { onSuccess: (next) => router.replace({ pathname: "/resume/[id]", params: { id: next.id, from: from ?? "Résumés" } }) },
     );
 
   const hits = Object.entries(d.keywords_after ?? {}) as [string, boolean][];
@@ -77,7 +78,7 @@ export default function DocumentScreen() {
 
   return (
     <Screen
-      back="Résumés"
+      back={from ?? "Résumés"}
       tabBar={false}
       refresh={refresh}
       title={isLetter ? "Cover Letter" : "Tailored Résumé"}
@@ -201,7 +202,7 @@ export default function DocumentScreen() {
 
       <Group>
         {d.job_id ? (
-          <Row title="View Job" icon="briefcase" iconColor="#5856D6" chevron onPress={() => router.push({ pathname: "/job/[id]", params: { id: d.job_id as string } })} />
+          <Row title="View Job" icon="briefcase" iconColor="#5856D6" chevron onPress={() => openJob(d.job_id as string, isLetter ? "Letter" : "Résumé")} />
         ) : null}
         <Row title="Generate Again" icon="refresh" iconColor="#8E8E93" onPress={again} disabled={regenerate.isPending} />
         <Row title="Delete" destructive onPress={remove} />

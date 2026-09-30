@@ -1,11 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { Chip, Score, T, type Tone } from "@/components/ui";
 import { type JobCard as Job, useJobAction } from "@/lib/api";
 import { stageInfo } from "@/lib/careers";
 import { deadlineLabel, salaryText, titleCase, useWhen } from "@/lib/format";
+import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 export function locationLine(job: Pick<Job, "company" | "location" | "remote_type" | "employment_type">): string {
@@ -39,7 +39,7 @@ export function useJobFilter() {
   };
 }
 
-export function JobCardView({ job, compact = false }: { job: Job; compact?: boolean }) {
+export function JobCardView({ job, compact = false, from = "Jobs" }: { job: Job; compact?: boolean; from?: string }) {
   const theme = useTheme();
   const { prefs, colors } = theme;
   const when = useWhen();
@@ -54,7 +54,7 @@ export function JobCardView({ job, compact = false }: { job: Job; compact?: bool
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${job.title} at ${job.company}`}
-      onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.job_id } })}
+      onPress={() => openJob(job.job_id, from)}
       style={({ pressed }) => [
         theme.card,
         { borderRadius: theme.radius.card, padding: theme.space.lg, opacity: pressed ? 0.75 : 1 },

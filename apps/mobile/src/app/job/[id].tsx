@@ -197,7 +197,7 @@ function AtAGlance({ analysis, detail }: { analysis: Analysis; detail: JobDetail
 export default function JobDetailScreen() {
   const theme = useTheme();
   const { colors, prefs } = theme;
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const job = useJob(id);
   const action = useJobAction(id);
   const rematch = useRematch(id);
@@ -208,7 +208,7 @@ export default function JobDetailScreen() {
 
   if (job.isPending || job.isError) {
     return (
-      <Screen back="Jobs" backFallback="/jobs" tabBar={false} refresh={refresh}>
+      <Screen back={from ?? "Jobs"} backFallback="/jobs" tabBar={false} refresh={refresh}>
         {job.isPending ? (
           <Loading />
         ) : (
@@ -247,7 +247,7 @@ export default function JobDetailScreen() {
   ].filter(Boolean);
 
   return (
-    <Screen back="Jobs" backFallback="/jobs" tabBar={false} refresh={refresh}>
+    <Screen back={from ?? "Jobs"} backFallback="/jobs" tabBar={false} refresh={refresh}>
       <View style={{ gap: theme.space.md }}>
         <View style={styles.header}>
           <View style={{ flex: 1, gap: 4 }}>

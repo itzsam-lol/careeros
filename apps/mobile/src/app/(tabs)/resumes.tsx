@@ -1,5 +1,4 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 
@@ -16,6 +15,7 @@ import {
 } from "@/lib/careers";
 import { openPdf, pickTexFile } from "@/lib/files";
 import { useWhen } from "@/lib/format";
+import { openDocument } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 const TAILORED_ROLES = ["experience", "projects", "skills", "leadership", "research"];
@@ -40,7 +40,7 @@ function DocumentRow({ doc }: { doc: DocumentSummary }) {
         ) : undefined
       }
       chevron
-      onPress={() => router.push({ pathname: "/resume/[id]", params: { id: doc.id } })}
+      onPress={() => openDocument(doc.id, "Résumés")}
     />
   );
 }
@@ -74,7 +74,7 @@ export default function ResumesScreen() {
     });
 
   const generateGeneral = () =>
-    create.mutate({ kind: "RESUME", jobId: null }, { onSuccess: (doc) => router.push({ pathname: "/resume/[id]", params: { id: doc.id } }) });
+    create.mutate({ kind: "RESUME", jobId: null }, { onSuccess: (doc) => openDocument(doc.id, "Résumés") });
 
   const all = documents.data ?? [];
   const shown = all.filter((d) => (filter === "all" ? true : filter === "starred" ? d.starred : d.kind === filter));

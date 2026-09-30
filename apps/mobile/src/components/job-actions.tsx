@@ -6,6 +6,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, TextInput, View } from
 import { Button, Card, Group, Row, Segmented, T } from "@/components/ui";
 import { coverageText, STAGES, stageInfo, useApplication, useCreateDocument, useDocuments, useUpdateApplication } from "@/lib/careers";
 import { shortDate, useWhen } from "@/lib/format";
+import { openDocument } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
 
 const FOLLOW_UPS: { label: string; days: number | null }[] = [
@@ -122,7 +123,7 @@ export function JobDocuments({ jobId }: { jobId: string }) {
     create.mutate(
       { kind, jobId, tone },
       {
-        onSuccess: (doc) => router.push({ pathname: "/resume/[id]", params: { id: doc.id } }),
+        onSuccess: (doc) => openDocument(doc.id, "Job"),
         onError: (error) => Alert.alert("Couldn't start", error.message),
       },
     );
@@ -162,7 +163,7 @@ export function JobDocuments({ jobId }: { jobId: string }) {
             iconColor="#8E8E93"
             right={doc.status === "PENDING" ? <ActivityIndicator color={theme.colors.text2} /> : doc.starred ? <Ionicons name="star" size={15} color="#FF9500" /> : undefined}
             chevron
-            onPress={() => router.push({ pathname: "/resume/[id]", params: { id: doc.id } })}
+            onPress={() => openDocument(doc.id, "Job")}
           />
         ))}
       </Group>

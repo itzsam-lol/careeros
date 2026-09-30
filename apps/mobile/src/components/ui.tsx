@@ -28,6 +28,7 @@ export function T({
   numberOfLines,
   children,
   selectable,
+  fit,
 }: {
   v?: TypeStyle;
   color?: string;
@@ -35,12 +36,16 @@ export function T({
   numberOfLines?: number;
   children: React.ReactNode;
   selectable?: boolean;
+  /** Shrink slightly (to 75%) instead of truncating a single line. */
+  fit?: boolean;
 }) {
   const theme = useTheme();
   return (
     <Text
       selectable={selectable}
-      numberOfLines={numberOfLines}
+      numberOfLines={fit ? 1 : numberOfLines}
+      adjustsFontSizeToFit={fit}
+      minimumFontScale={fit ? 0.75 : undefined}
       style={[theme.type[v], { color: color ?? theme.colors.text }, style]}
       maxFontSizeMultiplier={1.4}
     >
