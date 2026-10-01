@@ -13,8 +13,17 @@ export function openDocument(id: string, from: string) {
   router.push({ pathname: "/resume/[id]", params: { id, from } });
 }
 
-/** "Résumé ready" alerts open the document; other job alerts open the job. False if neither. */
+export function openEmail(id: string, from: string) {
+  router.push({ pathname: "/email/[id]", params: { id, from } });
+}
+
+/** Replies open the email, "résumé ready" alerts the document, other job alerts the job. */
 export function openNotificationTarget(notification: Notification, from: string): boolean {
+  const outreachId = notification.data?.outreach_id;
+  if (typeof outreachId === "string" && outreachId) {
+    openEmail(outreachId, from);
+    return true;
+  }
   const documentId = notification.data?.document_id;
   if (typeof documentId === "string" && documentId) {
     openDocument(documentId, from);

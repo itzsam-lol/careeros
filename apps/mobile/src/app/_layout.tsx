@@ -77,6 +77,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
           <Stack.Screen name="outreach/[id]" />
           <Stack.Screen name="company/[id]" />
           <Stack.Screen name="apply/[id]" />
+          <Stack.Screen name="email/[id]" />
           <Stack.Screen name="settings" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>

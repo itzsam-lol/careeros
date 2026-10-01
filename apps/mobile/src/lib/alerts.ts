@@ -65,7 +65,11 @@ export async function deliverNewAlerts(): Promise<number> {
       content: {
         title: alert.title,
         body: alert.body,
-        data: { jobId: alert.job_id, documentId: alert.data?.document_id ?? null },
+        data: {
+          jobId: alert.job_id,
+          documentId: alert.data?.document_id ?? null,
+          outreachId: alert.data?.outreach_id ?? null,
+        },
       },
       trigger,
     });
@@ -125,7 +129,8 @@ export async function disableAlerts(): Promise<void> {
 }
 
 /** Where a tapped notification should go. */
-export function alertTarget(data: Record<string, unknown> | undefined): { kind: "job" | "document"; id: string } | null {
+export function alertTarget(data: Record<string, unknown> | undefined): { kind: "job" | "document" | "email"; id: string } | null {
+  if (typeof data?.outreachId === "string" && data.outreachId) return { kind: "email", id: data.outreachId };
   if (typeof data?.documentId === "string" && data.documentId) return { kind: "document", id: data.documentId };
   if (typeof data?.jobId === "string" && data.jobId) return { kind: "job", id: data.jobId };
   return null;

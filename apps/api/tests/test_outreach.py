@@ -210,6 +210,14 @@ async def test_send_guards_daily_limit_duplicates_and_bad_input(
     injected = await _draft(client, None, subject="Hello\r\nBcc: everyone@example.com")
     assert "\n" not in str(injected["subject"])  # header injection is flattened
 
+    # A draft can start without a recipient, but can't be sent without one.
+    blank = await _draft(client, None, to_address="", subject="No recipient yet")
+    response = await client.post(
+        f"/api/v1/email/messages/{blank['id']}/send", json={"confirm": True}
+    )
+    assert response.status_code == 422
+    assert "recipient" in response.json()["error"]["message"]
+
     # Attaching a résumé needs a tailored résumé for the job.
     attach = await _draft(client, job_id, attach_resume=True, subject="With résumé")
     response = await client.post(

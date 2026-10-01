@@ -41,7 +41,8 @@ class ConnectIn(BaseModel):
 class MessageIn(BaseModel):
     job_id: uuid.UUID | None = None
     kind: Kind = "custom"
-    to_address: Address
+    # May be empty on a draft; required (and checked) when sending.
+    to_address: Annotated[str, StringConstraints(strip_whitespace=True, max_length=320)] = ""
     to_name: Annotated[str, StringConstraints(max_length=200)] | None = None
     subject: Annotated[str, StringConstraints(max_length=300)]
     body: Annotated[str, StringConstraints(max_length=20_000)]
@@ -49,7 +50,9 @@ class MessageIn(BaseModel):
 
 
 class MessagePatch(BaseModel):
-    to_address: Address | None = None
+    to_address: Annotated[str, StringConstraints(strip_whitespace=True, max_length=320)] | None = (
+        None
+    )
     to_name: Annotated[str, StringConstraints(max_length=200)] | None = None
     subject: Annotated[str, StringConstraints(max_length=300)] | None = None
     body: Annotated[str, StringConstraints(max_length=20_000)] | None = None

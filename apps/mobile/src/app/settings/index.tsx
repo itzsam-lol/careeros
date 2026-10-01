@@ -6,6 +6,7 @@ import { Screen } from "@/components/screen";
 import { Group, Row, T } from "@/components/ui";
 import { useMe, useSources } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useEmailAccount } from "@/lib/email";
 import { usePrefs } from "@/lib/prefs";
 import { ACCENTS, useTheme } from "@/lib/theme";
 
@@ -14,6 +15,7 @@ export default function SettingsScreen() {
   const auth = useAuth();
   const me = useMe();
   const sources = useSources();
+  const emailAccount = useEmailAccount();
   const { prefs, reset } = usePrefs();
 
   const name = me.data?.name ?? auth.session?.name ?? "Your account";
@@ -65,6 +67,14 @@ export default function SettingsScreen() {
 
       <Group footer="These settings live on the server and change what the agent looks for and how it scores roles.">
         <Row icon="search" iconColor="#34C759" title="Job Search Preferences" chevron onPress={() => router.push("/settings/search")} />
+        <Row
+          icon="mail"
+          iconColor="#EA4335"
+          title="Email"
+          value={emailAccount.data ? (emailAccount.data.connected ? "Gmail connected" : emailAccount.data.status === "ERROR" ? "Reconnect" : "Not connected") : null}
+          chevron
+          onPress={() => router.push("/settings/email")}
+        />
         <Row
           icon="globe"
           iconColor="#30B0C7"

@@ -189,7 +189,9 @@ async def get_message(
 
 def _apply_fields(message: OutreachMessage, data: dict[str, Any]) -> None:
     if "to_address" in data and data["to_address"] is not None:
-        message.to_address = _clean_address(data["to_address"])
+        # A draft may start without a recipient; sending requires one.
+        raw = str(data["to_address"]).strip()
+        message.to_address = _clean_address(raw) if raw else ""
     if "to_name" in data:
         message.to_name = _one_line(data["to_name"], 200)
     if "subject" in data and data["subject"] is not None:
@@ -221,8 +223,8 @@ async def create_message(
         user_id=user_id, job_id=job_id, kind=kind, to_address="", subject="", body=""
     )
     _apply_fields(message, {"attach_resume": False, **data})
-    if not message.to_address or not message.subject or not message.body:
-        raise ValidationFailedError("An email needs a recipient, a subject and a message")
+    if not message.subject or not message.body:
+        raise ValidationFailedError("An email needs a subject and a message")
     session.add(message)
     await session.flush()
     await record(
@@ -358,6 +360,9 @@ async def send_message(
     ).first()
     if duplicate:
         raise ConflictError("You sent this same email to this person in the last 24 hours")
+    if not message.to_address:
+        raise ValidationFailedError("Add the recipient's email address before sending")
+    _clean_address(message.to_address)
     attachment = await _resume_attachment(session, message)
     mailbox = mailbox_for(account, cipher)
 

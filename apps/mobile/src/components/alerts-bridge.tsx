@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { AppState } from "react-native";
 
 import { alertTarget, deliverNewAlerts, disableAlerts, enableAlerts } from "@/lib/alerts";
-import { openDocument, openJob } from "@/lib/nav";
+import { openDocument, openEmail, openJob } from "@/lib/nav";
 import { usePrefs } from "@/lib/prefs";
 
 const FOREGROUND_POLL_MS = 60_000;
@@ -12,7 +12,8 @@ function openTarget(response: Notifications.NotificationResponse | null) {
   const target = alertTarget(response?.notification.request.content.data as Record<string, unknown> | undefined);
   if (!target) return;
   // A notification can open the app from anywhere, so the back button just says "Back".
-  if (target.kind === "document") openDocument(target.id, "Back");
+  if (target.kind === "email") openEmail(target.id, "Back");
+  else if (target.kind === "document") openDocument(target.id, "Back");
   else openJob(target.id, "Back");
 }
 
