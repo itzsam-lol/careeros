@@ -17,6 +17,12 @@ A role that fails any of these is marked *Not eligible*, and the app hides it by
 - **Experience, seniority, degree, student status, graduation year**, when the posting states
   them.
 - **Your exclusions:** companies and title keywords.
+- **Freshers only** (optional): mid, senior, lead and manager roles, or roles asking for more than two
+  years, fail. Titles that say so are skipped at discovery.
+
+With **Hide roles that don't fit** on, ineligible roles and roles outside your target kinds of work
+are hidden instead of listed, and never trigger an alert. Alerts are sent when a role is first
+matched; re-scoring never repeats them.
 
 ## 2. Requirement coverage
 
@@ -67,6 +73,6 @@ evidence, and numbers must appear in that evidence.
 ## When things change
 
 - Editing the profile re-scores open matches (profile version).
-- A new scorer version (currently `match-v3`) re-scores open matches automatically, 500 a minute.
+- A new scorer version (currently `match-v4`) re-scores open matches automatically, 500 a minute.
 - After improving location or level detection, run
   `python -m careeros.tools.refresh_jobs` to recompute stored countries and levels.

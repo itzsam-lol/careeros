@@ -21,6 +21,12 @@ Today and Settings from the gear on Profile.
   get tailored) and every generated résumé or letter. Each one shows its skill coverage, what
   changed and why, and has open, share and star actions.
 - **Profile**: a review queue for verifying or rejecting imported facts.
+- **Company** (from a job page): open roles CareerOS has found there by country, level and kind of
+  work, the skills they ask for most, your matches, a Wikipedia summary, and LinkedIn searches for
+  recruiters and alumni.
+- **Phone notifications**: new alerts appear as system notifications, from a background check about
+  every 15 minutes (Android's minimum) and every minute while the app is open. Tapping one opens the
+  job. They can be switched off under Settings > Notifications & Data.
 - **Settings**
   - On-device preferences:
     - Appearance: accent, background, card style, corners, text size, bold text, font, density.
@@ -31,7 +37,7 @@ Today and Settings from the gear on Profile.
     - Alert thresholds.
     - Job-search preferences: roles, locations, exclusions, pay, work style, and
       sponsorship-only countries.
-  - Job sources: add, schedule, run, disable, delete, and **Browse Companies** (136 verified boards
+  - Job sources: add, schedule, run, disable, delete, and **Browse Companies** (232 verified boards
     for India and Australia).
 
 ## Building a release APK (Windows)
