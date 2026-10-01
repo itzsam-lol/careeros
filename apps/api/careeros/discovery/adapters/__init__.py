@@ -67,6 +67,42 @@ class WorkdayConfig(_Config):
     max_jobs: Annotated[int, Field(ge=1, le=300)] = 60
 
 
+_TECH_CATEGORIES = [
+    "software-development", "machine-learning-science", "data-science", "research-science",
+    "business-intelligence", "solutions-architect", "systems-quality-security-engineering",
+]  # fmt: skip
+
+
+class AmazonConfig(_Config):
+    company_name: CompanyName = "Amazon"
+    countries: Annotated[list[CompanyName], Field(min_length=1, max_length=10)] = Field(
+        default_factory=lambda: ["India", "Australia"]
+    )
+    # amazon.jobs category slugs; defaults to engineering, science and data roles.
+    categories: Annotated[list[Slug], Field(max_length=20)] = Field(
+        default_factory=lambda: list(_TECH_CATEGORIES)
+    )
+    max_jobs: Annotated[int, Field(ge=1, le=1000)] = 200
+
+
+class OracleCloudConfig(_Config):
+    host: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            pattern=r"^https://[a-z0-9-]+\.fa(\.[a-z0-9-]+)*\.oraclecloud\.com/?$",
+            max_length=200,
+        ),
+    ]
+    site_number: Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_]{1,40}$")]
+    company_name: CompanyName
+    countries: Annotated[list[CompanyName], Field(min_length=1, max_length=10)] = Field(
+        default_factory=lambda: ["India", "Australia"]
+    )
+    max_jobs: Annotated[int, Field(ge=1, le=500)] = 100
+    max_details: Annotated[int, Field(ge=0, le=100)] = 40
+
+
 class RSSConfig(_Config):
     url: HttpUrl
     company_name: CompanyName | None = None
@@ -90,6 +126,8 @@ CONFIG_MODELS: dict[SourceType, type[_Config]] = {
     SourceType.ASHBY: AshbyConfig,
     SourceType.SMARTRECRUITERS: SmartRecruitersConfig,
     SourceType.WORKDAY: WorkdayConfig,
+    SourceType.ORACLE_CLOUD: OracleCloudConfig,
+    SourceType.AMAZON: AmazonConfig,
     SourceType.RSS: RSSConfig,
     SourceType.CAREER_PAGE: CareerPageConfig,
     SourceType.FIXTURE: FixtureConfig,
@@ -127,6 +165,11 @@ def validate_config(
             except ValueError as exc:
                 raise ValidationFailedError(str(exc)) from exc
             identity = f"workday:{tenant}:{site.lower()}"
+        case OracleCloudConfig():
+            host = parsed.host.removeprefix("https://").rstrip("/")
+            identity = f"oracle:{host}:{parsed.site_number.lower()}"
+        case AmazonConfig():
+            identity = "amazon:" + "-".join(sorted(c.lower() for c in parsed.countries))
         case RSSConfig() | CareerPageConfig():
             canonical = canonicalize_url(parsed.url)
             if canonical is None:
@@ -142,11 +185,13 @@ def validate_config(
 def build_adapter(
     source_type: SourceType, config: dict[str, Any], http: PoliteHttpClient
 ) -> JobSourceAdapter:
+    from careeros.discovery.adapters.amazon import AmazonAdapter
     from careeros.discovery.adapters.ashby import AshbyAdapter
     from careeros.discovery.adapters.career_page import CareerPageAdapter
     from careeros.discovery.adapters.fixture import FixtureAdapter
     from careeros.discovery.adapters.greenhouse import GreenhouseAdapter
     from careeros.discovery.adapters.lever import LeverAdapter
+    from careeros.discovery.adapters.oracle_cloud import OracleCloudAdapter
     from careeros.discovery.adapters.rss import RSSAdapter
     from careeros.discovery.adapters.smartrecruiters import SmartRecruitersAdapter
     from careeros.discovery.adapters.workday import WorkdayAdapter
@@ -159,6 +204,8 @@ def build_adapter(
         SourceType.ASHBY: AshbyAdapter,
         SourceType.SMARTRECRUITERS: SmartRecruitersAdapter,
         SourceType.WORKDAY: WorkdayAdapter,
+        SourceType.ORACLE_CLOUD: OracleCloudAdapter,
+        SourceType.AMAZON: AmazonAdapter,
         SourceType.RSS: RSSAdapter,
         SourceType.CAREER_PAGE: CareerPageAdapter,
         SourceType.FIXTURE: FixtureAdapter,

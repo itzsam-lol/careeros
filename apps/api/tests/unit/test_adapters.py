@@ -238,3 +238,86 @@ def test_workday_rejects_non_workday_urls() -> None:
         validate_config(
             SourceType.WORKDAY, {"url": "https://evil.example.com/Careers"}, _settings()
         )
+
+
+@respx.mock
+async def test_amazon_adapter_reads_search_json(http: PoliteHttpClient) -> None:
+    respx.get("https://www.amazon.jobs/robots.txt").mock(
+        return_value=httpx.Response(200, text="User-agent: *\nDisallow: /internal\n")
+    )
+    job = {
+        "id_icims": "3088775",
+        "title": "Software Development Engineer I",
+        "job_path": "/en/jobs/3088775/sde-1",
+        "location": "IN, KA, Bengaluru",
+        "normalized_location": "Bengaluru, Karnataka, IND",
+        "posted_date": "October  1, 2026",
+        "description": "<p>Build services.</p>",
+        "basic_qualifications": "- Java or Python",
+        "is_intern": False,
+        "job_schedule_type": "full-time",
+        "university_job": True,
+    }
+    route = respx.get("https://www.amazon.jobs/en/search.json").mock(
+        return_value=httpx.Response(200, json={"hits": 1, "jobs": [job]})
+    )
+    config, identity = validate_config(SourceType.AMAZON, {"countries": ["India"]}, _settings())
+    assert identity == "amazon:india"
+    [raw] = await build_adapter(SourceType.AMAZON, config, http).discover_jobs()
+    assert raw.url == "https://www.amazon.jobs/en/jobs/3088775/sde-1"
+    assert "Basic qualifications" in (raw.description_html or "")
+    norm = normalize(raw)
+    assert norm.countries == ["India"]
+    params = route.calls[0].request.url.params
+    assert params["normalized_country_code[]"] == "IND"
+    assert "software-development" in params.get_list("category[]")
+
+
+@respx.mock
+async def test_oracle_cloud_adapter_uses_location_facet(http: PoliteHttpClient) -> None:
+    api = "https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest"
+    searches: list[str] = []
+
+    def search(request: httpx.Request) -> httpx.Response:
+        finder = request.url.params["finder"]
+        searches.append(finder)
+        if "facetsList=LOCATIONS" in finder:
+            facets = [{"Id": 42, "Name": "India", "TotalCount": 1}]
+            return httpx.Response(200, json={"items": [{"locationsFacet": facets}]})
+        row = {
+            "Id": "210001",
+            "Title": "Software Engineer I",
+            "PrimaryLocation": "Mumbai, Maharashtra, India",
+            "PrimaryLocationCountry": "IN",
+            "PostedDate": "2026-10-01",
+            "ShortDescriptionStr": "Short.",
+        }
+        return httpx.Response(
+            200, json={"items": [{"TotalJobsCount": 1, "requisitionList": [row]}]}
+        )
+
+    respx.get(f"{api}/recruitingCEJobRequisitions").mock(side_effect=search)
+    respx.get(f"{api}/recruitingCEJobRequisitionDetails").mock(
+        return_value=httpx.Response(
+            200, json={"items": [{"ExternalDescriptionStr": "<p>Full description.</p>"}]}
+        )
+    )
+    config, identity = validate_config(
+        SourceType.ORACLE_CLOUD,
+        {
+            "host": "https://jpmc.fa.oraclecloud.com",
+            "site_number": "CX_1001",
+            "company_name": "JPMorgan Chase",
+            "countries": ["India"],
+        },
+        _settings(),
+    )
+    assert identity == "oracle:jpmc.fa.oraclecloud.com:cx_1001"
+    adapter = build_adapter(SourceType.ORACLE_CLOUD, config, http)
+    [raw] = await adapter.discover_jobs()
+    assert raw.description_html == "<p>Full description.</p>"
+    assert (raw.url or "").endswith("/sites/CX_1001/job/210001")
+    assert any("selectedLocationsFacet=42" in f for f in searches)
+
+    adapter.known = KnownPostings(ids=frozenset({"210001"}))  # type: ignore[attr-defined]
+    assert await adapter.discover_jobs() == []
