@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 from careeros.core.errors import SourceFetchError
 from careeros.core.http import PoliteHttpClient
 from careeros.discovery.adapters._common import parse_datetime
-from careeros.discovery.raw import RawJob
+from careeros.discovery.raw import KnownPostings, RawJob
 
 if TYPE_CHECKING:
     from careeros.discovery.adapters import WorkdayConfig
@@ -25,6 +25,12 @@ _SITE = re.compile(
     r"^https://(?P<tenant>[a-z0-9-]+)\.(?P<wd>wd\d{1,3})\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?(?P<site>[A-Za-z0-9_-]+)",
 )
 PAGE = 20
+
+
+def posting_key(url_or_path: str) -> str:
+    """Locale-independent key of a posting: the part after "/job/" ("noida/sde_r171208-1")."""
+    _, _, tail = url_or_path.partition("/job/")
+    return tail.lower().split("?")[0].strip("/")
 
 
 def parse_site(url: str) -> tuple[str, str, str]:
@@ -63,6 +69,7 @@ class WorkdayAdapter:
         self.tenant, self.wd, self.site = parse_site(config.url)
         self.origin = f"https://{self.tenant}.{self.wd}.myworkdayjobs.com"
         self.api = f"{self.origin}/wday/cxs/{self.tenant}/{self.site}"
+        self.known = KnownPostings()
 
     async def _search(self, facets: dict[str, list[str]], text: str, offset: int) -> dict[str, Any]:
         body = {"appliedFacets": facets, "limit": PAGE, "offset": offset, "searchText": text}
@@ -93,8 +100,11 @@ class WorkdayAdapter:
     async def discover_jobs(self) -> list[RawJob]:
         company = self.config.company_name or self.tenant.replace("-", " ").title()
         results: list[RawJob] = []
+        known = {posting_key(url) for url in self.known.urls}
         for posting in await self._postings():
             path = posting["externalPath"]
+            if posting_key(path) in known:
+                continue  # already stored; hourly runs only fetch new postings
             try:
                 detail = await self.http.get_json(f"{self.api}{path}", respect_robots=False)
             except SourceFetchError:

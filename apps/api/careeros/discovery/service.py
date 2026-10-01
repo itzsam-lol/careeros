@@ -28,7 +28,7 @@ from careeros.discovery.normalize import (
     normalize,
     normalize_company,
 )
-from careeros.discovery.raw import RawJob
+from careeros.discovery.raw import KnownPostings, RawJob
 from careeros.events.models import EventType
 from careeros.events.service import emit
 from careeros.jobs.models import Job, JobLifecycle, JobSourceLink, UserJob
@@ -227,6 +227,18 @@ async def run_source(
     now = utcnow()
     started = time.perf_counter()
     adapter = build_adapter(source.type, source.config, fetcher)
+    if hasattr(adapter, "known"):
+        links = (
+            await session.execute(
+                select(JobSourceLink.external_id, JobSourceLink.url).where(
+                    JobSourceLink.source_id == source.id
+                )
+            )
+        ).all()
+        adapter.known = KnownPostings(
+            ids=frozenset(external_id for external_id, _ in links if external_id),
+            urls=frozenset(url for _, url in links if url),
+        )
     try:
         raws = await adapter.discover_jobs()
     except CareerOSError as exc:

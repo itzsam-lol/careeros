@@ -12,6 +12,7 @@ from careeros.core.http import PoliteHttpClient
 from careeros.discovery.adapters import build_adapter, validate_config
 from careeros.discovery.models import SourceType
 from careeros.discovery.normalize import normalize
+from careeros.discovery.raw import KnownPostings
 
 FIXTURES = Path(__file__).resolve().parents[4] / "fixtures" / "http"
 
@@ -221,6 +222,13 @@ async def test_workday_adapter_uses_country_facets(http: PoliteHttpClient) -> No
     ]
     assert searches[-1]["appliedFacets"] == {"locationCountry": ["in-id"]}
     assert "India" in normalize(jobs[0]).countries
+
+    # Hourly re-runs skip postings the source already returned (no detail request).
+    adapter = build_adapter(SourceType.WORKDAY, config, http)
+    adapter.known = KnownPostings(urls=frozenset({jobs[0].url or ""}))  # type: ignore[attr-defined]
+    detail_calls = respx.calls.call_count
+    assert await adapter.discover_jobs() == []
+    assert all("/job/" not in str(c.request.url) for c in respx.calls[detail_calls:])
 
 
 def test_workday_rejects_non_workday_urls() -> None:

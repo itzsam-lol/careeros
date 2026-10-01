@@ -36,6 +36,13 @@ class RawJob(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class KnownPostings(BaseModel):
+    """Postings a source already returned before, so hourly runs fetch details only for new ones."""
+
+    ids: frozenset[str] = frozenset()
+    urls: frozenset[str] = frozenset()
+
+
 class JobSourceAdapter(Protocol):
     #: True when a run returns the source's complete current listing, so jobs missing from a
     #: successful run can be marked closed. False for partial feeds (RSS, crawled pages).
