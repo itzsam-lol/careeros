@@ -20,6 +20,7 @@ import httpx
 from sqlalchemy import delete, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from careeros.core.clock import utcnow
 from careeros.core.errors import CareerOSError
 from careeros.core.logging import get_logger
 from careeros.events.models import DomainEvent, EventType
@@ -167,6 +168,51 @@ def push_data(notification: Notification) -> dict[str, str]:
     }
 
 
+async def push_to_phones(
+    session: AsyncSession,
+    sender: PushSender,
+    user_id: uuid.UUID,
+    *,
+    title: str,
+    body: str,
+    data: dict[str, str],
+) -> tuple[int, int]:
+    """Sends one push to each of the user's phones. Returns (sent, forgotten phones)."""
+    devices = list(
+        (await session.execute(select(PushDevice).where(PushDevice.user_id == user_id))).scalars()
+    )
+    sent = removed = 0
+    for device in devices:
+        result = await sender.send(device.token, title=title, body=body, data=data)
+        if result == PushResult.SENT:
+            sent += 1
+        elif result == PushResult.INVALID_TOKEN:
+            await session.execute(delete(PushDevice).where(PushDevice.id == device.id))
+            removed += 1
+    return sent, removed
+
+
+async def send_test_push(session: AsyncSession, sender: PushSender, user_id: uuid.UUID) -> int:
+    """A test alert, so the user can check their phone shows pushes. Returns how many were sent."""
+    if not sender.enabled:
+        return 0
+    sent, _ = await push_to_phones(
+        session,
+        sender,
+        user_id,
+        title="CareerOS alerts are on",
+        body="New roles that match your profile will show up like this.",
+        data={
+            "type": "TEST",
+            "notificationId": "",
+            "jobId": "",
+            "documentId": "",
+            "outreachId": "",
+        },
+    )
+    return sent
+
+
 @task_handler(TaskType.SEND_PUSH)
 async def handle_send_push(ctx: TaskContext) -> dict[str, Any]:
     sender: PushSender = ctx.container.push
@@ -175,24 +221,14 @@ async def handle_send_push(ctx: TaskContext) -> dict[str, Any]:
     notification = await ctx.session.get(Notification, uuid.UUID(ctx.payload["notification_id"]))
     if notification is None or notification.read:
         return {"skipped": "already read"}
-    devices = list(
-        (
-            await ctx.session.execute(
-                select(PushDevice).where(PushDevice.user_id == notification.user_id)
-            )
-        ).scalars()
+    sent, removed = await push_to_phones(
+        ctx.session,
+        sender,
+        notification.user_id,
+        title=notification.title,
+        body=notification.body,
+        data=push_data(notification),
     )
-    sent = removed = 0
-    for device in devices:
-        result = await sender.send(
-            device.token,
-            title=notification.title,
-            body=notification.body,
-            data=push_data(notification),
-        )
-        if result == PushResult.SENT:
-            sent += 1
-        elif result == PushResult.INVALID_TOKEN:
-            await ctx.session.execute(delete(PushDevice).where(PushDevice.id == device.id))
-            removed += 1
+    if sent:
+        notification.pushed_at = utcnow()
     return {"sent": sent, "removed": removed}

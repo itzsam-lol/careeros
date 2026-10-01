@@ -1,4 +1,4 @@
-"""push devices: phones registered for push alerts (FCM tokens)
+"""push devices: phones registered for push alerts (FCM tokens), and when each alert was pushed
 
 Revision ID: 0009
 Revises: 0008
@@ -34,8 +34,10 @@ def upgrade() -> None:
         sa.UniqueConstraint("token", name=op.f("uq_push_devices_token")),
     )
     op.create_index(op.f("ix_push_devices_user_id"), "push_devices", ["user_id"])
+    op.add_column("notifications", sa.Column("pushed_at", sa.DateTime(timezone=True), nullable=True))
 
 
 def downgrade() -> None:
+    op.drop_column("notifications", "pushed_at")
     op.drop_index(op.f("ix_push_devices_user_id"), table_name="push_devices")
     op.drop_table("push_devices")

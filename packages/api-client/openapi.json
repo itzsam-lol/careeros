@@ -4388,6 +4388,143 @@
         ]
       }
     },
+    "/api/v1/devices/status": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Whether alerts are pushed to your phones",
+        "operationId": "push_status_api_v1_devices_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushStatus"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Register this phone for push alerts",
+        "operationId": "register_device_api_v1_devices_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/unregister": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Stop push alerts to this phone",
+        "operationId": "unregister_device_api_v1_devices_unregister_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceTokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/test": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Send a test notification to your phones now",
+        "operationId": "test_push_api_v1_devices_test_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/email/account": {
       "get": {
         "tags": [
@@ -6253,6 +6390,45 @@
           "PHD"
         ],
         "title": "DegreeLevel"
+      },
+      "DeviceIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 20,
+            "title": "Token"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "android",
+              "ios"
+            ],
+            "title": "Platform",
+            "default": "android"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "DeviceIn"
+      },
+      "DeviceTokenIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 20,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "DeviceTokenIn"
       },
       "DiscoveryCadence": {
         "type": "string",
@@ -9209,6 +9385,18 @@
             "type": "boolean",
             "title": "Read"
           },
+          "pushed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pushed At"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -9228,6 +9416,7 @@
           "action_url",
           "data",
           "read",
+          "pushed_at",
           "created_at"
         ],
         "title": "NotificationOut"
@@ -10951,6 +11140,47 @@
         ],
         "title": "PublicationStatus"
       },
+      "PushStatus": {
+        "properties": {
+          "push_enabled": {
+            "type": "boolean",
+            "title": "Push Enabled"
+          },
+          "devices": {
+            "type": "integer",
+            "title": "Devices"
+          }
+        },
+        "type": "object",
+        "required": [
+          "push_enabled",
+          "devices"
+        ],
+        "title": "PushStatus"
+      },
+      "PushTest": {
+        "properties": {
+          "push_enabled": {
+            "type": "boolean",
+            "title": "Push Enabled"
+          },
+          "devices": {
+            "type": "integer",
+            "title": "Devices"
+          },
+          "sent": {
+            "type": "integer",
+            "title": "Sent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "push_enabled",
+          "devices",
+          "sent"
+        ],
+        "title": "PushTest"
+      },
       "RemotePreference": {
         "type": "string",
         "enum": [
@@ -12330,7 +12560,8 @@
           "CHECK_OUTREACH",
           "CHECK_DEADLINES",
           "PREPARE_APPLICATION",
-          "SUBMIT_APPLICATION"
+          "SUBMIT_APPLICATION",
+          "SEND_PUSH"
         ],
         "title": "TaskType"
       },

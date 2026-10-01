@@ -1204,6 +1204,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/devices/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether alerts are pushed to your phones */
+        get: operations["push_status_api_v1_devices_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register this phone for push alerts */
+        post: operations["register_device_api_v1_devices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/unregister": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop push alerts to this phone */
+        post: operations["unregister_device_api_v1_devices_unregister_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a test notification to your phones now */
+        post: operations["test_push_api_v1_devices_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/email/account": {
         parameters: {
             query?: never;
@@ -1732,6 +1800,22 @@ export interface components {
          * @enum {string}
          */
         DegreeLevel: "DIPLOMA" | "BACHELOR" | "MASTER" | "PHD";
+        /** DeviceIn */
+        DeviceIn: {
+            /** Token */
+            token: string;
+            /**
+             * Platform
+             * @default android
+             * @enum {string}
+             */
+            platform: "android" | "ios";
+        };
+        /** DeviceTokenIn */
+        DeviceTokenIn: {
+            /** Token */
+            token: string;
+        };
         /**
          * DiscoveryCadence
          * @enum {string}
@@ -2696,6 +2780,8 @@ export interface components {
             };
             /** Read */
             read: boolean;
+            /** Pushed At */
+            pushed_at: string | null;
             /**
              * Created At
              * Format: date-time
@@ -3138,6 +3224,22 @@ export interface components {
          * @enum {string}
          */
         PublicationStatus: "PUBLISHED" | "ACCEPTED" | "UNDER_REVIEW" | "PREPRINT" | "IN_PREPARATION";
+        /** PushStatus */
+        PushStatus: {
+            /** Push Enabled */
+            push_enabled: boolean;
+            /** Devices */
+            devices: number;
+        };
+        /** PushTest */
+        PushTest: {
+            /** Push Enabled */
+            push_enabled: boolean;
+            /** Devices */
+            devices: number;
+            /** Sent */
+            sent: number;
+        };
         /**
          * RemotePreference
          * @enum {string}
@@ -3606,7 +3708,7 @@ export interface components {
          * TaskType
          * @enum {string}
          */
-        TaskType: "RUN_DISCOVERY" | "ANALYZE_JOB" | "MATCH_JOB" | "INDEX_PROFILE" | "GENERATE_RESUME" | "RESEARCH_COMPANY" | "DISCOVER_CONTACTS" | "DRAFT_OUTREACH" | "SEND_OUTREACH" | "CHECK_OUTREACH" | "CHECK_DEADLINES" | "PREPARE_APPLICATION" | "SUBMIT_APPLICATION";
+        TaskType: "RUN_DISCOVERY" | "ANALYZE_JOB" | "MATCH_JOB" | "INDEX_PROFILE" | "GENERATE_RESUME" | "RESEARCH_COMPANY" | "DISCOVER_CONTACTS" | "DRAFT_OUTREACH" | "SEND_OUTREACH" | "CHECK_OUTREACH" | "CHECK_DEADLINES" | "PREPARE_APPLICATION" | "SUBMIT_APPLICATION" | "SEND_PUSH";
         /** UnreadCount */
         UnreadCount: {
             /** Unread */
@@ -6521,6 +6623,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    push_status_api_v1_devices_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushStatus"];
+                };
+            };
+        };
+    };
+    register_device_api_v1_devices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unregister_device_api_v1_devices_unregister_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    test_push_api_v1_devices_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushTest"];
                 };
             };
         };

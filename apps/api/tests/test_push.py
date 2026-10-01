@@ -91,6 +91,23 @@ async def test_phones_register_move_between_accounts_and_unregister(
     assert (await client.post("/api/v1/devices", json={"token": "short"})).status_code == 422
 
 
+async def test_test_push_reaches_registered_phones(
+    client: AsyncClient, container: Container
+) -> None:
+    await client.post("/api/v1/devices", json={"token": PHONE})
+    disabled = (await client.post("/api/v1/devices/test")).json()
+    assert disabled == {"push_enabled": False, "devices": 1, "sent": 0}
+
+    fake = FakePush()
+    container.push = fake
+    enabled = (await client.post("/api/v1/devices/test")).json()
+    assert enabled == {"push_enabled": True, "devices": 1, "sent": 1}
+    [(token, title, _, data)] = fake.sent
+    assert token == PHONE
+    assert title == "CareerOS alerts are on"
+    assert data["type"] == "TEST"
+
+
 async def test_alerts_are_pushed_at_once_and_dead_phones_forgotten(
     client: AsyncClient, session: AsyncSession, worker: Worker, push: FakePush
 ) -> None:
@@ -132,6 +149,10 @@ async def test_alerts_are_pushed_at_once_and_dead_phones_forgotten(
     assert all(isinstance(value, str) for value in data.values())
     tokens = (await session.execute(select(PushDevice.token))).scalars().all()
     assert list(tokens) == [PHONE]  # the uninstalled app's token is dropped
+    listed = (await client.get("/api/v1/notifications")).json()
+    pushed = {n["title"]: n["pushed_at"] for n in listed}
+    assert pushed["92% match: Machine Learning Intern at Nimbus"] is not None
+    assert pushed["Follow up with Nimbus"] is None  # the phone's own check shows that one
 
     # Read in the app before the push went out: no push.
     await notify(

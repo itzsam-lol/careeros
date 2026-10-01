@@ -13,6 +13,7 @@ from careeros.api.deps import ContainerDep, CurrentUser, DbSession
 from careeros.core.clock import utcnow
 from careeros.notifications import service
 from careeros.notifications.models import NotificationPriority, NotificationType, PushDevice
+from careeros.notifications.push import send_test_push
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
@@ -31,6 +32,7 @@ class NotificationOut(BaseModel):
     action_url: str | None
     data: dict[str, Any]
     read: bool
+    pushed_at: datetime | None
     created_at: datetime
 
 
@@ -80,6 +82,10 @@ class DeviceTokenIn(BaseModel):
 class PushStatus(BaseModel):
     push_enabled: bool
     devices: int
+
+
+class PushTest(PushStatus):
+    sent: int
 
 
 async def _push_status(
@@ -133,3 +139,13 @@ async def unregister_device(
     )
     await session.commit()
     return Response(status_code=204)
+
+
+@devices_router.post(
+    "/test", response_model=PushTest, summary="Send a test notification to your phones now"
+)
+async def test_push(user: CurrentUser, session: DbSession, container: ContainerDep) -> PushTest:
+    sent = await send_test_push(session, container.push, user.id)
+    await session.commit()
+    status = await _push_status(session, user, container)
+    return PushTest(push_enabled=status.push_enabled, devices=status.devices, sent=sent)

@@ -57,6 +57,8 @@ class Notification(UUIDPrimaryKey, Base):
     data: Mapped[dict[str, Any]] = mapped_column(default=dict)
     read: Mapped[bool] = mapped_column(default=False)
     read_at: Mapped[datetime | None]
+    # When a push for it reached FCM; the phone's own background check skips pushed alerts.
+    pushed_at: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
 
 
