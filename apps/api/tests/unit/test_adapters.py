@@ -321,3 +321,36 @@ async def test_oracle_cloud_adapter_uses_location_facet(http: PoliteHttpClient) 
 
     adapter.known = KnownPostings(ids=frozenset({"210001"}))  # type: ignore[attr-defined]
     assert await adapter.discover_jobs() == []
+
+
+@respx.mock
+async def test_greenhouse_large_board_falls_back_to_light_listing(
+    http: PoliteHttpClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from careeros.discovery.adapters import greenhouse
+
+    monkeypatch.setattr(greenhouse, "BOARD_API_MAX_BYTES", 3000)
+    api = "https://boards-api.greenhouse.io/v1/boards/bigco/jobs"
+    sydney = {"id": 1, "title": "Graduate Engineer", "location": {"name": "Sydney, Australia"}}
+    texas = {"id": 2, "title": "Engineer", "location": {"name": "Austin, Texas"}}
+    known = {"id": 3, "title": "Intern", "location": {"name": "Melbourne, Australia"}}
+    padded = [{**job, "content": "x" * 2000} for job in (sydney, texas, known)]
+    respx.get(api, params={"content": "true"}).mock(
+        return_value=httpx.Response(200, json={"jobs": padded})
+    )
+    respx.get(api).mock(return_value=httpx.Response(200, json={"jobs": [sydney, texas, known]}))
+    detail = respx.get(f"{api}/1").mock(
+        return_value=httpx.Response(200, json={**sydney, "content": "<p>Build things.</p>"})
+    )
+    adapter = build_adapter(
+        SourceType.GREENHOUSE,
+        {"board_token": "bigco", "company_name": "BigCo", "countries": ["Australia"]},
+        http,
+    )
+    adapter.known = KnownPostings(ids=frozenset({"3"}))  # type: ignore[attr-defined]
+    jobs = await adapter.discover_jobs()
+    assert [(j.external_id, j.description_html) for j in jobs] == [
+        ("1", "<p>Build things.</p>"),
+        ("3", None),  # known: still listed, no detail request
+    ]
+    assert detail.call_count == 1

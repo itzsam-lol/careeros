@@ -7,7 +7,7 @@ what comes next, in order. The rules stay the same:
 - no CAPTCHA, login or bot-protection bypass;
 - nothing is scraped from sites whose terms forbid it.
 
-## 1. Apply kit (next)
+## 1. Apply kit (done)
 
 Make applying to a matched role take two minutes instead of twenty.
 

@@ -69,3 +69,4 @@ _Last updated: 2026-10-01_
 | Application automation (Playwright) | ⚪ | `AUTO_SUBMIT_APPLICATIONS` stays false |
 | Phone notifications | ✅ | Background task (~15 min) and 1-minute polling while open; tap opens the job |
 | Follow-up reminders | ✅ | `FOLLOW_UP_DUE` when a tracked application's follow-up date arrives |
+| Apply kit | ✅ | `resumes/apply_kit.py`, Apply Kit screen: documents, copy-ready answers, why-this-company draft |
