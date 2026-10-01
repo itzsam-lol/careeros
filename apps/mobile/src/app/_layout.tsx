@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { AlertsBridge } from "@/components/alerts-bridge";
 import { ApiError } from "@/lib/api";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { PrefsProvider, usePrefs } from "@/lib/prefs";
@@ -80,6 +81,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
           <Stack.Screen name="login" options={{ animation: "fade" }} />
         </Stack.Protected>
       </Stack>
+      {signedIn ? <AlertsBridge /> : null}
     </ThemeProvider>
   );
 }

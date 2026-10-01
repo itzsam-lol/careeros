@@ -1461,7 +1461,7 @@ export interface components {
             all: boolean;
             /** Region */
             region?: ("IN" | "AU") | null;
-            /** @default DAILY */
+            /** @default HOURLY */
             cadence: components["schemas"]["DiscoveryCadence"];
         };
         /** CatalogAdded */
@@ -2440,6 +2440,10 @@ export interface components {
             seniority_levels?: string[] | null;
             /** Include Research */
             include_research?: boolean | null;
+            /** Entry Level Only */
+            entry_level_only?: boolean | null;
+            /** Hide Unsuitable */
+            hide_unsuitable?: boolean | null;
             /** Min Compensation */
             min_compensation?: number | null;
             /** Compensation Currency */
@@ -2475,6 +2479,16 @@ export interface components {
             seniority_levels: string[];
             /** Include Research */
             include_research: boolean;
+            /**
+             * Entry Level Only
+             * @default false
+             */
+            entry_level_only: boolean;
+            /**
+             * Hide Unsuitable
+             * @default false
+             */
+            hide_unsuitable: boolean;
             /** Min Compensation */
             min_compensation: number | null;
             /** Compensation Currency */
@@ -3060,7 +3074,7 @@ export interface components {
             config: {
                 [key: string]: unknown;
             };
-            /** @default DAILY */
+            /** @default HOURLY */
             cadence: components["schemas"]["DiscoveryCadence"];
             /**
              * Enabled
@@ -3143,7 +3157,7 @@ export interface components {
          * SourceType
          * @enum {string}
          */
-        SourceType: "GREENHOUSE" | "LEVER" | "ASHBY" | "SMARTRECRUITERS" | "WORKDAY" | "RSS" | "CAREER_PAGE" | "FIXTURE";
+        SourceType: "GREENHOUSE" | "LEVER" | "ASHBY" | "SMARTRECRUITERS" | "WORKDAY" | "ORACLE_CLOUD" | "AMAZON" | "RSS" | "CAREER_PAGE" | "FIXTURE";
         /** SourceUpdate */
         SourceUpdate: {
             /** Name */

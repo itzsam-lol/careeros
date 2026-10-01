@@ -55,6 +55,7 @@ export interface Prefs {
   // Alerts & data
   markReadOnOpen: boolean;
   refreshMinutes: 0 | 1 | 5 | 15;
+  phoneAlerts: boolean;
 }
 
 export const DEFAULT_PREFS: Prefs = {
@@ -88,6 +89,7 @@ export const DEFAULT_PREFS: Prefs = {
   expandDescription: false,
   markReadOnOpen: true,
   refreshMinutes: 1,
+  phoneAlerts: true,
 };
 
 const KEY = "careeros.prefs";

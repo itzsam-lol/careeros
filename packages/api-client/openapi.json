@@ -5251,7 +5251,7 @@
           },
           "cadence": {
             "$ref": "#/components/schemas/DiscoveryCadence",
-            "default": "DAILY"
+            "default": "HOURLY"
           }
         },
         "type": "object",
@@ -8259,6 +8259,28 @@
             ],
             "title": "Include Research"
           },
+          "entry_level_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entry Level Only"
+          },
+          "hide_unsuitable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hide Unsuitable"
+          },
           "min_compensation": {
             "anyOf": [
               {
@@ -8396,6 +8418,16 @@
           "include_research": {
             "type": "boolean",
             "title": "Include Research"
+          },
+          "entry_level_only": {
+            "type": "boolean",
+            "title": "Entry Level Only",
+            "default": false
+          },
+          "hide_unsuitable": {
+            "type": "boolean",
+            "title": "Hide Unsuitable",
+            "default": false
           },
           "min_compensation": {
             "anyOf": [
@@ -10492,7 +10524,7 @@
           },
           "cadence": {
             "$ref": "#/components/schemas/DiscoveryCadence",
-            "default": "DAILY"
+            "default": "HOURLY"
           },
           "enabled": {
             "type": "boolean",
@@ -10729,6 +10761,8 @@
           "ASHBY",
           "SMARTRECRUITERS",
           "WORKDAY",
+          "ORACLE_CLOUD",
+          "AMAZON",
           "RSS",
           "CAREER_PAGE",
           "FIXTURE"

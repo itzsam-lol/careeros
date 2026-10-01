@@ -60,6 +60,24 @@ export default function SearchSettingsScreen() {
         </Card>
       ) : (
         <>
+          <Group
+            header="Your feed"
+            footer="Hidden roles stay out of your lists and alerts; you can still find them under Dismissed."
+          >
+            <SwitchRow
+              title="Freshers Only"
+              subtitle="Internships, graduate and entry-level roles. Mid and senior roles, or roles asking for more than 2 years, are skipped."
+              value={prefs.entry_level_only}
+              onChange={(entry_level_only) => save({ entry_level_only })}
+            />
+            <SwitchRow
+              title="Hide Roles That Don't Fit"
+              subtitle="Roles you aren't eligible for, or a different kind of work from your target roles."
+              value={prefs.hide_unsuitable}
+              onChange={(hide_unsuitable) => save({ hide_unsuitable })}
+            />
+          </Group>
+
           <Group header="Work style">
             <Row
               title="Location"

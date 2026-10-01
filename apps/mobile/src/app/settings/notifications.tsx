@@ -60,7 +60,16 @@ export default function NotificationSettingsScreen() {
         </>
       )}
 
-      <Group header="On this device">
+      <Group
+        header="On this device"
+        footer="Phone alerts check for new matches in the background (Android allows about every 15 minutes) and every minute while the app is open."
+      >
+        <SwitchRow
+          title="Phone Notifications"
+          subtitle="Show new job alerts as notifications on this phone."
+          value={prefs.phoneAlerts}
+          onChange={(phoneAlerts) => set({ phoneAlerts })}
+        />
         <SwitchRow
           title="Mark as Read When Opened"
           value={prefs.markReadOnOpen}

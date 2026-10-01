@@ -59,7 +59,7 @@ async def enqueue_stale_matches(session: AsyncSession, container: Container) -> 
             .where(
                 JobMatch.profile_version < ProfessionalProfile.version, UserJob.status.in_(_OPEN)
             )
-            .limit(50)
+            .limit(500)
         )
     ).all()
     for user_id, job_id, version in rows:
