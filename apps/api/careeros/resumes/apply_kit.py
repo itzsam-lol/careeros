@@ -76,8 +76,15 @@ def _why_company(snapshot: ProfileSnapshot, job: Job, extraction: dict[str, Any]
     ]
     if shared:
         lines.append(f"It asks for {_and_list(shared)}, which I have used in my own work.")
-    if stories:
-        story = stories[0]
+    shared_keys = {tailoring.canonical_key(skill) for skill in shared}
+    # Prefer an achievement that names a skill the role asks for, then one from a project
+    # that used it, before falling back to the most relevant story.
+    story = (
+        next((st for st in stories if st.named & shared_keys), None)
+        or next((st for st in stories if st.skills & shared_keys), None)
+        or (stories[0] if stories else None)
+    )
+    if story:
         text = story.text.rstrip(".")
         lines.append(
             f"{story.context[0].upper()}{story.context[1:]}, I {text[0].lower()}{text[1:]}."
