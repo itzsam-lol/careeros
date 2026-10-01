@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from careeros.auth.router import router as auth_router
+from careeros.companies.router import router as companies_router
 from careeros.dashboard.router import router as dashboard_router
 from careeros.discovery.router import router as sources_router
 from careeros.evidence.router import router as evidence_router
@@ -25,6 +26,7 @@ router.include_router(evidence_router)
 router.include_router(sources_router)
 router.include_router(jobs_router)
 router.include_router(coaching_router)
+router.include_router(companies_router)
 router.include_router(resumes_router)
 router.include_router(notifications_router)
 router.include_router(activity_router)
