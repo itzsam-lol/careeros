@@ -996,6 +996,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{job_id}/apply-kit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Copy-ready answers, documents and a 'why this company' draft for applying */
+        get: operations["job_apply_kit_api_v1_jobs__job_id__apply_kit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{job_id}/company": {
         parameters: {
             query?: never;
@@ -1383,6 +1400,23 @@ export interface components {
             clear_follow_up: boolean;
             /** Note */
             note?: string | null;
+        };
+        /** ApplyKitOut */
+        ApplyKitOut: {
+            /** Apply Url */
+            apply_url: string | null;
+            /** Platform */
+            platform: string;
+            /** Fields */
+            fields: components["schemas"]["KitFieldOut"][];
+            /** Answers */
+            answers: components["schemas"]["KitAnswerOut"][];
+            /** Why Company */
+            why_company: string;
+            /** Missing */
+            missing: string[];
+            /** Documents */
+            documents: components["schemas"]["KitDocument"][];
         };
         /** AuthConfig */
         AuthConfig: {
@@ -2209,6 +2243,36 @@ export interface components {
          * @enum {string}
          */
         JobView: "ALL" | "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "DISMISSED" | "CLOSED" | "APPLIED";
+        /** KitAnswerOut */
+        KitAnswerOut: {
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+        };
+        /** KitDocument */
+        KitDocument: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["DocumentKind"];
+            /** Title */
+            title: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** KitFieldOut */
+        KitFieldOut: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
         /** Link */
         Link: {
             /** Label */
@@ -5752,6 +5816,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Draft"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    job_apply_kit_api_v1_jobs__job_id__apply_kit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplyKitOut"];
                 };
             };
             /** @description Validation Error */

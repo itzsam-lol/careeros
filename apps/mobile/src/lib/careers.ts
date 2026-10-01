@@ -165,6 +165,18 @@ export function useOutreach(jobId: string) {
   });
 }
 
+// --- apply kit -------------------------------------------------------------------------------------
+
+export type ApplyKit = Schema<"ApplyKitOut">;
+
+export function useApplyKit(jobId: string) {
+  const api = useApi();
+  return useQuery({
+    queryKey: ["apply-kit", jobId],
+    queryFn: () => unwrap(api.GET("/api/v1/jobs/{job_id}/apply-kit", { params: { path: { job_id: jobId } } })),
+  });
+}
+
 // --- company insights ----------------------------------------------------------------------------
 
 export type CompanyInsights = Schema<"CompanyInsightsOut">;

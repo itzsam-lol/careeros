@@ -303,6 +303,17 @@ export default function JobDetailScreen() {
         </View>
       ) : null}
 
+      <Group>
+        <Row
+          title="Apply Kit"
+          subtitle="Documents, copy-ready answers and a short pitch for this job"
+          icon="paper-plane"
+          iconColor="#34C759"
+          numberOfLines={2}
+          chevron
+          onPress={() => router.push({ pathname: "/apply/[id]", params: { id } })}
+        />
+      </Group>
       <ApplicationCard jobId={id} />
       <JobDocuments jobId={id} />
       <Group header="Company">

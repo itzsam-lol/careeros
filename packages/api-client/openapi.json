@@ -3660,6 +3660,54 @@
         }
       }
     },
+    "/api/v1/jobs/{job_id}/apply-kit": {
+      "get": {
+        "tags": [
+          "resumes"
+        ],
+        "summary": "Copy-ready answers, documents and a 'why this company' draft for applying",
+        "operationId": "job_apply_kit_api_v1_jobs__job_id__apply_kit_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKitOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs/{job_id}/company": {
       "get": {
         "tags": [
@@ -5001,6 +5049,68 @@
         },
         "type": "object",
         "title": "ApplicationUpdate"
+      },
+      "ApplyKitOut": {
+        "properties": {
+          "apply_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apply Url"
+          },
+          "platform": {
+            "type": "string",
+            "title": "Platform"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/KitFieldOut"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/KitAnswerOut"
+            },
+            "type": "array",
+            "title": "Answers"
+          },
+          "why_company": {
+            "type": "string",
+            "title": "Why Company"
+          },
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/KitDocument"
+            },
+            "type": "array",
+            "title": "Documents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "apply_url",
+          "platform",
+          "fields",
+          "answers",
+          "why_company",
+          "missing",
+          "documents"
+        ],
+        "title": "ApplyKitOut"
       },
       "AuthConfig": {
         "properties": {
@@ -7606,6 +7716,71 @@
           "APPLIED"
         ],
         "title": "JobView"
+      },
+      "KitAnswerOut": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "answer"
+        ],
+        "title": "KitAnswerOut"
+      },
+      "KitDocument": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/DocumentKind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "created_at"
+        ],
+        "title": "KitDocument"
+      },
+      "KitFieldOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "KitFieldOut"
       },
       "Link": {
         "properties": {
