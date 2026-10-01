@@ -58,3 +58,17 @@ class Notification(UUIDPrimaryKey, Base):
     read: Mapped[bool] = mapped_column(default=False)
     read_at: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+
+
+class PushDevice(UUIDPrimaryKey, Base):
+    """A phone that receives push notifications (an FCM registration token)."""
+
+    __tablename__ = "push_devices"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    token: Mapped[str] = mapped_column(Text, unique=True)
+    platform: Mapped[str] = mapped_column(String(20), default="android")
+    created_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+    last_seen_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())

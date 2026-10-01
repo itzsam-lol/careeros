@@ -10,6 +10,7 @@ from careeros.dashboard.router import router as dashboard_router
 from careeros.discovery.router import router as sources_router
 from careeros.evidence.router import router as evidence_router
 from careeros.jobs.router import router as jobs_router
+from careeros.notifications.router import devices_router
 from careeros.notifications.router import router as notifications_router
 from careeros.outreach.router import router as email_router
 from careeros.profile.router import router as profile_router
@@ -30,5 +31,6 @@ router.include_router(coaching_router)
 router.include_router(companies_router)
 router.include_router(resumes_router)
 router.include_router(notifications_router)
+router.include_router(devices_router)
 router.include_router(email_router)
 router.include_router(activity_router)

@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Response
 from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from careeros.api.deps import CurrentUser, DbSession
+from careeros.api.deps import ContainerDep, CurrentUser, DbSession
+from careeros.core.clock import utcnow
 from careeros.notifications import service
-from careeros.notifications.models import NotificationPriority, NotificationType
+from careeros.notifications.models import NotificationPriority, NotificationType, PushDevice
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
@@ -60,3 +63,73 @@ async def mark_read(payload: MarkRead, user: CurrentUser, session: DbSession) ->
     await service.mark_read(session, user.id, payload.ids)
     await session.commit()
     return UnreadCount(unread=await service.unread_count(session, user.id))
+
+
+devices_router = APIRouter(prefix="/devices", tags=["notifications"])
+
+
+class DeviceIn(BaseModel):
+    token: Annotated[str, Field(min_length=20, max_length=4096)]
+    platform: Literal["android", "ios"] = "android"
+
+
+class DeviceTokenIn(BaseModel):
+    token: Annotated[str, Field(min_length=20, max_length=4096)]
+
+
+class PushStatus(BaseModel):
+    push_enabled: bool
+    devices: int
+
+
+async def _push_status(
+    session: DbSession, user: CurrentUser, container: ContainerDep
+) -> PushStatus:
+    count = (
+        await session.execute(
+            select(func.count()).select_from(PushDevice).where(PushDevice.user_id == user.id)
+        )
+    ).scalar_one()
+    return PushStatus(push_enabled=container.push.enabled, devices=int(count))
+
+
+@devices_router.get(
+    "/status", response_model=PushStatus, summary="Whether alerts are pushed to your phones"
+)
+async def push_status(user: CurrentUser, session: DbSession, container: ContainerDep) -> PushStatus:
+    return await _push_status(session, user, container)
+
+
+@devices_router.post("", response_model=PushStatus, summary="Register this phone for push alerts")
+async def register_device(
+    payload: DeviceIn, user: CurrentUser, session: DbSession, container: ContainerDep
+) -> PushStatus:
+    now = utcnow()
+    await session.execute(
+        pg_insert(PushDevice)
+        .values(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            token=payload.token,
+            platform=payload.platform,
+            created_at=now,
+            last_seen_at=now,
+        )
+        # A phone that signs in to another account moves to that account.
+        .on_conflict_do_update(
+            index_elements=["token"], set_={"user_id": user.id, "last_seen_at": now}
+        )
+    )
+    await session.commit()
+    return await _push_status(session, user, container)
+
+
+@devices_router.post("/unregister", status_code=204, summary="Stop push alerts to this phone")
+async def unregister_device(
+    payload: DeviceTokenIn, user: CurrentUser, session: DbSession
+) -> Response:
+    await session.execute(
+        delete(PushDevice).where(PushDevice.token == payload.token, PushDevice.user_id == user.id)
+    )
+    await session.commit()
+    return Response(status_code=204)

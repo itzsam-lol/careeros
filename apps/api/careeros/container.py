@@ -20,6 +20,7 @@ from careeros.core.ratelimit import InMemoryRateLimiter, RateLimiter
 from careeros.db.session import Database
 from careeros.llm.router import LLMRouter
 from careeros.llm.usage import DatabaseUsageSink
+from careeros.notifications.push import PushSender, build_push_sender
 from careeros.outreach.mailer import MailTransport, build_mail_transport
 
 
@@ -34,6 +35,7 @@ class Container:
     llm: LLMRouter
     cipher: TokenCipher
     mail: MailTransport
+    push: PushSender
     internal_verifier: GoogleOIDCVerifier | None = None
     owns_db: bool = True
     extras: dict[str, object] = field(default_factory=dict)
@@ -78,6 +80,7 @@ def build_container(settings: Settings, *, db: Database | None = None) -> Contai
         llm=LLMRouter(settings, usage=DatabaseUsageSink(database)),
         cipher=build_cipher(settings),
         mail=build_mail_transport(settings),
+        push=build_push_sender(settings, http),
         internal_verifier=internal_verifier,
         owns_db=db is None,
     )

@@ -150,6 +150,11 @@ class Settings(BaseSettings):
     # reputation; every email still needs an explicit send).
     outreach_daily_limit: int = Field(20, ge=1, le=100)
 
+    # --- Push notifications (Firebase Cloud Messaging) ---------------------------------
+    # Set to the Firebase project id to push alerts to phones. On GCE the VM's service account
+    # authenticates (metadata server); it needs the FCM sender role and the cloud-platform scope.
+    fcm_project_id: str | None = None
+
     # --- Web search (company research / contact discovery) ----------------------------
     search_provider: Literal["none", "brave", "google_cse"] = "none"
     brave_search_api_key: SecretStr | None = None
