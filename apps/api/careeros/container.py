@@ -14,11 +14,13 @@ import httpx
 from careeros import __version__
 from careeros.auth.providers import AuthProvider, GoogleOIDCVerifier, build_auth_provider
 from careeros.config import Settings
+from careeros.core.crypto import TokenCipher
 from careeros.core.http import PoliteHttpClient
 from careeros.core.ratelimit import InMemoryRateLimiter, RateLimiter
 from careeros.db.session import Database
 from careeros.llm.router import LLMRouter
 from careeros.llm.usage import DatabaseUsageSink
+from careeros.outreach.mailer import MailTransport, build_mail_transport
 
 
 @dataclass
@@ -30,6 +32,8 @@ class Container:
     auth_provider: AuthProvider
     rate_limiter: RateLimiter
     llm: LLMRouter
+    cipher: TokenCipher
+    mail: MailTransport
     internal_verifier: GoogleOIDCVerifier | None = None
     owns_db: bool = True
     extras: dict[str, object] = field(default_factory=dict)
@@ -39,6 +43,13 @@ class Container:
         await self.fetcher.aclose()
         if self.owns_db:
             await self.db.dispose()
+
+
+def build_cipher(settings: Settings) -> TokenCipher:
+    """Encrypts stored credentials (ENCRYPTION_KEY is required once deployed)."""
+    if settings.encryption_key is not None:
+        return TokenCipher(settings.encryption_key.get_secret_value())
+    return TokenCipher.derived_for_development(settings.signing_secret.get_secret_value())
 
 
 def build_container(settings: Settings, *, db: Database | None = None) -> Container:
@@ -65,6 +76,8 @@ def build_container(settings: Settings, *, db: Database | None = None) -> Contai
         auth_provider=build_auth_provider(settings, http),
         rate_limiter=InMemoryRateLimiter(),
         llm=LLMRouter(settings, usage=DatabaseUsageSink(database)),
+        cipher=build_cipher(settings),
+        mail=build_mail_transport(settings),
         internal_verifier=internal_verifier,
         owns_db=db is None,
     )

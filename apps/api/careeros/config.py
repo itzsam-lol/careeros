@@ -146,6 +146,9 @@ class Settings(BaseSettings):
     gmail_client_id: str | None = None
     gmail_client_secret: SecretStr | None = None
     gmail_redirect_uri: str = "http://localhost:8000/api/v1/integrations/gmail/callback"
+    # Outreach emails the user sends from their own Gmail in any 24 hours (protects the sender's
+    # reputation; every email still needs an explicit send).
+    outreach_daily_limit: int = Field(20, ge=1, le=100)
 
     # --- Web search (company research / contact discovery) ----------------------------
     search_provider: Literal["none", "brave", "google_cse"] = "none"

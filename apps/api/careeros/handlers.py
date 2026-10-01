@@ -6,6 +6,7 @@ from careeros import orchestrator
 from careeros.discovery import tasks as discovery_tasks
 from careeros.intelligence import tasks as intelligence_tasks
 from careeros.matching import tasks as matching_tasks
+from careeros.outreach import tasks as outreach_tasks
 from careeros.resumes import tasks as resume_tasks
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "intelligence_tasks",
     "matching_tasks",
     "orchestrator",
+    "outreach_tasks",
     "resume_tasks",
 ]
