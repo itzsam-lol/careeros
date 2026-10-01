@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -7,8 +8,11 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from careeros.container import Container
+from careeros.core.clock import utcnow
 from careeros.jobs.models import Job, UserJob
 from careeros.matching.service import AUTO_DISMISS_NO_SPONSORSHIP
+from careeros.matching.tasks import create_follow_up_reminders
 from careeros.resumes.latex import find_engine
 from careeros.tasks.runtime import Worker
 from tests.test_matching import _setup
@@ -199,3 +203,29 @@ async def test_sponsorship_only_countries_hide_roles(
     auth = next(c for c in detail["match"]["eligibility"] if c["key"] == "work_authorization")
     assert auth["status"] == "FAIL"
     assert "visa sponsorship" in auth["detail"]
+
+
+async def test_follow_up_reminders_fire_once_when_due(
+    client: AsyncClient,
+    session: AsyncSession,
+    worker: Worker,
+    container: Container,
+    fixtures_dir: Path,
+) -> None:
+    await _setup(client, worker, fixtures_dir)
+    job_id = await _job_id(session, "Machine Learning Engineer Intern")
+    yesterday = (utcnow() - timedelta(days=1)).isoformat()
+    response = await client.patch(
+        f"/api/v1/jobs/{job_id}/application", json={"stage": "APPLIED", "follow_up_at": yesterday}
+    )
+    assert response.status_code == 200
+
+    assert await create_follow_up_reminders(session, container) == 1
+    assert await create_follow_up_reminders(session, container) == 0  # once per follow-up date
+    reminders = [
+        n
+        for n in (await client.get("/api/v1/notifications")).json()
+        if n["type"] == "FOLLOW_UP_DUE"
+    ]
+    assert len(reminders) == 1
+    assert reminders[0]["job_id"] == job_id

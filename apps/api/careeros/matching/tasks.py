@@ -9,7 +9,7 @@ from sqlalchemy import and_, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from careeros.core.clock import utcnow
-from careeros.jobs.models import AnalysisStatus, Job, JobLifecycle, UserJob
+from careeros.jobs.models import AnalysisStatus, ApplicationStage, Job, JobLifecycle, UserJob
 from careeros.matching.models import JobMatch
 from careeros.matching.scoring import SCORER_VERSION
 from careeros.matching.service import match_job
@@ -175,6 +175,50 @@ async def create_deadline_alerts(session: AsyncSession, container: Container) ->
             job_id=job.id,
             action_url=f"/jobs/{job.id}",
             dedupe_key=f"deadline:{job.id}",
+        ):
+            created += 1
+    return created
+
+
+_FOLLOW_UP_STAGES = (
+    ApplicationStage.APPLIED,
+    ApplicationStage.ASSESSMENT,
+    ApplicationStage.INTERVIEW,
+)
+
+
+@periodic("follow_up_reminders")
+async def create_follow_up_reminders(session: AsyncSession, container: Container) -> int:
+    """FOLLOW_UP_DUE when a tracked application's follow-up date arrives (once per date)."""
+    now = utcnow()
+    rows = (
+        await session.execute(
+            select(UserJob, Job)
+            .join(Job, Job.id == UserJob.job_id)
+            .where(
+                UserJob.follow_up_at.is_not(None),
+                UserJob.follow_up_at <= now,
+                UserJob.application_stage.in_(_FOLLOW_UP_STAGES),
+            )
+            .limit(200)
+        )
+    ).all()
+    created = 0
+    for user_job, job in rows:
+        due = user_job.follow_up_at
+        if due is None:  # filtered out by the query; keeps the type checker honest
+            continue
+        stage = (user_job.application_stage or ApplicationStage.APPLIED).value.lower()
+        if await notify(
+            session,
+            user_id=user_job.user_id,
+            type=NotificationType.FOLLOW_UP_DUE,
+            priority=NotificationPriority.HIGH,
+            title=f"Follow up: {job.title} at {job.company}",
+            body=f"Your {stage} application is due a follow-up. A draft is ready under Message Drafts.",
+            job_id=job.id,
+            action_url=f"/jobs/{job.id}",
+            dedupe_key=f"follow_up:{job.id}:{due:%Y-%m-%d}",
         ):
             created += 1
     return created
