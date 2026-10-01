@@ -165,10 +165,13 @@ def _experience_checks(job: Job, ex: JobExtraction, mp: MatchProfile) -> list[El
                 checks.append(EligibilityCheck("experience", "Experience", CheckStatus.FAIL,
                                                f"Requires {ex.min_years_experience:g}+ years; you only want entry-level roles"))  # fmt: skip
             return checks
-    senior = job.seniority in (SeniorityLevel.SENIOR, SeniorityLevel.LEAD, SeniorityLevel.MANAGER)
+    level = job.seniority
+    if level == SeniorityLevel.UNKNOWN:
+        level = detect_seniority(job.title, job.employment_type)
+    senior = level in (SeniorityLevel.SENIOR, SeniorityLevel.LEAD, SeniorityLevel.MANAGER)
     if senior and have < 3 and not any(c.status == CheckStatus.FAIL for c in checks):
         checks.append(EligibilityCheck("seniority", "Seniority", CheckStatus.FAIL,
-                                       f"{job.seniority.value.title()}-level role; your profile shows about {have:.1f} years of professional experience"))  # fmt: skip
+                                       f"{level.value.title()}-level role; your profile shows about {have:.1f} years of professional experience"))  # fmt: skip
     return checks
 
 

@@ -75,6 +75,17 @@ def test_employment_type_detection() -> None:
     assert detect_employment_type("Engineer", None, "") is None
 
 
+def test_internship_needs_more_than_the_letters_intern() -> None:
+    # "International" is not an internship hint, and mentoring interns is not an internship.
+    assert detect_employment_type("Engineer", "International Graduate Program", "") is None
+    assert detect_employment_type("Software Engineer", None, "You will mentor our interns.") is None
+    assert (
+        detect_employment_type("Software Engineer", None, "This internship runs for six months.")
+        == EmploymentType.INTERNSHIP
+    )
+    assert detect_employment_type("Senior Engineer", None, "Our internship program...") is None
+
+
 def test_remote_and_seniority_detection() -> None:
     assert detect_remote("Frontend Engineer", ["Remote - India"], "") == RemoteType.REMOTE
     assert (
@@ -86,6 +97,27 @@ def test_remote_and_seniority_detection() -> None:
     assert detect_seniority("ML Intern", EmploymentType.INTERNSHIP) == SeniorityLevel.INTERN
     assert detect_seniority("Associate Software Engineer", None) == SeniorityLevel.ENTRY
     assert detect_seniority("Associate Director, Engineering", None) == SeniorityLevel.MANAGER
+
+
+@pytest.mark.parametrize(
+    ("title", "employment_type", "level"),
+    [
+        # "Internal" and "International" are not "intern".
+        ("Analytics Manager - Internal Audit", EmploymentType.FULL_TIME, SeniorityLevel.MANAGER),
+        ("International Sales Lead", None, SeniorityLevel.LEAD),
+        ("Internet Engineer", None, SeniorityLevel.UNKNOWN),
+        # A level in the title wins over a posting wrongly marked as an internship.
+        ("Senior Software Engineer, Autonomy", EmploymentType.INTERNSHIP, SeniorityLevel.SENIOR),
+        ("Summer Analyst", EmploymentType.INTERNSHIP, SeniorityLevel.INTERN),
+        ("Product Manager Intern", None, SeniorityLevel.INTERN),
+        ("Associate Product Manager", None, SeniorityLevel.ENTRY),
+        ("Senior Associate Product Manager", None, SeniorityLevel.MANAGER),
+    ],
+)
+def test_seniority_reads_whole_words_and_trusts_the_title(
+    title: str, employment_type: EmploymentType | None, level: SeniorityLevel
+) -> None:
+    assert detect_seniority(title, employment_type) == level
 
 
 @pytest.mark.parametrize(

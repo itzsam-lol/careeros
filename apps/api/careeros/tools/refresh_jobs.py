@@ -1,4 +1,5 @@
-"""Recompute derived job fields (countries, seniority) and re-match the jobs that changed.
+"""Recompute derived job fields (countries, seniority, employment type) and re-match the jobs
+that changed.
 
     uv run python -m careeros.tools.refresh_jobs
 
@@ -14,9 +15,14 @@ import sys
 from sqlalchemy import select
 
 from careeros.config import get_settings
+from careeros.core.enums import EmploymentType
 from careeros.db import registry  # noqa: F401 - load every model so relationships resolve
 from careeros.db.session import Database
-from careeros.discovery.normalize import detect_seniority, extract_countries
+from careeros.discovery.normalize import (
+    detect_employment_type,
+    detect_seniority,
+    extract_countries,
+)
 from careeros.jobs.models import Job, JobLifecycle, UserJob
 from careeros.tasks.models import TaskType
 from careeros.tasks.queue import enqueue
@@ -33,11 +39,25 @@ async def _run() -> tuple[int, int]:
                     job.locations or ([job.location] if job.location else [])
                 )
                 merged = list(dict.fromkeys([*job.countries, *countries]))
-                seniority = detect_seniority(job.title, job.employment_type)
-                if merged == job.countries and seniority == job.seniority:
+                employment_type = job.employment_type
+                if employment_type == EmploymentType.INTERNSHIP and (
+                    detect_employment_type(job.title, None, job.description or "")
+                    != EmploymentType.INTERNSHIP
+                ):
+                    # Marked an internship by a looser rule ("Internal", "mentor our interns").
+                    # Cleared here; the next discovery run sets it again from the source's own
+                    # employment type, if the posting gives one.
+                    employment_type = None
+                seniority = detect_seniority(job.title, employment_type)
+                if (
+                    merged == job.countries
+                    and seniority == job.seniority
+                    and employment_type == job.employment_type
+                ):
                     continue
                 job.countries = merged
                 job.seniority = seniority
+                job.employment_type = employment_type
                 changed += 1
                 user_jobs = (
                     await session.execute(

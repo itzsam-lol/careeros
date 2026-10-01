@@ -58,6 +58,10 @@ research, hardware, product, design, sales, support, HR, legal, finance or opera
 
 - Mid-level roles ("Engineer II") are a stretch, and the explanation mentions it.
 - Senior, lead and manager roles fail eligibility.
+- The level is read from whole words in the title, and the title wins: "Analytics Manager -
+  Internal Audit" is a manager role, not an internship. A posting counts as an internship only
+  when its title, its employment type, or its description says so about the role itself
+  ("this internship", not "you'll mentor our interns").
 
 ## 4. Explanation
 
@@ -73,6 +77,6 @@ evidence, and numbers must appear in that evidence.
 ## When things change
 
 - Editing the profile re-scores open matches (profile version).
-- A new scorer version (currently `match-v4`) re-scores open matches automatically, 500 a minute.
+- A new scorer version (currently `match-v5`) re-scores open matches automatically, 500 a minute.
 - After improving location or level detection, run
   `python -m careeros.tools.refresh_jobs` to recompute stored countries and levels.

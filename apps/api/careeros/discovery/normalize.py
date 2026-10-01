@@ -422,6 +422,20 @@ _TITLE_TYPES: list[tuple[re.Pattern[str], EmploymentType]] = [
 ]  # fmt: skip
 
 
+# Experienced titles: a description that mentions interns ("you'll mentor our interns") does not
+# make the role an internship.
+_EXPERIENCED_TITLE = re.compile(
+    r"\b(senior|sr|staff|principal|lead|manager|director|head of|vp|vice president|chief|architect)\b",
+    re.I,
+)
+# Only wording that describes the role itself as an internship.
+_INTERNSHIP_DESCRIPTION = re.compile(
+    r"\b(?:this|our|an|the|paid|summer|winter|\d+[- ]months?)\s+internship\b"
+    r"|\binternship\s+(?:program|programme|position|role|opportunity|period|duration)\b"
+    r"|\b(?:as|for) an intern\b"
+)
+
+
 def detect_employment_type(title: str, hint: str | None, description: str) -> EmploymentType | None:
     for pattern, kind in _TITLE_TYPES:
         if pattern.search(title):
@@ -429,10 +443,11 @@ def detect_employment_type(title: str, hint: str | None, description: str) -> Em
     if hint:
         key = hint.strip().lower()
         for token, kind in _HINT_TYPES.items():
-            if token in key:
+            # Whole words only: "intern" is not in "International".
+            if re.search(rf"(?<![a-z]){re.escape(token)}(?![a-z])", key):
                 return kind
     head = description[:800].lower()
-    if re.search(r"\b(internship|intern)\b", head):
+    if not _EXPERIENCED_TITLE.search(title) and _INTERNSHIP_DESCRIPTION.search(head):
         return EmploymentType.INTERNSHIP
     if re.search(r"\bfull[- ]time\b", head):
         return EmploymentType.FULL_TIME
@@ -476,14 +491,23 @@ _LEVEL_NOUN = (
 
 def detect_seniority(title: str, employment_type: EmploymentType | None) -> SeniorityLevel:
     t = title.lower()
-    if employment_type == EmploymentType.INTERNSHIP or re.search(r"\bintern", t):
+    # Whole words: "Internal Audit Manager" and "International Sales Lead" are not internships.
+    if re.search(r"\b(interns?|internships?)\b", t):
         return SeniorityLevel.INTERN
+    if re.search(r"\b(associate product manager|apm)\b", t) and not re.search(
+        r"\b(senior|sr|lead|principal|group)\b", t
+    ):
+        return SeniorityLevel.ENTRY  # APM is a new-graduate role
     if re.search(r"\b(head of|director|vp|vice president|chief|manager)\b", t):
         return SeniorityLevel.MANAGER
     if re.search(r"\b(staff|principal|lead|distinguished|architect)\b", t):
         return SeniorityLevel.LEAD
     if re.search(r"\b(senior|sr)\b|\b(iii|iv)\b", t) or re.search(rf"{_LEVEL_NOUN}\s*[345]\b", t):
         return SeniorityLevel.SENIOR
+    # The title names no level, so a posting marked as an internship is one. A level in the title
+    # wins over that mark ("Senior Software Engineer" is never an internship).
+    if employment_type == EmploymentType.INTERNSHIP:
+        return SeniorityLevel.INTERN
     if (
         re.search(
             r"\b(junior|jr|entry[- ]level|new grad|graduate|fresher|trainee|early[- ]career"

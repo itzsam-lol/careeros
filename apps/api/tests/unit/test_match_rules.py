@@ -102,6 +102,10 @@ def _extraction(title: str, **overrides: Any) -> JobExtraction:
         ("Marketing Data Analyst", {JobFunction.DATA}),
         ("Growth Marketing Analyst", {JobFunction.MARKETING}),
         ("Financial Analyst", {JobFunction.FINANCE}),
+        ("Associate - F&A - AP 5A", {JobFunction.FINANCE}),
+        ("Specialist - F&A - R2R 4A", {JobFunction.FINANCE}),
+        ("Specialist - S&P - Sourcing 4B", {JobFunction.OPERATIONS}),
+        ("AR/VR Engineer", {JobFunction.ENGINEERING}),
         ("Operations Research Analyst", {JobFunction.RESEARCH}),
         ("Software Engineer, Finance Systems", {JobFunction.ENGINEERING}),
         (

@@ -117,13 +117,17 @@ _SOFT: list[tuple[JobFunction, re.Pattern[str]]] = [
         r"accountant", r"accounting", r"accounts (?:payable|receivable)", r"finance", r"financial",
         r"fp&a", r"controller", r"audit\w*", r"tax", r"treasury", r"billing", r"underwriter",
         r"actuar\w*", r"credit (?:analyst|risk)",
+        # Finance-operations shorthand (Genpact, Accenture): F&A, record-to-report, AP/AR...
+        r"f&a", r"r2r", r"rtr", r"p2p", r"ptp", r"o2c", r"otc", r"record to report",
+        r"procure to pay", r"order to cash", r"ap", r"ar", r"general ledger", r"reconciliation\w*",
+        r"collections",
     )),
     (JobFunction.OPERATIONS, _words(
         r"operations", r"ops", r"program manager", r"project manager", r"programme manager",
         r"supply chain", r"logistics", r"procurement", r"facilities", r"office manager",
         r"executive assistant", r"administrative", r"administrator", r"receptionist", r"coordinator",
         r"general manager", r"country manager", r"managing director", r"warehouse", r"technician",
-        r"driver",
+        r"driver", r"s&p", r"sourcing", r"vendor management", r"order management",
     )),
 ]  # fmt: skip
 _PRODUCT = _words(
