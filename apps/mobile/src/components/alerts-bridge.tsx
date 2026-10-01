@@ -11,8 +11,9 @@ const FOREGROUND_POLL_MS = 60_000;
 function openTarget(response: Notifications.NotificationResponse | null) {
   const target = alertTarget(response?.notification.request.content.data as Record<string, unknown> | undefined);
   if (!target) return;
-  if (target.kind === "document") openDocument(target.id, "Alerts");
-  else openJob(target.id, "Alerts");
+  // A notification can open the app from anywhere, so the back button just says "Back".
+  if (target.kind === "document") openDocument(target.id, "Back");
+  else openJob(target.id, "Back");
 }
 
 /** Keeps phone notifications running while signed in, and opens the job when one is tapped. */

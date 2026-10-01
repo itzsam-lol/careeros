@@ -17,7 +17,8 @@ from careeros.profile.enums import VerificationStatus
 
 # v2: kind of work (title function), role level vs. experience, per-project skill evidence.
 # v3: hardware vs. software engineering, specialty after a bare "Engineer," in the title.
-SCORER_VERSION = "match-v3"
+# v4: "BD" titles count as sales.
+SCORER_VERSION = "match-v4"
 DEFAULT_WEIGHTS = {
     "skills": 0.3, "projects": 0.2, "experience": 0.15, "research": 0.05, "domain": 0.15, "preferences": 0.15,
 }  # fmt: skip

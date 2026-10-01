@@ -58,7 +58,7 @@ _STRONG_DATA = _words(
 _DOMINANT: list[tuple[JobFunction, re.Pattern[str]]] = [
     (JobFunction.SALES, _words(
         r"sales", r"pre-?sales", r"account executive", r"account manager", r"account director",
-        r"business development", r"bdr", r"sdr", r"territory", r"key accounts?", r"client partner",
+        r"business development", r"bd", r"bdr", r"sdr", r"territory", r"key accounts?", r"client partner",
         r"partner(?:ship)?s? (?:manager|lead|director)", r"channel (?:manager|sales|partner)",
         r"inside sales", r"commercial (?:manager|lead|director|executive)",
         r"partner(?:ship)?s? leader", r"field partner", r"alliances?", r"solutions? consultant",
