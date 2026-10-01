@@ -75,6 +75,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
           <Stack.Screen name="resume/[id]" />
           <Stack.Screen name="prep/[id]" />
           <Stack.Screen name="outreach/[id]" />
+          <Stack.Screen name="company/[id]" />
           <Stack.Screen name="settings" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>

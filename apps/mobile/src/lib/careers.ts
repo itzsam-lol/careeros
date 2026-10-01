@@ -165,6 +165,19 @@ export function useOutreach(jobId: string) {
   });
 }
 
+// --- company insights ----------------------------------------------------------------------------
+
+export type CompanyInsights = Schema<"CompanyInsightsOut">;
+
+export function useCompany(jobId: string) {
+  const api = useApi();
+  return useQuery({
+    queryKey: ["company", jobId],
+    queryFn: () => unwrap(api.GET("/api/v1/jobs/{job_id}/company", { params: { path: { job_id: jobId } } })),
+    staleTime: 10 * 60_000,
+  });
+}
+
 // --- application tracking ------------------------------------------------------------------------
 
 export function useApplication(jobId: string) {

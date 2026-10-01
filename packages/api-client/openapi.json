@@ -3660,6 +3660,54 @@
         }
       }
     },
+    "/api/v1/jobs/{job_id}/company": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "What CareerOS knows about the company behind a job, plus people and research links",
+        "operationId": "job_company_api_v1_jobs__job_id__company_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyInsightsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/resumes/master": {
       "get": {
         "tags": [
@@ -5354,6 +5402,153 @@
           "done"
         ],
         "title": "ChecklistItem"
+      },
+      "CompanyInsightsOut": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "summary_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary Source"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "open_roles": {
+            "type": "integer",
+            "title": "Open Roles"
+          },
+          "entry_level_roles": {
+            "type": "integer",
+            "title": "Entry Level Roles"
+          },
+          "newest_posting": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Newest Posting"
+          },
+          "by_country": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCountOut"
+            },
+            "type": "array",
+            "title": "By Country"
+          },
+          "by_level": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCountOut"
+            },
+            "type": "array",
+            "title": "By Level"
+          },
+          "by_function": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCountOut"
+            },
+            "type": "array",
+            "title": "By Function"
+          },
+          "top_cities": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCountOut"
+            },
+            "type": "array",
+            "title": "Top Cities"
+          },
+          "top_skills": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCountOut"
+            },
+            "type": "array",
+            "title": "Top Skills"
+          },
+          "sponsorship_roles": {
+            "type": "integer",
+            "title": "Sponsorship Roles"
+          },
+          "your_matches": {
+            "items": {
+              "$ref": "#/components/schemas/YourMatchOut"
+            },
+            "type": "array",
+            "title": "Your Matches"
+          },
+          "people_searches": {
+            "items": {
+              "$ref": "#/components/schemas/LinkOut"
+            },
+            "type": "array",
+            "title": "People Searches"
+          },
+          "research_links": {
+            "items": {
+              "$ref": "#/components/schemas/LinkOut"
+            },
+            "type": "array",
+            "title": "Research Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "name",
+          "summary",
+          "summary_source",
+          "website",
+          "open_roles",
+          "entry_level_roles",
+          "newest_posting",
+          "by_country",
+          "by_level",
+          "by_function",
+          "top_cities",
+          "top_skills",
+          "sponsorship_roles",
+          "your_matches",
+          "people_searches",
+          "research_links"
+        ],
+        "title": "CompanyInsightsOut"
       },
       "CompanyOut": {
         "properties": {
@@ -7433,6 +7628,24 @@
           "url"
         ],
         "title": "Link"
+      },
+      "LinkOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "url"
+        ],
+        "title": "LinkOut"
       },
       "LoginRequest": {
         "properties": {
@@ -10125,6 +10338,24 @@
         ],
         "title": "ReusableAnswerOut"
       },
+      "RoleCountOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "count"
+        ],
+        "title": "RoleCountOut"
+      },
       "RunQueued": {
         "properties": {
           "task_id": {
@@ -11109,6 +11340,47 @@
           "status"
         ],
         "title": "VerificationUpdate"
+      },
+      "YourMatchOut": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "title",
+          "location",
+          "score",
+          "eligible"
+        ],
+        "title": "YourMatchOut"
       }
     },
     "securitySchemes": {

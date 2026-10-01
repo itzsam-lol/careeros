@@ -996,6 +996,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{job_id}/company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What CareerOS knows about the company behind a job, plus people and research links */
+        get: operations["job_company_api_v1_jobs__job_id__company_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/resumes/master": {
         parameters: {
             query?: never;
@@ -1498,6 +1515,46 @@ export interface components {
             label: string;
             /** Done */
             done: boolean;
+        };
+        /** CompanyInsightsOut */
+        CompanyInsightsOut: {
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Name */
+            name: string;
+            /** Summary */
+            summary: string | null;
+            /** Summary Source */
+            summary_source: string | null;
+            /** Website */
+            website: string | null;
+            /** Open Roles */
+            open_roles: number;
+            /** Entry Level Roles */
+            entry_level_roles: number;
+            /** Newest Posting */
+            newest_posting: string | null;
+            /** By Country */
+            by_country: components["schemas"]["RoleCountOut"][];
+            /** By Level */
+            by_level: components["schemas"]["RoleCountOut"][];
+            /** By Function */
+            by_function: components["schemas"]["RoleCountOut"][];
+            /** Top Cities */
+            top_cities: components["schemas"]["RoleCountOut"][];
+            /** Top Skills */
+            top_skills: components["schemas"]["RoleCountOut"][];
+            /** Sponsorship Roles */
+            sponsorship_roles: number;
+            /** Your Matches */
+            your_matches: components["schemas"]["YourMatchOut"][];
+            /** People Searches */
+            people_searches: components["schemas"]["LinkOut"][];
+            /** Research Links */
+            research_links: components["schemas"]["LinkOut"][];
         };
         /** CompanyOut */
         CompanyOut: {
@@ -2154,6 +2211,13 @@ export interface components {
         JobView: "ALL" | "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "DISMISSED" | "CLOSED" | "APPLIED";
         /** Link */
         Link: {
+            /** Label */
+            label: string;
+            /** Url */
+            url: string;
+        };
+        /** LinkOut */
+        LinkOut: {
             /** Label */
             label: string;
             /** Url */
@@ -2948,6 +3012,13 @@ export interface components {
             /** Tags */
             tags: string[];
         };
+        /** RoleCountOut */
+        RoleCountOut: {
+            /** Label */
+            label: string;
+            /** Count */
+            count: number;
+        };
         /** RunQueued */
         RunQueued: {
             /**
@@ -3278,6 +3349,22 @@ export interface components {
         /** VerificationUpdate */
         VerificationUpdate: {
             status: components["schemas"]["VerificationStatus"];
+        };
+        /** YourMatchOut */
+        YourMatchOut: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Title */
+            title: string;
+            /** Location */
+            location: string | null;
+            /** Score */
+            score: number;
+            /** Eligible */
+            eligible: boolean;
         };
     };
     responses: never;
@@ -5665,6 +5752,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Draft"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    job_company_api_v1_jobs__job_id__company_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyInsightsOut"];
                 };
             };
             /** @description Validation Error */

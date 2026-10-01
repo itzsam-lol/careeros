@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 
@@ -305,6 +305,17 @@ export default function JobDetailScreen() {
 
       <ApplicationCard jobId={id} />
       <JobDocuments jobId={id} />
+      <Group header="Company">
+        <Row
+          title={`About ${card.company}`}
+          subtitle="Open roles, skills they ask for, people to contact"
+          icon="business"
+          iconColor="#FF9500"
+          numberOfLines={2}
+          chevron
+          onPress={() => router.push({ pathname: "/company/[id]", params: { id } })}
+        />
+      </Group>
 
       {match ? (
         <>
