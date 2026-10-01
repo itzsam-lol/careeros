@@ -30,7 +30,12 @@ SECTIONS = (
 )
 
 
-async def _setup(client: AsyncClient, worker: Worker, fixtures_dir: Path) -> None:
+async def _setup(
+    client: AsyncClient,
+    worker: Worker,
+    fixtures_dir: Path,
+    preferences: dict[str, Any] | None = None,
+) -> None:
     payload = json.loads((fixtures_dir / "profiles" / "demo_profile.json").read_text("utf-8"))
     assert (await client.post("/api/v1/profile/import", json=payload)).status_code == 200
     profile = (await client.get("/api/v1/profile")).json()
@@ -42,6 +47,10 @@ async def _setup(client: AsyncClient, worker: Worker, fixtures_dir: Path) -> Non
                 json={"section": section, "ids": ids, "status": "VERIFIED"},
             )
     await client.put("/api/v1/profile/basics", json={"summary": payload["basics"]["summary"]})
+    if preferences:
+        assert (
+            await client.put("/api/v1/profile/preferences", json=preferences)
+        ).status_code == 200
     source = {
         "name": "Demo feed",
         "type": "FIXTURE",
@@ -274,3 +283,42 @@ async def test_thresholds_come_from_user_settings(
     assert high["total"] == 0
     notifications = (await client.get("/api/v1/notifications")).json()
     assert all(n["type"] != "HIGH_MATCH" for n in notifications)
+
+
+async def test_fresher_feed_hides_unsuitable_roles_and_alerts_once(
+    client: AsyncClient,
+    session: AsyncSession,
+    worker: Worker,
+    container: Container,
+    fixtures_dir: Path,
+) -> None:
+    await _setup(client, worker, fixtures_dir, {"entry_level_only": True, "hide_unsuitable": True})
+    titles = set((await session.execute(select(Job.title))).scalars())
+    # Senior titles never enter the inbox at all.
+    assert "Senior Machine Learning Engineer" not in titles
+
+    listed = (await client.get("/api/v1/jobs", params={"view": "ALL"})).json()["items"]
+    assert listed
+    assert all(c["match"] and c["match"]["eligible"] for c in listed)
+    listed_titles = {c["title"] for c in listed}
+    assert "Machine Learning Engineer Intern" in listed_titles
+    assert "Site Reliability Engineer" not in listed_titles  # 3+ years required
+    assert "Machine Learning Intern (Summer 2027)" not in listed_titles  # US, no sponsorship
+
+    hidden = (await client.get("/api/v1/jobs", params={"view": "DISMISSED"})).json()["items"]
+    assert {"Site Reliability Engineer", "Machine Learning Intern (Summer 2027)"} <= {
+        c["title"] for c in hidden
+    }
+    notifications = (await client.get("/api/v1/notifications")).json()
+    alerted = " ".join(n["title"] for n in notifications)
+    assert "Site Reliability Engineer" not in alerted
+    assert "Stellar Robotics" not in alerted
+
+    # Re-scoring existing matches (new scorer, profile edits) never re-alerts.
+    for match in (await session.execute(select(JobMatch))).scalars():
+        match.scorer = "match-v1"
+    await session.flush()
+    await enqueue_rescoring(session, container)
+    await session.commit()
+    await worker.drain()
+    assert len((await client.get("/api/v1/notifications")).json()) == len(notifications)

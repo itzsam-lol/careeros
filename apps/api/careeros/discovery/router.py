@@ -36,7 +36,7 @@ class SourceIn(BaseModel):
     name: SourceName
     type: SourceType
     config: dict[str, Any]
-    cadence: DiscoveryCadence = DiscoveryCadence.DAILY
+    cadence: DiscoveryCadence = DiscoveryCadence.HOURLY
     enabled: bool = True
 
 
@@ -250,7 +250,7 @@ class CatalogAdd(BaseModel):
     ids: list[str] = Field(default_factory=list, max_length=300)
     all: bool = False
     region: Literal["IN", "AU"] | None = None
-    cadence: DiscoveryCadence = DiscoveryCadence.DAILY
+    cadence: DiscoveryCadence = DiscoveryCadence.HOURLY
 
 
 class CatalogAdded(BaseModel):

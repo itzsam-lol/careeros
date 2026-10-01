@@ -27,7 +27,7 @@ from careeros.matching.eligibility import (
 from careeros.matching.explain import explain, label_for
 from careeros.matching.models import JobMatch
 from careeros.matching.profile_view import build_match_profile
-from careeros.matching.scoring import SCORER_VERSION, compute_scores
+from careeros.matching.scoring import SCORER_VERSION, compute_scores, function_fit
 from careeros.notifications.models import NotificationPriority, NotificationType
 from careeros.notifications.service import notify
 from careeros.profile.enums import VerificationStatus
@@ -108,6 +108,7 @@ async def match_job(
             select(JobMatch).where(JobMatch.user_id == user.id, JobMatch.job_id == job.id)
         )
     ).scalar_one_or_none()
+    first_match = match is None
     if match is None:
         match = JobMatch(user_id=user.id, profile_id=profile.id, job_id=job.id)
         session.add(match)
@@ -136,8 +137,11 @@ async def match_job(
         )
         .values(status=JobLifecycle.MATCHED, updated_at=now)
     )
-    if _lacks_required_sponsorship(checks):
-        # Roles in "sponsorship only" countries without a visa offer are hidden, not just flagged.
+    hide_reason = _auto_hide_reason(
+        checks, eligible, function_fit(job.title, mp), mp.hide_unsuitable
+    )
+    if hide_reason:
+        # Roles the user never wants to see are hidden, not just flagged.
         await session.execute(
             update(UserJob)
             .where(
@@ -148,7 +152,7 @@ async def match_job(
             .values(
                 status=JobLifecycle.DISMISSED,
                 dismissed_at=now,
-                dismiss_reason=AUTO_DISMISS_NO_SPONSORSHIP,
+                dismiss_reason=hide_reason,
                 updated_at=now,
             )
         )
@@ -161,12 +165,30 @@ async def match_job(
         summary=f"{label_for(scores.overall, eligible)}: {job.title} at {job.company} ({round(scores.overall * 100)}%)",
         payload={"score": scores.overall, "eligible": eligible},
     )
-    await _notify(session, user, job, match, settings.matching.high_match_threshold,
-                  settings.matching.notify_threshold, settings.notifications.notify_new_jobs)  # fmt: skip
+    if first_match and not hide_reason:
+        # Alerts are for new openings; re-scoring an old match never notifies again.
+        await _notify(session, user, job, match, settings.matching.high_match_threshold,
+                      settings.matching.notify_threshold, settings.notifications.notify_new_jobs)  # fmt: skip
     return match
 
 
 AUTO_DISMISS_NO_SPONSORSHIP = "Hidden automatically: no visa sponsorship offered"
+AUTO_DISMISS_ROLE_TYPE = "Hidden automatically: not one of your target kinds of role"
+
+
+def _auto_hide_reason(
+    checks: list[EligibilityCheck], eligible: bool, role_fits: bool | None, hide_unsuitable: bool
+) -> str | None:
+    if _lacks_required_sponsorship(checks):
+        return AUTO_DISMISS_NO_SPONSORSHIP
+    if not hide_unsuitable:
+        return None
+    if not eligible:
+        failed = next((c for c in checks if c.status == CheckStatus.FAIL), None)
+        return f"Hidden automatically: {failed.detail}" if failed else "Hidden automatically"
+    if role_fits is False:
+        return AUTO_DISMISS_ROLE_TYPE
+    return None
 
 
 def _lacks_required_sponsorship(checks: list[EligibilityCheck]) -> bool:

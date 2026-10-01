@@ -17,6 +17,8 @@ x-app-env: &app-env
     CORS_ORIGINS: https://${DOMAIN}
     API_BASE_URL: https://${DOMAIN}:8443
     WEB_BASE_URL: https://${DOMAIN}
+    # Hourly scans of a few hundred boards: discovery is I/O-bound, so run 8 tasks at once.
+    WORKER_CONCURRENCY: "8"
 
 services:
   db:

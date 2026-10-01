@@ -91,6 +91,10 @@ class CareerPreferences(UUIDPrimaryKey, Timestamped, Base):
     employment_types: Mapped[list[str]] = mapped_column(default=list, server_default=_EMPTY_LIST)
     seniority_levels: Mapped[list[str]] = mapped_column(default=list, server_default=_EMPTY_LIST)
     include_research: Mapped[bool] = mapped_column(default=True, server_default="true")
+    # Only intern, graduate and entry-level roles (no mid/senior roles or 2+ years required).
+    entry_level_only: Mapped[bool] = mapped_column(default=False, server_default="false")
+    # Hide roles that fail eligibility or are a different kind of work instead of listing them.
+    hide_unsuitable: Mapped[bool] = mapped_column(default=False, server_default="false")
     min_compensation: Mapped[int | None]
     compensation_currency: Mapped[str | None] = mapped_column(String(3))
     compensation_period: Mapped[CompensationPeriod | None] = mapped_column(

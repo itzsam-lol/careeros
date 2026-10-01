@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from careeros.config import Settings
 from careeros.core.clock import utcnow
+from careeros.core.enums import SeniorityLevel
 from careeros.core.errors import CareerOSError, NotFoundError, SourceFetchError
 from careeros.core.http import PoliteHttpClient
 from careeros.core.logging import get_logger
@@ -45,14 +46,23 @@ _OPEN_STATES = (
 )
 
 
+# Titles that say "experienced" outright; unclear titles are left to matching.
+_EXPERIENCED_TITLES = frozenset(
+    {SeniorityLevel.MID, SeniorityLevel.SENIOR, SeniorityLevel.LEAD, SeniorityLevel.MANAGER}
+)
+
+
 @dataclass(frozen=True, slots=True)
 class Exclusions:
     companies: frozenset[str]
     keywords: tuple[re.Pattern[str], ...]
+    entry_level_only: bool = False
 
     def excludes(self, norm: NormalizedJob) -> str | None:
         if normalize_company(norm.company) in self.companies:
             return "excluded company"
+        if self.entry_level_only and norm.seniority in _EXPERIENCED_TITLES:
+            return f"{norm.seniority.value.lower()}-level role"
         for pattern in self.keywords:
             if pattern.search(norm.title):
                 return f"excluded keyword '{pattern.pattern[2:-2]}'"
@@ -70,6 +80,7 @@ async def load_exclusions(session: AsyncSession, user_id: uuid.UUID) -> Exclusio
     if prefs is None:
         return Exclusions(frozenset(), ())
     return Exclusions(
+        entry_level_only=prefs.entry_level_only,
         companies=frozenset(normalize_company(c) for c in prefs.excluded_companies if c.strip()),
         keywords=tuple(
             re.compile(rf"\b{re.escape(k.strip())}\b", re.IGNORECASE)

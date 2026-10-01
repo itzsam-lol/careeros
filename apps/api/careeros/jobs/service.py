@@ -104,13 +104,17 @@ def apply_view(
     stmt: Select[Any], view: JobView, *, now: datetime, high_threshold: float
 ) -> Select[Any]:
     visible = and_(UserJob.status.not_in(HIDDEN), Job.is_active.is_(True))
+    # Jobs appear once they are scored (seconds after discovery), so a role that is about to be
+    # hidden as unsuitable never shows up unjudged.
+    scored = JobMatch.id.is_not(None)
     if view == JobView.ALL:
-        return stmt.where(visible)
+        return stmt.where(visible, scored)
     if view == JobView.NEW:
         return stmt.where(
-            UserJob.status.in_((JobLifecycle.DISCOVERED, JobLifecycle.ANALYZED, JobLifecycle.MATCHED, JobLifecycle.NOTIFIED)),
+            UserJob.status.in_((JobLifecycle.MATCHED, JobLifecycle.NOTIFIED)),
             UserJob.first_seen_at >= now - NEW_WINDOW,
             Job.is_active.is_(True),
+            scored,
         )  # fmt: skip
     if view == JobView.HIGH_MATCH:
         return stmt.where(

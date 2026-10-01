@@ -9,11 +9,17 @@ from enum import StrEnum
 from typing import Any
 
 from careeros.core.enums import EmploymentType, RemotePreference, RemoteType, SeniorityLevel
-from careeros.discovery.normalize import normalize_location
+from careeros.discovery.normalize import detect_seniority, normalize_location
 from careeros.intelligence.extraction import JobExtraction, Sponsorship
 from careeros.jobs.models import Job
 from careeros.matching.profile_view import DEGREE_ORDER, MatchProfile
 from careeros.profile.enums import SponsorshipRequirement
+
+# Entry-level feeds: roles at these levels, or asking for more than this many years, are out.
+_EXPERIENCED_LEVELS = frozenset(
+    {SeniorityLevel.MID, SeniorityLevel.SENIOR, SeniorityLevel.LEAD, SeniorityLevel.MANAGER}
+)
+ENTRY_MAX_YEARS = 2.0
 
 
 class CheckStatus(StrEnum):
@@ -146,6 +152,19 @@ def _experience_checks(job: Job, ex: JobExtraction, mp: MatchProfile) -> list[El
         else:
             checks.append(EligibilityCheck("experience", "Experience", CheckStatus.UNKNOWN,
                                            f"Requires {need:g}+ years; you have about {have:.1f}"))  # fmt: skip
+    if mp.entry_level_only:
+        level = job.seniority
+        if level == SeniorityLevel.UNKNOWN:
+            level = detect_seniority(job.title, job.employment_type)
+        if level in _EXPERIENCED_LEVELS:
+            checks.append(EligibilityCheck("seniority", "Seniority", CheckStatus.FAIL,
+                                           f"{level.value.title()}-level role; you only want intern, graduate and entry-level roles"))  # fmt: skip
+            return checks
+        if ex.min_years_experience and ex.min_years_experience > ENTRY_MAX_YEARS:
+            if not any(c.key == "experience" and c.status == CheckStatus.FAIL for c in checks):
+                checks.append(EligibilityCheck("experience", "Experience", CheckStatus.FAIL,
+                                               f"Requires {ex.min_years_experience:g}+ years; you only want entry-level roles"))  # fmt: skip
+            return checks
     senior = job.seniority in (SeniorityLevel.SENIOR, SeniorityLevel.LEAD, SeniorityLevel.MANAGER)
     if senior and have < 3 and not any(c.status == CheckStatus.FAIL for c in checks):
         checks.append(EligibilityCheck("seniority", "Seniority", CheckStatus.FAIL,

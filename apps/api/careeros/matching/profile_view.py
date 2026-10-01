@@ -63,6 +63,8 @@ class MatchProfile:
     # Kinds of work the target roles describe (engineering, data...), to tell a sales role at an
     # AI company apart from an AI engineering role.
     target_functions: set[JobFunction] = field(default_factory=set)
+    entry_level_only: bool = False
+    hide_unsuitable: bool = False
 
     def skill(self, name: str) -> SkillEvidence | None:
         return self.skills.get(canonical_key(normalize_skill_name(name)))
@@ -189,6 +191,8 @@ def build_match_profile(snapshot: ProfileSnapshot, *, today: date) -> MatchProfi
         sponsorship_requirement=profile.sponsorship_requirement,
         target_roles=list(prefs.target_roles),
         target_functions={f for role in prefs.target_roles for f in title_functions(role)},
+        entry_level_only=prefs.entry_level_only,
+        hide_unsuitable=prefs.hide_unsuitable,
         target_domains=target_domains,
         target_countries=set(extract_countries(prefs.target_countries))
         | {c.strip() for c in prefs.target_countries if c.strip()},

@@ -130,6 +130,8 @@ class PreferencesIn(_Strict):
     employment_types: list[EmploymentType] | None = None
     seniority_levels: Annotated[list[ShortText], Field(max_length=10)] | None = None
     include_research: bool | None = None
+    entry_level_only: bool | None = None
+    hide_unsuitable: bool | None = None
     min_compensation: Annotated[int, Field(ge=0, le=100_000_000)] | None = None
     compensation_currency: Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")] | None = None
     compensation_period: CompensationPeriod | None = None
@@ -152,6 +154,8 @@ class PreferencesOut(BaseModel):
     employment_types: list[str]
     seniority_levels: list[str]
     include_research: bool
+    entry_level_only: bool = False
+    hide_unsuitable: bool = False
     min_compensation: int | None
     compensation_currency: str | None
     compensation_period: CompensationPeriod | None

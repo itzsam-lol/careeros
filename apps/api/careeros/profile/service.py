@@ -306,7 +306,7 @@ async def update_preferences(
     for key, value in data.model_dump(exclude_unset=True).items():
         if key in list_fields:
             value = [str(v) for v in (value or [])]
-        if key == "include_research" and value is None:
+        if key in {"include_research", "entry_level_only", "hide_unsuitable"} and value is None:
             continue
         setattr(prefs, key, value)
     bump_version(profile)
