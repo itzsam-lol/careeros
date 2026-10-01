@@ -345,3 +345,70 @@ async def job_outreach(job_id: uuid.UUID, user: CurrentUser, session: DbSession)
             snapshot, target, job.canonical_url or job.application_url
         )
     ]
+
+
+class KitFieldOut(BaseModel):
+    label: str
+    value: str
+
+
+class KitAnswerOut(BaseModel):
+    question: str
+    answer: str
+
+
+class KitDocument(BaseModel):
+    id: uuid.UUID
+    kind: DocumentKind
+    title: str
+    created_at: datetime
+
+
+class ApplyKitOut(BaseModel):
+    apply_url: str | None
+    platform: str
+    fields: list[KitFieldOut]
+    answers: list[KitAnswerOut]
+    why_company: str
+    missing: list[str]
+    documents: list[KitDocument]
+
+
+@coaching_router.get(
+    "/{job_id}/apply-kit",
+    response_model=ApplyKitOut,
+    summary="Copy-ready answers, documents and a 'why this company' draft for applying",
+)
+async def job_apply_kit(job_id: uuid.UUID, user: CurrentUser, session: DbSession) -> ApplyKitOut:
+    from careeros.intelligence.service import latest_analysis
+    from careeros.resumes.apply_kit import build_apply_kit
+
+    snapshot, _, job = await _job_target(session, user, job_id)
+    analysis = await latest_analysis(session, job.id)
+    kit = build_apply_kit(snapshot, job, analysis.extraction if analysis else {}, user.email)
+    documents = (
+        await session.execute(
+            select(ResumeDocument)
+            .where(
+                ResumeDocument.user_id == user.id,
+                ResumeDocument.job_id == job.id,
+                ResumeDocument.status == DocumentStatus.READY,
+            )
+            .order_by(ResumeDocument.created_at.desc())
+        )
+    ).scalars()
+    latest: dict[DocumentKind, ResumeDocument] = {}
+    for document in documents:
+        latest.setdefault(document.kind, document)
+    return ApplyKitOut(
+        apply_url=kit.apply_url,
+        platform=kit.platform,
+        fields=[KitFieldOut(label=f.label, value=f.value) for f in kit.fields],
+        answers=[KitAnswerOut(question=a.question, answer=a.answer) for a in kit.answers],
+        why_company=kit.why_company,
+        missing=kit.missing,
+        documents=[
+            KitDocument(id=d.id, kind=d.kind, title=d.title, created_at=d.created_at)
+            for d in latest.values()
+        ],
+    )

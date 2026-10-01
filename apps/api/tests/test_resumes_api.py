@@ -229,3 +229,19 @@ async def test_follow_up_reminders_fire_once_when_due(
     ]
     assert len(reminders) == 1
     assert reminders[0]["job_id"] == job_id
+
+
+async def test_apply_kit_collects_answers_from_the_verified_profile(
+    client: AsyncClient, session: AsyncSession, worker: Worker, fixtures_dir: Path
+) -> None:
+    await _setup(client, worker, fixtures_dir)
+    job_id = await _job_id(session, "Machine Learning Engineer Intern")
+    kit = (await client.get(f"/api/v1/jobs/{job_id}/apply-kit")).json()
+    fields = {f["label"]: f["value"] for f in kit["fields"]}
+    assert fields["Full name"]
+    assert "University" in fields
+    assert fields["Work authorisation"].startswith("Yes, I am authorised to work in India")
+    assert "Machine Learning Engineer Intern" in kit["why_company"]
+    assert "Nimbus AI" in kit["why_company"]
+    assert kit["apply_url"]
+    assert kit["documents"] == []
