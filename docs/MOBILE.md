@@ -46,7 +46,7 @@ Today and Settings from the gear on Profile.
     - Alert thresholds.
     - Job-search preferences: roles, locations, exclusions, pay, work style, and
       sponsorship-only countries.
-  - Job sources: add, schedule, run, disable, delete, and **Browse Companies** (232 verified boards
+  - Job sources: add, schedule, run, disable, delete, and **Browse Companies** (233 verified boards
     for India and Australia).
 
 ## Building a release APK (Windows)

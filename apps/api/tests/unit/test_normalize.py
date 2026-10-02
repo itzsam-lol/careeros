@@ -112,6 +112,8 @@ def test_remote_and_seniority_detection() -> None:
         ("Product Manager Intern", None, SeniorityLevel.INTERN),
         ("Associate Product Manager", None, SeniorityLevel.ENTRY),
         ("Senior Associate Product Manager", None, SeniorityLevel.MANAGER),
+        ("Data Analyst, AVP", None, SeniorityLevel.SENIOR),
+        ("Software Engineer, Core Java, VP", None, SeniorityLevel.MANAGER),
     ],
 )
 def test_seniority_reads_whole_words_and_trusts_the_title(

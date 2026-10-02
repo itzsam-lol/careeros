@@ -35,7 +35,7 @@ _Last updated: 2026-10-01_
 | Amazon (amazon.jobs search) | ✅ | `discovery/adapters/amazon.py` | `unit/test_adapters.py` | Engineering, science and data categories |
 | Oracle Recruiting Cloud (JPMorgan, Oracle) | ✅ | `discovery/adapters/oracle_cloud.py` | `unit/test_adapters.py` | Location facet, details for new postings only |
 | Hourly scanning | ✅ | `scheduling.py`, `discovery/router.py` | `test_discovery.py` | Every source runs hourly by default; worker runs 8 tasks at once |
-| Curated catalogue: 232 boards with India/Australia roles (Amazon, JPMorgan, Cisco, CommBank, Optiver, Graviton...) | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
+| Curated catalogue: 233 boards with India/Australia roles (Amazon, JPMorgan, Cisco, CommBank, Optiver, Graviton...) | ✅ | `discovery/catalog.json` | `test_discovery.py` | Verified by probing the APIs |
 | Per-source country filter | ✅ | `discovery/service.py` | `test_discovery.py` | Applied before the per-run cap |
 | Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ~100 countries, ATS country codes, numbered levels (SDE I) |
 | JD extraction (heuristic + optional LLM), injection defence | ✅ | `intelligence/` | `unit/test_extraction.py` | — |

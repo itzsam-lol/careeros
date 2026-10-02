@@ -425,7 +425,7 @@ _TITLE_TYPES: list[tuple[re.Pattern[str], EmploymentType]] = [
 # Experienced titles: a description that mentions interns ("you'll mentor our interns") does not
 # make the role an internship.
 _EXPERIENCED_TITLE = re.compile(
-    r"\b(senior|sr|staff|principal|lead|manager|director|head of|vp|vice president|chief|architect)\b",
+    r"\b(senior|sr|staff|principal|lead|manager|director|head of|avp|vp|vice president|chief|architect)\b",
     re.I,
 )
 # Only wording that describes the role itself as an internship.
@@ -502,7 +502,10 @@ def detect_seniority(title: str, employment_type: EmploymentType | None) -> Seni
         return SeniorityLevel.MANAGER
     if re.search(r"\b(staff|principal|lead|distinguished|architect)\b", t):
         return SeniorityLevel.LEAD
-    if re.search(r"\b(senior|sr)\b|\b(iii|iv)\b", t) or re.search(rf"{_LEVEL_NOUN}\s*[345]\b", t):
+    # Banks title mid-career roles "AVP" (assistant vice president).
+    if re.search(r"\b(senior|sr|avp)\b|\b(iii|iv)\b", t) or re.search(
+        rf"{_LEVEL_NOUN}\s*[345]\b", t
+    ):
         return SeniorityLevel.SENIOR
     # The title names no level, so a posting marked as an internship is one. A level in the title
     # wins over that mark ("Senior Software Engineer" is never an internship).

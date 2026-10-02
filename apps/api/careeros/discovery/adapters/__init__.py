@@ -82,7 +82,9 @@ class AmazonConfig(_Config):
     categories: Annotated[list[Slug], Field(max_length=20)] = Field(
         default_factory=lambda: list(_TECH_CATEGORIES)
     )
-    max_jobs: Annotated[int, Field(ge=1, le=1000)] = 200
+    # Per country. India alone has ~700 tech postings; reading them all each run means an
+    # entry-level role posted before the source was added is not missed.
+    max_jobs: Annotated[int, Field(ge=1, le=1000)] = 1000
 
 
 class OracleCloudConfig(_Config):
