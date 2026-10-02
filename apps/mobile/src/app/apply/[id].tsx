@@ -26,7 +26,7 @@ function useCopy() {
 export default function ApplyKitScreen() {
   const theme = useTheme();
   const { colors } = theme;
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const job = useJob(id);
   const kit = useApplyKit(id);
   const application = useApplication(id);
@@ -54,7 +54,7 @@ export default function ApplyKitScreen() {
 
   return (
     <Screen
-      back="Job"
+      back={from ?? "Job"}
       tabBar={false}
       refresh={refresh}
       title="Apply Kit"

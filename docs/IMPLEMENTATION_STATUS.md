@@ -70,3 +70,4 @@ _Last updated: 2026-10-01_
 | Phone notifications | ✅ | Push through FCM (`notifications/push.py`, `/devices`) once Firebase is set up, plus a background task (~15 min) and 1-minute checks while open; tap opens the job |
 | Follow-up reminders | ✅ | `FOLLOW_UP_DUE` when a tracked application's follow-up date arrives |
 | Apply kit | ✅ | `resumes/apply_kit.py`, Apply Kit screen: documents, copy-ready answers, why-this-company draft |
+| Ready-to-apply kits for dream companies | ✅ | `resumes/prepare.py`, `matching/dream.py`: every eligible fresher role at a dream company gets a tailored résumé and cover letter and one alert (or a batch summary); Jobs > Ready to Apply. Nothing is submitted |

@@ -24,6 +24,10 @@ Today and Settings from the gear on Profile.
 - **Company** (from a job page): open roles CareerOS has found there by country, level and kind of
   work, the skills they ask for most, your matches, a Wikipedia summary, and LinkedIn searches for
   recruiters and alumni.
+- **Dream companies** (Settings > Job Search, or the switch on a company's page): every fresher
+  role there that you're eligible for gets a tailored résumé and cover letter in the background,
+  whatever its match score. A "Ready to apply" alert opens the Apply Kit; when several are ready at
+  once, one summary alert opens **Jobs > Ready to Apply**, which Today also shows as a banner.
 - **Phone notifications**: new alerts appear as system notifications. Tapping one opens the job.
   - **Push** (builds made with a `google-services.json`): the server sends each alert through
     Firebase Cloud Messaging the moment it is created, even when the app is closed.

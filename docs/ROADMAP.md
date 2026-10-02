@@ -37,6 +37,15 @@ Make applying to a matched role take two minutes instead of twenty.
 - Needs from you: add Firebase to the existing GCP project in the Firebase console (free; it asks
   you to accept Firebase's terms).
 
+## 2c. Ready-to-apply kits (done)
+
+- Dream companies (preferences) get a tailored résumé, cover letter and Apply Kit for every
+  eligible fresher role, prepared in the background, with a "Ready to apply" alert.
+- Fully automatic submission stays out: it would mean signing in to employer accounts from the
+  server and getting past their bot checks, which CareerOS does not do. The laptop helper in
+  phase 6 is the next step if wanted: it fills the form in the user's own browser and stops at
+  Submit.
+
 ## 3. More sources
 
 - **iCIMS, SuccessFactors, Eightfold and Phenom** career sites, which many Indian IT and services firms

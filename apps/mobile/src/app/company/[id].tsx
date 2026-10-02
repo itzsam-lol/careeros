@@ -1,10 +1,12 @@
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 
 import { Screen, useRefresh } from "@/components/screen";
-import { Button, Card, Chip, EmptyState, Group, Loading, Row, T } from "@/components/ui";
-import { useOpenLink } from "@/lib/api";
+import { Button, Card, Chip, EmptyState, Group, Loading, Row, SwitchRow, T } from "@/components/ui";
+import { useOpenLink, useProfile, useUpdatePreferences } from "@/lib/api";
 import { type CompanyInsights, useCompany } from "@/lib/careers";
+import { isDreamCompany, toggleDreamCompany } from "@/lib/dream";
 import { shortDate } from "@/lib/format";
 import { openJob } from "@/lib/nav";
 import { useTheme } from "@/lib/theme";
@@ -35,6 +37,37 @@ function ChipGroup({ header, items, footer }: { header: string; items: Count[]; 
   );
 }
 
+/** Dream companies get a tailored application kit and an alert for every fresher role. */
+function DreamCompanySwitch({ name }: { name: string }) {
+  const profile = useProfile();
+  const update = useUpdatePreferences();
+  const [shown, setShown] = useState<boolean | null>(null);
+  const saved = profile.data?.preferences.target_companies;
+  if (!saved) return null;
+  const on = shown ?? isDreamCompany(name, saved);
+  const change = (next: boolean) => {
+    setShown(next);
+    update.mutate(
+      { target_companies: toggleDreamCompany(name, saved, next) },
+      {
+        onSettled: () => setShown(null),
+        onError: (error) => Alert.alert("Couldn't update dream companies", error.message),
+      },
+    );
+  };
+  return (
+    <Group
+      footer={
+        on
+          ? `Every fresher role at ${name} that you're eligible for gets a tailored résumé, a cover letter and a Ready to Apply alert.`
+          : `Get a tailored application kit and an alert for every fresher role at ${name} that you're eligible for.`
+      }
+    >
+      <SwitchRow title="Dream Company" icon="star" iconColor="#FF9500" value={on} disabled={update.isPending} onChange={change} />
+    </Group>
+  );
+}
+
 /** What CareerOS knows about the company behind a job, plus people and research links. */
 export default function CompanyScreen() {
   const theme = useTheme();
@@ -59,6 +92,7 @@ export default function CompanyScreen() {
         <EmptyState icon="business-outline" title="Couldn't load the company" message={company.error?.message} />
       ) : (
         <>
+          <DreamCompanySwitch name={data.name} />
           {data.summary ? (
             <Group header="About" footer={data.summary_source ? "Summary from Wikipedia." : undefined}>
               <View style={{ padding: theme.space.lg, gap: 8 }}>

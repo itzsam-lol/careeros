@@ -19,7 +19,12 @@ type ListField =
 const LISTS: { field: ListField; header: string; placeholder: string; footer?: string }[] = [
   { field: "target_roles", header: "Target roles", placeholder: "e.g. ML engineer", footer: "Roles close to these titles score higher." },
   { field: "target_technologies", header: "Technologies", placeholder: "e.g. PyTorch" },
-  { field: "target_companies", header: "Dream companies", placeholder: "e.g. DeepMind" },
+  {
+    field: "target_companies",
+    header: "Dream companies",
+    placeholder: "e.g. NatWest",
+    footer: "Every fresher role you're eligible for here gets a tailored résumé and cover letter, and a Ready to Apply alert, whatever its match score.",
+  },
   { field: "target_countries", header: "Countries", placeholder: "e.g. India", footer: "Roles elsewhere are marked ineligible unless remote." },
   { field: "target_cities", header: "Cities", placeholder: "e.g. Bengaluru" },
   {

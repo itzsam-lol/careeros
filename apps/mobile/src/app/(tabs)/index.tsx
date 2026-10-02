@@ -63,6 +63,39 @@ function StatTile({ label, value, icon, color, onPress }: { label: string; value
   );
 }
 
+/** Dream-company roles with a tailored application kit, waiting to be applied to. */
+function ReadyBanner({ count, onPress }: { count: number; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${count} ${count === 1 ? "role" : "roles"} ready to apply`}
+      onPress={() => {
+        theme.haptic("select");
+        onPress();
+      }}
+      style={({ pressed }) => [
+        theme.card,
+        styles.banner,
+        { borderRadius: theme.radius.card, padding: theme.space.lg, gap: theme.space.md, opacity: pressed ? 0.7 : 1 },
+      ]}
+    >
+      <View style={[styles.tileIcon, { backgroundColor: "#34C759" }]}>
+        <Ionicons name="rocket" size={15} color="#FFFFFF" />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <T v="headline">
+          {count} {count === 1 ? "role" : "roles"} ready to apply
+        </T>
+        <T v="subhead" color={theme.colors.text2} numberOfLines={2}>
+          Tailored résumé and cover letter waiting in each Apply Kit.
+        </T>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={theme.colors.text3} />
+    </Pressable>
+  );
+}
+
 export default function TodayScreen() {
   const theme = useTheme();
   const { prefs } = theme;
@@ -88,13 +121,16 @@ export default function TodayScreen() {
   const sections: Record<HomeSection, React.ReactNode> = data
     ? {
         stats: (
-          <View style={[styles.grid, { gap: theme.space.md }]}>
-            <StatTile label="New roles" value={counts.new ?? 0} icon="sparkles" color="#007AFF" onPress={() => openJobs("NEW")} />
-            <StatTile label="High matches" value={counts.high_match ?? 0} icon="star" color="#5856D6" onPress={() => openJobs("HIGH_MATCH")} />
-            <StatTile label="Closing soon" value={counts.deadline_soon ?? 0} icon="time" color="#FF3B30" onPress={() => openJobs("DEADLINE_SOON")} />
-            <StatTile label="Saved" value={counts.saved ?? 0} icon="bookmark" color="#FF9500" onPress={() => openJobs("SAVED")} />
-            <StatTile label="Applying" value={counts.applied ?? 0} icon="paper-plane" color="#34C759" onPress={() => router.navigate("/tracker")} />
-            <StatTile label="Unread alerts" value={counts.unread_notifications ?? 0} icon="notifications" color="#AF52DE" onPress={() => router.push("/alerts")} />
+          <View style={{ gap: theme.space.md }}>
+            {(counts.ready ?? 0) > 0 ? <ReadyBanner count={counts.ready ?? 0} onPress={() => openJobs("READY")} /> : null}
+            <View style={[styles.grid, { gap: theme.space.md }]}>
+              <StatTile label="New roles" value={counts.new ?? 0} icon="sparkles" color="#007AFF" onPress={() => openJobs("NEW")} />
+              <StatTile label="High matches" value={counts.high_match ?? 0} icon="star" color="#5856D6" onPress={() => openJobs("HIGH_MATCH")} />
+              <StatTile label="Closing soon" value={counts.deadline_soon ?? 0} icon="time" color="#FF3B30" onPress={() => openJobs("DEADLINE_SOON")} />
+              <StatTile label="Saved" value={counts.saved ?? 0} icon="bookmark" color="#FF9500" onPress={() => openJobs("SAVED")} />
+              <StatTile label="Applying" value={counts.applied ?? 0} icon="paper-plane" color="#34C759" onPress={() => router.navigate("/tracker")} />
+              <StatTile label="Unread alerts" value={counts.unread_notifications ?? 0} icon="notifications" color="#AF52DE" onPress={() => router.push("/alerts")} />
+            </View>
           </View>
         ),
         alerts:
@@ -199,4 +235,5 @@ const styles = StyleSheet.create({
   tile: { flexBasis: "46%", flexGrow: 1, gap: 6 },
   tileTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   tileIcon: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  banner: { flexDirection: "row", alignItems: "center" },
 });

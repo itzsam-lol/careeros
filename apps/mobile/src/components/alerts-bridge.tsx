@@ -12,7 +12,7 @@ import {
   registerPush,
   unregisterPush,
 } from "@/lib/alerts";
-import { openDocument, openEmail, openJob } from "@/lib/nav";
+import { openApplyKit, openDocument, openEmail, openJob, openReadyToApply } from "@/lib/nav";
 import { usePrefs } from "@/lib/prefs";
 import { storage } from "@/lib/storage";
 
@@ -23,7 +23,9 @@ function openTarget(response: Notifications.NotificationResponse | null) {
   const target = alertTarget(response?.notification.request.content.data as Record<string, unknown> | undefined);
   if (!target) return;
   // A notification can open the app from anywhere, so the back button just says "Back".
-  if (target.kind === "email") openEmail(target.id, "Back");
+  if (target.kind === "ready") openReadyToApply();
+  else if (target.kind === "apply") openApplyKit(target.id, "Back");
+  else if (target.kind === "email") openEmail(target.id, "Back");
   else if (target.kind === "document") openDocument(target.id, "Back");
   else openJob(target.id, "Back");
 }

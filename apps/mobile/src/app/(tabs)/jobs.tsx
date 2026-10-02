@@ -13,6 +13,11 @@ import { useTheme } from "@/lib/theme";
 
 export const JOB_VIEWS: { value: JobView; label: string; empty: string }[] = [
   { value: "NEW", label: "New", empty: "Nothing new right now. The agent keeps looking in the background." },
+  {
+    value: "READY",
+    label: "Ready to Apply",
+    empty: "Fresher roles at your dream companies show up here with a tailored résumé and cover letter. Add dream companies in Settings > Job Search.",
+  },
   { value: "HIGH_MATCH", label: "High Match", empty: "No high matches yet. Verifying more of your profile helps." },
   { value: "DEADLINE_SOON", label: "Closing Soon", empty: "No deadlines in the next week." },
   { value: "SAVED", label: "Saved", empty: "Tap the bookmark on any role to keep it here." },

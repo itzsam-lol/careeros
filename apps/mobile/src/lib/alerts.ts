@@ -37,6 +37,7 @@ const MAX_HANDLED = 150;
 
 interface AlertItem {
   id: string;
+  type: string;
   title: string;
   body: string;
   created_at: string;
@@ -71,10 +72,14 @@ async function show(title: string, body: string, data: Record<string, unknown> =
   });
 }
 
+// Same shape as the push payload (notifications/push.py), so taps route the same way.
 const alertData = (alert: AlertItem) => ({
+  type: alert.type,
   jobId: alert.job_id,
   documentId: alert.data?.document_id ?? null,
   outreachId: alert.data?.outreach_id ?? null,
+  applyKit: alert.data?.apply_kit ? "1" : "",
+  view: typeof alert.data?.view === "string" ? alert.data.view : "",
 });
 
 let inFlight: Promise<number> | null = null;
@@ -298,8 +303,13 @@ export async function sendTestAlert(): Promise<"push" | "phone"> {
   return "phone";
 }
 
+export type AlertTarget = { kind: "job" | "document" | "email" | "apply"; id: string } | { kind: "ready" };
+
 /** Where a tapped notification should go. */
-export function alertTarget(data: Record<string, unknown> | undefined): { kind: "job" | "document" | "email"; id: string } | null {
+export function alertTarget(data: Record<string, unknown> | undefined): AlertTarget | null {
+  if (data?.view === "READY") return { kind: "ready" };
+  const readyToApply = data?.type === "APPLICATION_READY" || data?.applyKit === "1";
+  if (readyToApply && typeof data?.jobId === "string" && data.jobId) return { kind: "apply", id: data.jobId };
   if (typeof data?.outreachId === "string" && data.outreachId) return { kind: "email", id: data.outreachId };
   if (typeof data?.documentId === "string" && data.documentId) return { kind: "document", id: data.documentId };
   if (typeof data?.jobId === "string" && data.jobId) return { kind: "job", id: data.jobId };
