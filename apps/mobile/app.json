@@ -21,7 +21,8 @@
         "monochromeImage": "./assets/images/adaptive-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "softwareKeyboardLayoutMode": "resize"
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": ["android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"]
     },
     "web": {
       "output": "single",

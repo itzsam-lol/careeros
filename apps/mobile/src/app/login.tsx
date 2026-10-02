@@ -146,7 +146,7 @@ export default function LoginScreen() {
               ) : mode === "firebase" ? (
                 <Card>
                   <T v="body" color={colors.text2}>
-                    This server uses Google sign-in, which the Android app doesn't support yet. Use the web app instead.
+                    This server uses Google sign-in, which the Android app doesn’t support yet. Use the web app instead.
                   </T>
                 </Card>
               ) : (
@@ -183,7 +183,7 @@ export default function LoginScreen() {
                     </Card>
                   ) : (
                     <T v="body" color={colors.text2} style={{ textAlign: "center" }}>
-                      This is a development server. You'll be signed in as the local developer account.
+                      This is a development server. You’ll be signed in as the local developer account.
                     </T>
                   )}
                   {error ? (

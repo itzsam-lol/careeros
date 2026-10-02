@@ -20,13 +20,22 @@ Make applying to a matched role take two minutes instead of twenty.
 - Highlight portal questions that need a fresh answer (e.g. "Why this company?") and draft one from
   the company insights and verified profile, for the user to edit.
 
-## 2. Email with approval (needs a one-time Google sign-in)
+## 2. Email with approval (done)
 
-- Connect Gmail with the `gmail.send` scope through a Google OAuth client in the CareerOS GCP project.
+- Connect Gmail with an app password (Google Account > Security > App passwords), stored encrypted.
+  An OAuth client in testing mode signs you out every 7 days, and publishing it needs Google's
+  review for the Gmail scopes; an app password needs neither.
 - Outreach drafts (referral request, follow-up, thank-you) get a **Send** button. Each send shows the
   final email and needs a tap to approve. `AUTO_SEND_EMAILS` stays off.
 - Daily sending limit, an audit-log entry per email, and reply detection (`REPLY_RECEIVED` alerts).
-- Needs from you: approve creating the OAuth client and consent screen (free), then sign in once.
+
+## 2b. Instant push alerts (needs a one-time Firebase step)
+
+- The server pushes every alert through Firebase Cloud Messaging as it is created, authenticated
+  with the VM's own service account (no key files). Built and deployed; it switches on once
+  Firebase is added to the CareerOS GCP project and the app is rebuilt with its config.
+- Needs from you: add Firebase to the existing GCP project in the Firebase console (free; it asks
+  you to accept Firebase's terms).
 
 ## 3. More sources
 

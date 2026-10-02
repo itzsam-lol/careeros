@@ -57,7 +57,7 @@ function DraftCard({ draft, jobId }: { draft: Draft; jobId: string }) {
           />
           {limit ? (
             <T v="caption" color={text.length > limit ? colors.danger : colors.text2}>
-              {text.length}/{limit} characters (LinkedIn's limit for connection notes)
+              {text.length}/{limit} characters (LinkedIn’s limit for connection notes)
             </T>
           ) : null}
           <View style={{ flexDirection: "row", gap: 8 }}>

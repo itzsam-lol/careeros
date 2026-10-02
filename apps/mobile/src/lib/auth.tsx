@@ -1,23 +1,16 @@
 import { toApiError } from "@careeros/api-client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import { unregisterPush } from "@/lib/alerts";
+import { DEFAULT_SERVER, SERVER_KEY, SESSION_KEY, type Session } from "@/lib/session";
 import { storage } from "@/lib/storage";
+
+export { DEFAULT_SERVER, type Session };
 
 /**
  * On devices the session lives in the OS keystore (expo-secure-store), never in plain storage.
  * The server URL is configurable so one APK works with any CareerOS deployment.
  */
-const SERVER_KEY = "careeros.server";
-const SESSION_KEY = "careeros.session";
-export const DEFAULT_SERVER = (process.env.EXPO_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
-
-export interface Session {
-  token: string;
-  email: string;
-  name: string | null;
-  expiresAt: number;
-}
-
 type Status = "loading" | "signed-in" | "signed-out";
 
 interface AuthValue {
@@ -118,6 +111,8 @@ export function AuthProvider({ children, onSignOut }: { children: React.ReactNod
   );
 
   const signOut = useCallback(async () => {
+    // Stop pushes to this phone while the session can still authenticate the request.
+    await unregisterPush().catch(() => undefined);
     await storage.remove(SESSION_KEY);
     setSession(null);
     setStatus("signed-out");

@@ -100,7 +100,7 @@ export default function DocumentScreen() {
         <Card>
           <View style={{ gap: theme.space.sm }}>
             <T v="headline" color={colors.danger}>
-              Couldn't generate this document
+              Couldn’t generate this document
             </T>
             <T v="caption" color={colors.text2} selectable numberOfLines={12}>
               {d.error ?? "Unknown error"}
@@ -159,7 +159,7 @@ export default function DocumentScreen() {
               </View>
               {missing.length > 0 ? (
                 <T v="caption" color={colors.text2}>
-                  Gray skills aren't in your verified profile, so they were not added. Nothing on your résumé is invented.
+                  Gray skills aren’t in your verified profile, so they were not added. Nothing on your résumé is invented.
                 </T>
               ) : null}
             </View>

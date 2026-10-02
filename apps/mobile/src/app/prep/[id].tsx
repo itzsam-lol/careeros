@@ -56,12 +56,12 @@ export default function PrepScreen() {
 
           <View style={{ gap: 7 }}>
             <T v="footnote" color={colors.text2} style={styles.header}>
-              What they'll ask about
+              What they’ll ask about
             </T>
             {prep.data.talking_points.length === 0 ? (
               <Card>
                 <T v="subhead" color={colors.text2}>
-                  The posting doesn't list specific skills. Use the stories below.
+                  The posting doesn’t list specific skills. Use the stories below.
                 </T>
               </Card>
             ) : (

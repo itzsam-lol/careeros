@@ -39,7 +39,7 @@ _Last updated: 2026-10-01_
 | Per-source country filter | ✅ | `discovery/service.py` | `test_discovery.py` | Applied before the per-run cap |
 | Dedup, normalisation, closing missing jobs | ✅ | `discovery/` | `test_discovery.py`, `unit/test_normalize.py` | ~100 countries, ATS country codes, numbered levels (SDE I) |
 | JD extraction (heuristic + optional LLM), injection defence | ✅ | `intelligence/` | `unit/test_extraction.py` | — |
-| Matching: eligibility, coverage, scoring, explanations | ✅ | `matching/`, [MATCHING.md](MATCHING.md) | `test_matching.py`, `unit/test_match_rules.py` | Scorer `match-v3`: role type, level fit, implied skills |
+| Matching: eligibility, coverage, scoring, explanations | ✅ | `matching/`, [MATCHING.md](MATCHING.md) | `test_matching.py`, `unit/test_match_rules.py` | Scorer `match-v5`: role type, level fit, implied skills, per-project evidence |
 | Job function from the title (software, data, research, hardware, sales...) | ✅ | `intelligence/functions.py` | `unit/test_match_rules.py` | Roles outside the target functions are scored down |
 | Sponsorship-only countries (e.g. Australia) | ✅ | `matching/eligibility.py`, `matching/service.py` | `test_resumes_api.py` | Ineligible roles there are hidden automatically |
 | Fresher feed: entry-level only, hide unsuitable roles | ✅ | `matching/`, `discovery/service.py` | `test_matching.py` | Experienced titles skipped at discovery; alerts only for first matches |
@@ -65,8 +65,8 @@ _Last updated: 2026-10-01_
 | Application tracking (stages, history, follow-ups, notes) | ✅ | `jobs/router.py`, Tracker tab, web Applications board |
 | Company research | ✅ | `companies/insights.py`: open roles, levels, skills, Wikipedia summary |
 | Contact discovery | 🟡 | LinkedIn people-search links (recruiters, alumni); no scraping |
-| Gmail sending with approval | ⚪ | `AUTO_SEND_EMAILS` stays false |
+| Gmail sending with approval | ✅ | `outreach/`: the user's own Gmail through an app password (stored encrypted); each email is reviewed and sent with a tap, daily limit, reply detection. `AUTO_SEND_EMAILS` stays false |
 | Application automation (Playwright) | ⚪ | `AUTO_SUBMIT_APPLICATIONS` stays false |
-| Phone notifications | ✅ | Background task (~15 min) and 1-minute polling while open; tap opens the job |
+| Phone notifications | ✅ | Push through FCM (`notifications/push.py`, `/devices`) once Firebase is set up, plus a background task (~15 min) and 1-minute checks while open; tap opens the job |
 | Follow-up reminders | ✅ | `FOLLOW_UP_DUE` when a tracked application's follow-up date arrives |
 | Apply kit | ✅ | `resumes/apply_kit.py`, Apply Kit screen: documents, copy-ready answers, why-this-company draft |

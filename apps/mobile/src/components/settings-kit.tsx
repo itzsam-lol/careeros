@@ -126,7 +126,7 @@ export function SavingNote({ saving, error }: { saving: boolean; error?: Error |
   if (error) {
     return (
       <T v="footnote" color={theme.colors.danger} style={{ textAlign: "center" }}>
-        Couldn't save: {error.message}
+        Couldn’t save: {error.message}
       </T>
     );
   }

@@ -1,11 +1,94 @@
+import { useCallback, useEffect, useState } from "react";
+import { Alert, AppState, Linking } from "react-native";
 
 import { Screen } from "@/components/screen";
 import { SavingNote } from "@/components/settings-kit";
 import { Button, Card, EmptyState, Group, Loading, Row, Segmented, StepperRow, SwitchRow } from "@/components/ui";
+import { type AlertHealth, alertHealth, allowBackground, sendTestAlert } from "@/lib/alerts";
 import { useServerSettings, useUpdateServerSettings } from "@/lib/api";
+import { relativeTime } from "@/lib/format";
 import { usePrefs } from "@/lib/prefs";
+import { useTheme } from "@/lib/theme";
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
+
+/** How alerts reach this phone, and what can make them late. */
+function DeliveryGroup() {
+  const theme = useTheme();
+  const [health, setHealth] = useState<AlertHealth | null>(null);
+  const [testing, setTesting] = useState(false);
+  const refresh = useCallback(() => void alertHealth().then(setHealth).catch(() => undefined), []);
+
+  useEffect(() => {
+    refresh();
+    // Picks up the answer to Android's battery prompt when the user comes back.
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") refresh();
+    });
+    return () => subscription.remove();
+  }, [refresh]);
+
+  if (!health) return null;
+  const instant = health.push?.active ?? false;
+  const mode = instant ? "Instant" : health.scheduled ? "About every 15 min" : "Only while open";
+  const sendTest = () => {
+    setTesting(true);
+    sendTestAlert()
+      .then(() => theme.haptic("success"))
+      .catch((error: Error) => Alert.alert("Couldn't send a test notification", error.message))
+      .finally(() => setTesting(false));
+  };
+
+  return (
+    <Group
+      header="Delivery"
+      footer={
+        instant
+          ? "New alerts are pushed to this phone the moment the agent finds them, even when the app is closed."
+          : "This phone checks for new alerts in the background. Android runs the check about every 15 minutes when CareerOS may run in the background, and much less often when it doesn't."
+      }
+    >
+      {health.allowed ? null : (
+        <Row
+          title="Turn On Notifications"
+          subtitle="Notifications are off for CareerOS in Android settings, so alerts can't appear."
+          numberOfLines={2}
+          icon="notifications-off-outline"
+          iconColor={theme.colors.danger}
+          chevron
+          onPress={() => void Linking.openSettings()}
+        />
+      )}
+      <Row title="Alerts arrive" value={mode} />
+      {instant ? null : (
+        <Row
+          title="Last background check"
+          value={health.lastBackgroundCheck ? relativeTime(health.lastBackgroundCheck) : "Not yet"}
+        />
+      )}
+      {health.restricted ? (
+        <Row
+          title="Allow Background Activity"
+          subtitle="Android is pausing CareerOS to save battery, which can delay alerts by hours."
+          numberOfLines={2}
+          icon="battery-half-outline"
+          iconColor={theme.colors.warning}
+          chevron
+          onPress={() => void allowBackground().catch(() => undefined).finally(refresh)}
+        />
+      ) : (
+        <Row title="Background activity" value="Allowed" />
+      )}
+      <Row
+        title={testing ? "Sending…" : "Send Test Notification"}
+        icon="notifications-outline"
+        iconColor="#FF3B30"
+        disabled={testing}
+        onPress={sendTest}
+      />
+    </Group>
+  );
+}
 
 export default function NotificationSettingsScreen() {
   const { prefs, set } = usePrefs();
@@ -62,7 +145,7 @@ export default function NotificationSettingsScreen() {
 
       <Group
         header="On this device"
-        footer="Phone alerts check for new matches in the background (Android allows about every 15 minutes) and every minute while the app is open."
+        footer="New alerts appear as notifications on this phone, and the app checks every minute while it's open."
       >
         <SwitchRow
           title="Phone Notifications"
@@ -91,6 +174,7 @@ export default function NotificationSettingsScreen() {
               />}
         />
       </Group>
+      {prefs.phoneAlerts ? <DeliveryGroup /> : null}
     </Screen>
   );
 }

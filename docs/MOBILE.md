@@ -24,9 +24,18 @@ Today and Settings from the gear on Profile.
 - **Company** (from a job page): open roles CareerOS has found there by country, level and kind of
   work, the skills they ask for most, your matches, a Wikipedia summary, and LinkedIn searches for
   recruiters and alumni.
-- **Phone notifications**: new alerts appear as system notifications, from a background check about
-  every 15 minutes (Android's minimum) and every minute while the app is open. Tapping one opens the
-  job. They can be switched off under Settings > Notifications & Data.
+- **Phone notifications**: new alerts appear as system notifications. Tapping one opens the job.
+  - **Push** (builds made with a `google-services.json`): the server sends each alert through
+    Firebase Cloud Messaging the moment it is created, even when the app is closed.
+  - **Background checks**: an Android background task about every 15 minutes (Android's minimum)
+    and a check every minute while the app is open. They show any alert a push did not deliver, so
+    nothing appears twice. Android delays them for battery-optimised apps, so the app asks once to
+    run in the background.
+  - Settings > Notifications & Data > Delivery shows how alerts arrive, the last background check,
+    whether background activity is allowed or notifications are blocked, and sends a test
+    notification.
+  - The background task is defined in `index.ts`, the app's entry file: Android runs it without
+    opening any screen, so a task defined only in a route or layout would never be found.
 - **Settings**
   - On-device preferences:
     - Appearance: accent, background, card style, corners, text size, bold text, font, density.

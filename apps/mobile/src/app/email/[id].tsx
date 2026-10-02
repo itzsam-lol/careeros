@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, Linking, StyleSheet, TextInput, View } from "react-native";
 
 import { Screen, useRefresh } from "@/components/screen";
@@ -7,6 +7,8 @@ import { Button, Card, Chip, EmptyState, Field, Group, Loading, Row, SwitchRow, 
 import { emailStatus, type OutreachEmail, useCheckReplies, useEmail, useEmailAccount, useEmailActions } from "@/lib/email";
 import { shortDate, useWhen } from "@/lib/format";
 import { useTheme } from "@/lib/theme";
+
+type Draft = Pick<OutreachEmail, "to_address" | "subject" | "body" | "attach_resume"> & { to_name: string };
 
 const KIND_TITLES: Record<string, string> = {
   referral_request: "Referral Request",
@@ -83,14 +85,19 @@ export default function EmailScreen() {
   const account = useEmailAccount();
   const { save, send, remove } = useEmailActions(id);
   const refresh = useRefresh(() => Promise.all([email.refetch(), account.refetch()]));
-  const [draft, setDraft] = useState<{ to_name: string; to_address: string; subject: string; body: string; attach_resume: boolean } | null>(null);
-
-  useEffect(() => {
-    if (email.data && draft === null) {
-      const { to_name, to_address, subject, body, attach_resume } = email.data;
-      setDraft({ to_name: to_name ?? "", to_address, subject, body, attach_resume });
-    }
-  }, [email.data, draft]);
+  // Unsaved edits; until the first one, the form shows the saved email.
+  const [edits, setDraft] = useState<Draft | null>(null);
+  const draft: Draft | null =
+    edits ??
+    (email.data
+      ? {
+          to_name: email.data.to_name ?? "",
+          to_address: email.data.to_address,
+          subject: email.data.subject,
+          body: email.data.body,
+          attach_resume: email.data.attach_resume,
+        }
+      : null);
 
   const data = email.data;
   const editable = data && (data.status === "DRAFT" || data.status === "FAILED");
