@@ -124,7 +124,9 @@ async def request_document(
     job_id: uuid.UUID | None,
     kind: DocumentKind,
     options: DocumentOptions,
+    enqueue_build: bool = True,
 ) -> ResumeDocument:
+    """Create a document; it is built by a GENERATE_RESUME task unless the caller builds it."""
     master = await get_master(session, user.id)
     if kind == DocumentKind.RESUME and master is None:
         raise ValidationFailedError("Upload your LaTeX resume first (Resumes \u2192 Master resume)")
@@ -144,8 +146,9 @@ async def request_document(
     )
     session.add(document)
     await session.flush()
-    await enqueue(session, TaskType.GENERATE_RESUME, {"document_id": str(document.id)}, user_id=user.id,
-                  idempotency_key=f"document:{document.id}")  # fmt: skip
+    if enqueue_build:
+        await enqueue(session, TaskType.GENERATE_RESUME, {"document_id": str(document.id)}, user_id=user.id,
+                      idempotency_key=f"document:{document.id}")  # fmt: skip
     return document
 
 
@@ -205,7 +208,7 @@ def verified_skills(snapshot: ProfileSnapshot) -> list[str]:
 
 
 async def build_document(
-    session: AsyncSession, document_id: uuid.UUID, container: Container
+    session: AsyncSession, document_id: uuid.UUID, container: Container, *, announce: bool = True
 ) -> ResumeDocument:
     document = await session.get(ResumeDocument, document_id)
     if document is None:
@@ -220,7 +223,7 @@ async def build_document(
         document.status = DocumentStatus.FAILED
         document.error = f"{exc.message}\n{exc.details.get('log', '')}".strip()
     await session.flush()
-    if document.status == DocumentStatus.READY:
+    if announce and document.status == DocumentStatus.READY:
         await notify(
             session,
             user_id=document.user_id,

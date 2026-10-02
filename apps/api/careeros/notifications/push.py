@@ -164,6 +164,8 @@ def push_data(notification: Notification) -> dict[str, str]:
         "jobId": str(notification.job_id) if notification.job_id else "",
         "documentId": str(extra.get("document_id") or ""),
         "outreachId": str(extra.get("outreach_id") or notification.outreach_id or ""),
+        "applyKit": "1" if extra.get("apply_kit") else "",
+        "view": str(extra.get("view") or ""),
         "type": notification.type.value,
     }
 

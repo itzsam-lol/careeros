@@ -11,6 +11,7 @@ from careeros.intelligence.extraction import JobExtraction
 from careeros.intelligence.functions import LABELS, title_functions
 from careeros.jobs.models import Job
 from careeros.matching.coverage import CoverageStatus, RequirementCoverage, skills_score
+from careeros.matching.dream import is_dream_company
 from careeros.matching.eligibility import CheckStatus, EligibilityCheck
 from careeros.matching.profile_view import MatchProfile
 from careeros.profile.enums import VerificationStatus
@@ -158,7 +159,7 @@ def preference_score(
             RemotePreference.ONSITE: {RemoteType.ONSITE, RemoteType.HYBRID},
         }[mp.remote_preference]
         signals.append(1.0 if job.remote_type in compatible else 0.3)
-    if job.company.strip().lower() in mp.target_companies:
+    if is_dream_company(job.company, mp.target_companies):
         signals.append(1.0)
     if (
         mp.min_compensation

@@ -8450,7 +8450,8 @@
           "SAVED",
           "DISMISSED",
           "CLOSED",
-          "APPLIED"
+          "APPLIED",
+          "READY"
         ],
         "title": "JobView"
       },

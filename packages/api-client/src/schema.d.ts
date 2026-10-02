@@ -2450,7 +2450,7 @@ export interface components {
          * JobView
          * @enum {string}
          */
-        JobView: "ALL" | "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "DISMISSED" | "CLOSED" | "APPLIED";
+        JobView: "ALL" | "NEW" | "HIGH_MATCH" | "DEADLINE_SOON" | "SAVED" | "DISMISSED" | "CLOSED" | "APPLIED" | "READY";
         /** KitAnswerOut */
         KitAnswerOut: {
             /** Question */

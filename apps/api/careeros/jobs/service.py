@@ -128,6 +128,10 @@ def apply_view(
         return stmt.where(UserJob.status == JobLifecycle.DISMISSED)
     if view == JobView.APPLIED:
         return stmt.where(UserJob.application_stage.is_not(None))
+    if view == JobView.READY:
+        return stmt.where(
+            visible, UserJob.prepared_at.is_not(None), UserJob.application_stage.is_(None)
+        )
     return stmt.where(or_(UserJob.status == JobLifecycle.CLOSED, Job.is_active.is_(False)))
 
 
@@ -265,6 +269,7 @@ async def view_counts(
         JobView.SAVED,
         JobView.ALL,
         JobView.APPLIED,
+        JobView.READY,
     ):
         stmt = apply_view(_base_query(user_id), view, now=now, high_threshold=high_threshold)
         counts[view.value.lower()] = int(

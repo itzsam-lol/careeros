@@ -184,6 +184,10 @@ class UserJob(UUIDPrimaryKey, Timestamped, Base):
     stage_changed_at: Mapped[datetime | None]
     applied_at: Mapped[datetime | None]
     follow_up_at: Mapped[datetime | None]
+    # Dream-company fresher roles: when CareerOS tailored the application kit, and when it told
+    # the user it was ready.
+    prepared_at: Mapped[datetime | None]
+    ready_alerted_at: Mapped[datetime | None]
     stage_history: Mapped[list[dict[str, Any]]] = mapped_column(
         default=list, server_default=text("'[]'::jsonb")
     )

@@ -18,6 +18,7 @@ from careeros.intelligence.extraction import JobExtraction
 from careeros.intelligence.service import job_embedding_text, latest_analysis
 from careeros.jobs.models import Job, JobLifecycle, UserJob
 from careeros.matching.coverage import requirement_coverage
+from careeros.matching.dream import wants_application_kit
 from careeros.matching.eligibility import (
     CheckStatus,
     EligibilityCheck,
@@ -165,8 +166,13 @@ async def match_job(
         summary=f"{label_for(scores.overall, eligible)}: {job.title} at {job.company} ({round(scores.overall * 100)}%)",
         payload={"score": scores.overall, "eligible": eligible},
     )
-    if first_match and not hide_reason:
-        # Alerts are for new openings; re-scoring an old match never notifies again.
+    if (
+        first_match
+        and not hide_reason
+        and not wants_application_kit(job, match, mp.target_companies)
+    ):
+        # Alerts are for new openings; re-scoring an old match never notifies again. Fresher
+        # roles at dream companies are announced once their application kit is ready.
         await _notify(session, user, job, match, settings.matching.high_match_threshold,
                       settings.matching.notify_threshold, settings.notifications.notify_new_jobs)  # fmt: skip
     return match

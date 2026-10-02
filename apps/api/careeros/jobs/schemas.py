@@ -21,6 +21,7 @@ class JobView(StrEnum):
     DISMISSED = "DISMISSED"
     CLOSED = "CLOSED"
     APPLIED = "APPLIED"  # anything with an application stage (the tracker)
+    READY = "READY"  # dream-company roles with a tailored kit, not applied to yet
 
 
 class JobSort(StrEnum):
